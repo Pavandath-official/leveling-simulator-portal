@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { usePlayer } from '@/context/PlayerContext';
 import StatBar from '@/components/StatBar';
@@ -21,60 +22,69 @@ const Index = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
-          <div className="sl-card animate-fade-in">
-            <div className="flex items-center mb-6">
-              <div className="flex items-center justify-center w-14 h-14 rounded-md bg-sl-dark border border-sl-blue text-sl-blue font-bold text-xl mr-5 animate-pulse-glow">
-                {rank}
-              </div>
-              <div>
-                <p className="text-slate-400 text-sm">Hunter Name</p>
-                <h2 className="text-white text-xl font-bold">{name}</h2>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                <User className="text-sl-blue w-5 h-5" />
-                <div>
-                  <p className="text-xs text-slate-400">Level</p>
-                  <p className="text-white font-semibold">{level}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                <Star className="text-yellow-400 w-5 h-5" />
-                <div>
-                  <p className="text-xs text-slate-400">Rank</p>
-                  <p className="text-white font-semibold">{rank}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                <Zap className="text-sl-purple w-5 h-5" />
-                <div>
-                  <p className="text-xs text-slate-400">EXP</p>
-                  <p className="text-white font-semibold">{exp} / {expToNextLevel}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                <Coins className="text-yellow-400 w-5 h-5" />
-                <div>
-                  <p className="text-xs text-slate-400">Gold</p>
-                  <p className="text-white font-semibold">{gold}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <StatBar 
-                name="Experience" 
-                value={exp} 
-                max={expToNextLevel} 
-                color="bg-sl-purple" 
+          <div className="sl-card animate-fade-in relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10 z-0">
+              <img 
+                src="/images/solo-leveling-system.jpg" 
+                alt="System Background" 
+                className="w-full h-full object-cover"
               />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center mb-6">
+                <div className="flex items-center justify-center w-14 h-14 rounded-md bg-sl-dark border border-sl-blue text-sl-blue font-bold text-xl mr-5 animate-pulse-glow">
+                  {rank}
+                </div>
+                <div>
+                  <p className="text-slate-400 text-sm">Hunter Name</p>
+                  <h2 className="text-white text-xl font-bold">{name}</h2>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
+                  <User className="text-sl-blue w-5 h-5" />
+                  <div>
+                    <p className="text-xs text-slate-400">Level</p>
+                    <p className="text-white font-semibold">{level}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
+                  <Star className="text-yellow-400 w-5 h-5" />
+                  <div>
+                    <p className="text-xs text-slate-400">Rank</p>
+                    <p className="text-white font-semibold">{rank}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
+                  <Zap className="text-sl-purple w-5 h-5" />
+                  <div>
+                    <p className="text-xs text-slate-400">EXP</p>
+                    <p className="text-white font-semibold">{exp} / {expToNextLevel}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
+                  <Coins className="text-yellow-400 w-5 h-5" />
+                  <div>
+                    <p className="text-xs text-slate-400">Gold</p>
+                    <p className="text-white font-semibold">{gold}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <StatBar 
+                  name="Experience" 
+                  value={exp} 
+                  max={expToNextLevel} 
+                  color="bg-sl-purple" 
+                />
+              </div>
             </div>
           </div>
 
@@ -170,100 +180,118 @@ const Index = () => {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-          <div className="sl-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <h3 className="text-lg font-bold text-white mb-5 flex items-center">
-              <Shield className="text-sl-blue mr-2 w-5 h-5" />
-              Hunter Statistics
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                {stats.slice(0, 3).map((stat) => (
-                  <div key={stat.name} className="mb-6">
-                    <div className="flex items-center mb-2">
-                      {stat.name === 'Strength' && <Shield className="text-red-500 w-5 h-5 mr-2" />}
-                      {stat.name === 'Agility' && <Zap className="text-green-500 w-5 h-5 mr-2" />}
-                      {stat.name === 'Intelligence' && <Brain className="text-blue-500 w-5 h-5 mr-2" />}
-                      <h4 className="text-white font-medium">{stat.name}</h4>
-                    </div>
-                    <StatBar 
-                      name="" 
-                      value={stat.value} 
-                      max={stat.max} 
-                      color={stat.color} 
-                    />
-                    <p className="text-xs text-slate-400 mt-1">
-                      {stat.name === 'Strength' && 'Affects physical damage and carrying capacity'}
-                      {stat.name === 'Agility' && 'Affects movement speed and attack speed'}
-                      {stat.name === 'Intelligence' && 'Affects magical abilities and skill cooldowns'}
-                    </p>
-                  </div>
-                ))}
-              </div>
+          <div className="sl-card animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.2s' }}>
+            <div className="absolute inset-0 opacity-5 z-0">
+              <img 
+                src="/images/solo-leveling-stats.jpg" 
+                alt="Stats Background" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-lg font-bold text-white mb-5 flex items-center">
+                <Shield className="text-sl-blue mr-2 w-5 h-5" />
+                Hunter Statistics
+              </h3>
               
-              <div>
-                {stats.slice(3).map((stat) => (
-                  <div key={stat.name} className="mb-6">
-                    <div className="flex items-center mb-2">
-                      {stat.name === 'Vitality' && <Heart className="text-yellow-500 w-5 h-5 mr-2" />}
-                      {stat.name === 'Endurance' && <Clock className="text-purple-500 w-5 h-5 mr-2" />}
-                      <h4 className="text-white font-medium">{stat.name}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  {stats.slice(0, 3).map((stat) => (
+                    <div key={stat.name} className="mb-6">
+                      <div className="flex items-center mb-2">
+                        {stat.name === 'Strength' && <Shield className="text-red-500 w-5 h-5 mr-2" />}
+                        {stat.name === 'Agility' && <Zap className="text-green-500 w-5 h-5 mr-2" />}
+                        {stat.name === 'Intelligence' && <Brain className="text-blue-500 w-5 h-5 mr-2" />}
+                        <h4 className="text-white font-medium">{stat.name}</h4>
+                      </div>
+                      <StatBar 
+                        name="" 
+                        value={stat.value} 
+                        max={stat.max} 
+                        color={stat.color} 
+                      />
+                      <p className="text-xs text-slate-400 mt-1">
+                        {stat.name === 'Strength' && 'Affects physical damage and carrying capacity'}
+                        {stat.name === 'Agility' && 'Affects movement speed and attack speed'}
+                        {stat.name === 'Intelligence' && 'Affects magical abilities and skill cooldowns'}
+                      </p>
                     </div>
-                    <StatBar 
-                      name="" 
-                      value={stat.value} 
-                      max={stat.max} 
-                      color={stat.color} 
-                    />
-                    <p className="text-xs text-slate-400 mt-1">
-                      {stat.name === 'Vitality' && 'Affects health points and healing rate'}
-                      {stat.name === 'Endurance' && 'Affects stamina and resistance to debuffs'}
-                    </p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                
+                <div>
+                  {stats.slice(3).map((stat) => (
+                    <div key={stat.name} className="mb-6">
+                      <div className="flex items-center mb-2">
+                        {stat.name === 'Vitality' && <Heart className="text-yellow-500 w-5 h-5 mr-2" />}
+                        {stat.name === 'Endurance' && <Clock className="text-purple-500 w-5 h-5 mr-2" />}
+                        <h4 className="text-white font-medium">{stat.name}</h4>
+                      </div>
+                      <StatBar 
+                        name="" 
+                        value={stat.value} 
+                        max={stat.max} 
+                        color={stat.color} 
+                      />
+                      <p className="text-xs text-slate-400 mt-1">
+                        {stat.name === 'Vitality' && 'Affects health points and healing rate'}
+                        {stat.name === 'Endurance' && 'Affects stamina and resistance to debuffs'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="sl-card animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <h3 className="text-lg font-bold text-white mb-5 flex items-center">
-              <User className="text-sl-blue mr-2 w-5 h-5" />
-              Hunter Overview
-            </h3>
-            
-            <div className="prose prose-sm prose-invert max-w-none">
-              <p>
-                As a newly awakened hunter, you have been granted access to the System Interface. 
-                This interface will help you track your progress, manage your skills, and accept quests.
-              </p>
-              
-              <p>
-                Currently, you are ranked as an <span className="text-sl-blue font-semibold">E-Rank</span> hunter. 
-                Complete quests and gain experience to increase your level and rank.
-              </p>
-              
-              <p>
-                Your stats are balanced, but focusing on specific attributes may unlock specialized 
-                skills and abilities. Visit the Skills page to view your current abilities.
-              </p>
+          <div className="sl-card animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.3s' }}>
+            <div className="absolute inset-0 opacity-5 z-0">
+              <img 
+                src="/images/solo-leveling-hunter.jpg" 
+                alt="Hunter Background" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <a 
-                href="/skills" 
-                className="sl-button group transition-all"
-              >
-                <Zap className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
-                <span>View Skills</span>
-              </a>
+            <div className="relative z-10">
+              <h3 className="text-lg font-bold text-white mb-5 flex items-center">
+                <User className="text-sl-blue mr-2 w-5 h-5" />
+                Hunter Overview
+              </h3>
               
-              <a 
-                href="/quests" 
-                className="sl-button group transition-all"
-              >
-                <Target className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
-                <span>Available Quests</span>
-              </a>
+              <div className="prose prose-sm prose-invert max-w-none">
+                <p>
+                  As a newly awakened hunter, you have been granted access to the System Interface. 
+                  This interface will help you track your progress, manage your skills, and accept quests.
+                </p>
+                
+                <p>
+                  Currently, you are ranked as an <span className="text-sl-blue font-semibold">E-Rank</span> hunter. 
+                  Complete quests and gain experience to increase your level and rank.
+                </p>
+                
+                <p>
+                  Your stats are balanced, but focusing on specific attributes may unlock specialized 
+                  skills and abilities. Visit the Skills page to view your current abilities.
+                </p>
+              </div>
+              
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a 
+                  href="/skills" 
+                  className="sl-button group transition-all"
+                >
+                  <Zap className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
+                  <span>View Skills</span>
+                </a>
+                
+                <a 
+                  href="/quests" 
+                  className="sl-button group transition-all"
+                >
+                  <Target className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
+                  <span>Available Quests</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>
