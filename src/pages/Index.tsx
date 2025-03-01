@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { usePlayer } from '@/context/PlayerContext';
 import StatBar from '@/components/StatBar';
-import { Shield, Zap, Brain, Heart, Clock, User, Star, Coins } from 'lucide-react';
+import { Shield, Zap, Brain, Heart, Clock, User, Star, Coins, Target } from 'lucide-react';
 
 const Index = () => {
   const { name, level, exp, expToNextLevel, stats, rank, gold } = usePlayer();
