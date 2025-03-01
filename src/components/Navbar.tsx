@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Menu, X, User, Zap, BookOpen, Target } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Menu, X, User, Zap, BookOpen, Target, Trophy, LogOut } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { level, rank, name } = usePlayer();
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -16,10 +17,17 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('playerName');
+    navigate('/login');
+    window.location.reload(); // Force reload to update auth state
+  };
+
   const navItems = [
     { to: '/', icon: <User className="w-5 h-5" />, text: 'Status' },
     { to: '/skills', icon: <Zap className="w-5 h-5" />, text: 'Skills' },
     { to: '/quests', icon: <Target className="w-5 h-5" />, text: 'Quests' },
+    { to: '/leaderboard', icon: <Trophy className="w-5 h-5" />, text: 'Leaderboard' },
   ];
 
   return (
@@ -69,6 +77,14 @@ const Navbar = () => {
                 <span className="text-white font-medium">{level}</span>
               </div>
             </div>
+            
+            <button 
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-3 py-2 rounded-md text-slate-300 hover:text-red-400 transition-all duration-300"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="hidden lg:inline">Logout</span>
+            </button>
           </div>
 
           <div className="md:hidden">
@@ -124,6 +140,13 @@ const Navbar = () => {
                 <p className="text-sl-blue text-sm">Level {level}</p>
               </div>
             </div>
+            <button
+              onClick={handleLogout}
+              className="w-full mt-2 flex items-center space-x-3 px-4 py-3 rounded-md text-red-400 hover:bg-sl-dark"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </div>

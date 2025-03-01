@@ -31,6 +31,10 @@ type Quest = {
   };
   completed: boolean;
   progress: number;
+  isDaily?: boolean;
+  lastCompletedAt?: number;
+  exerciseType?: 'strength' | 'cardio' | 'flexibility' | 'endurance';
+  customizable?: boolean;
 };
 
 interface PlayerContextType {
@@ -45,6 +49,9 @@ interface PlayerContextType {
   rank: string;
   gainExp: (amount: number) => void;
   completeQuest: (id: string) => void;
+  resetDailyQuests: () => void;
+  updateQuestDetails: (id: string, title: string, description: string) => void;
+  addCustomQuest: (quest: Omit<Quest, 'id' | 'completed' | 'progress'>) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -61,12 +68,101 @@ interface PlayerProviderProps {
   children: ReactNode;
 }
 
+// Default quests to use when initializing
+const defaultQuests: Omit<Quest, 'completed' | 'progress'>[] = [
+  {
+    id: '1',
+    title: 'The First Hunt',
+    description: 'Complete a basic training session in the guild hall.',
+    difficulty: 'E',
+    rewards: {
+      exp: 50,
+      gold: 100
+    },
+    isDaily: false
+  },
+  {
+    id: '2',
+    title: 'Patrol the Outskirts',
+    description: 'Patrol the outskirts of the city for any signs of monsters.',
+    difficulty: 'E',
+    rewards: {
+      exp: 75,
+      gold: 150
+    },
+    isDaily: false
+  },
+  {
+    id: '3',
+    title: 'Retrieve Lost Artifact',
+    description: 'A valuable artifact has been stolen by goblins. Retrieve it.',
+    difficulty: 'D',
+    rewards: {
+      exp: 120,
+      gold: 250,
+      items: ['Basic Potion']
+    },
+    isDaily: false
+  },
+  // Daily exercise quests
+  {
+    id: 'daily-1',
+    title: 'Morning Training',
+    description: 'Complete 20 push-ups to improve your strength.',
+    difficulty: 'E',
+    rewards: {
+      exp: 30,
+      gold: 50
+    },
+    isDaily: true,
+    exerciseType: 'strength'
+  },
+  {
+    id: 'daily-2',
+    title: 'Cardio Challenge',
+    description: 'Run for 15 minutes to increase your stamina.',
+    difficulty: 'E',
+    rewards: {
+      exp: 40,
+      gold: 60
+    },
+    isDaily: true,
+    exerciseType: 'cardio'
+  },
+  {
+    id: 'daily-3',
+    title: 'Flexibility Training',
+    description: 'Do stretching exercises for 10 minutes to improve flexibility.',
+    difficulty: 'E',
+    rewards: {
+      exp: 25,
+      gold: 40
+    },
+    isDaily: true,
+    exerciseType: 'flexibility'
+  },
+  {
+    id: 'custom-1',
+    title: 'Custom Exercise Quest',
+    description: 'Create your own exercise goal and track it here.',
+    difficulty: 'E',
+    rewards: {
+      exp: 50,
+      gold: 75
+    },
+    isDaily: true,
+    customizable: true
+  }
+];
+
 export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   const [notification, setNotification] = useState<string | null>(null);
   const [level, setLevel] = useState(1);
   const [exp, setExp] = useState(0);
   const [gold, setGold] = useState(500);
-  const [name, setName] = useState('Hunter');
+  const [name, setName] = useState(() => {
+    return localStorage.getItem('playerName') || 'Hunter';
+  });
   const [rank, setRank] = useState('E');
   
   const expToNextLevel = level * 100;
@@ -121,45 +217,82 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     }
   ]);
   
-  const [quests, setQuests] = useState<Quest[]>([
-    {
-      id: '1',
-      title: 'The First Hunt',
-      description: 'Complete a basic training session in the guild hall.',
-      difficulty: 'E',
-      rewards: {
-        exp: 50,
-        gold: 100
-      },
-      completed: false,
-      progress: 0
-    },
-    {
-      id: '2',
-      title: 'Patrol the Outskirts',
-      description: 'Patrol the outskirts of the city for any signs of monsters.',
-      difficulty: 'E',
-      rewards: {
-        exp: 75,
-        gold: 150
-      },
-      completed: false,
-      progress: 0
-    },
-    {
-      id: '3',
-      title: 'Retrieve Lost Artifact',
-      description: 'A valuable artifact has been stolen by goblins. Retrieve it.',
-      difficulty: 'D',
-      rewards: {
-        exp: 120,
-        gold: 250,
-        items: ['Basic Potion']
-      },
-      completed: false,
-      progress: 0
+  // Load quests from localStorage or use defaults
+  const [quests, setQuests] = useState<Quest[]>(() => {
+    const savedQuests = localStorage.getItem('playerQuests');
+    if (savedQuests) {
+      return JSON.parse(savedQuests);
     }
-  ]);
+    
+    // Initialize with default quests
+    return defaultQuests.map(quest => ({
+      ...quest,
+      completed: false,
+      progress: 0
+    }));
+  });
+  
+  // Save quests to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('playerQuests', JSON.stringify(quests));
+  }, [quests]);
+  
+  // Reset daily quests at midnight
+  useEffect(() => {
+    const checkAndResetDailyQuests = () => {
+      const lastReset = localStorage.getItem('lastQuestReset');
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      
+      if (!lastReset || parseInt(lastReset) < today) {
+        resetDailyQuests();
+        localStorage.setItem('lastQuestReset', today.toString());
+      }
+    };
+    
+    // Check on initial load
+    checkAndResetDailyQuests();
+    
+    // Set up interval to check periodically
+    const interval = setInterval(checkAndResetDailyQuests, 60 * 60 * 1000); // Check every hour
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  const resetDailyQuests = () => {
+    setQuests(prevQuests => 
+      prevQuests.map(quest => 
+        quest.isDaily 
+          ? { ...quest, completed: false, progress: 0 }
+          : quest
+      )
+    );
+    setNotification('Daily quests have been reset!');
+    setTimeout(() => setNotification(null), 3000);
+  };
+  
+  const updateQuestDetails = (id: string, title: string, description: string) => {
+    setQuests(prevQuests => 
+      prevQuests.map(quest => 
+        quest.id === id 
+          ? { ...quest, title, description }
+          : quest
+      )
+    );
+  };
+  
+  const addCustomQuest = (quest: Omit<Quest, 'id' | 'completed' | 'progress'>) => {
+    const newQuest: Quest = {
+      ...quest,
+      id: `custom-${Date.now()}`,
+      completed: false,
+      progress: 0
+    };
+    
+    setQuests(prevQuests => [...prevQuests, newQuest]);
+    setNotification('New quest added!');
+    setTimeout(() => setNotification(null), 3000);
+  };
   
   const gainExp = (amount: number) => {
     let newExp = exp + amount;
@@ -186,7 +319,15 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     
     const quest = quests[questIndex];
     const newQuests = [...quests];
-    newQuests[questIndex] = { ...quest, completed: true, progress: 100 };
+    const completionTime = Date.now();
+    
+    newQuests[questIndex] = { 
+      ...quest, 
+      completed: true, 
+      progress: 100,
+      lastCompletedAt: completionTime
+    };
+    
     setQuests(newQuests);
     
     // Award rewards
@@ -222,7 +363,10 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
         name,
         rank,
         gainExp,
-        completeQuest
+        completeQuest,
+        resetDailyQuests,
+        updateQuestDetails,
+        addCustomQuest
       }}
     >
       {notification && (

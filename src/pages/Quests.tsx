@@ -3,9 +3,12 @@ import React, { useState } from 'react';
 import { usePlayer } from '@/context/PlayerContext';
 import { 
   Target, Award, XCircle, Clock, ChevronDown, ChevronUp, 
-  Check, Zap, Coins, Package, ArrowRight 
+  Check, Zap, Coins, Package, ArrowRight, Edit2, PlusCircle,
+  RefreshCw, Dumbbell, Heart
 } from 'lucide-react';
 import StatBar from '@/components/StatBar';
+import CustomQuestForm from '@/components/CustomQuestForm';
+import EditQuestForm from '@/components/EditQuestForm';
 
 const difficultyColors = {
   E: 'text-slate-400',
@@ -25,10 +28,20 @@ const difficultyBorders = {
   S: 'border-red-400'
 };
 
+const exerciseTypeIcons = {
+  strength: <Dumbbell className="w-4 h-4 mr-1" />,
+  cardio: <Heart className="w-4 h-4 mr-1" />,
+  flexibility: <RefreshCw className="w-4 h-4 mr-1" />,
+  endurance: <Clock className="w-4 h-4 mr-1" />
+};
+
 const Quests = () => {
-  const { quests, completeQuest, rank } = usePlayer();
+  const { quests, completeQuest, rank, resetDailyQuests } = usePlayer();
   const [expandedQuest, setExpandedQuest] = useState<string | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<'all' | 'daily' | 'normal'>('all');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingQuest, setEditingQuest] = useState<{id: string, title: string, description: string} | null>(null);
 
   const toggleQuest = (id: string) => {
     if (expandedQuest === id) {
@@ -38,10 +51,43 @@ const Quests = () => {
     }
   };
 
-  const filteredQuests = filter 
-    ? quests.filter(quest => quest.difficulty === filter)
-    : quests;
+  // Get the last reset time from localStorage
+  const getLastResetTime = () => {
+    const lastReset = localStorage.getItem('lastQuestReset');
+    if (!lastReset) return 'Never';
+    
+    const resetDate = new Date(parseInt(lastReset));
+    return resetDate.toLocaleString();
+  };
 
+  // Calculate time until next reset
+  const getTimeUntilReset = () => {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const diffMs = tomorrow.getTime() - now.getTime();
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return `${diffHrs}h ${diffMins}m`;
+  };
+
+  // Handle different filters
+  const applyFilters = (quest: typeof quests[0]) => {
+    // Filter by quest type (daily/normal)
+    const typeFilterMatch = 
+      typeFilter === 'all' ? true :
+      typeFilter === 'daily' ? quest.isDaily === true :
+      quest.isDaily !== true;
+    
+    // Filter by difficulty if set
+    const difficultyFilterMatch = filter === null || quest.difficulty === filter;
+    
+    return typeFilterMatch && difficultyFilterMatch;
+  };
+
+  const filteredQuests = quests.filter(applyFilters);
   const availableQuests = filteredQuests.filter(quest => !quest.completed);
   const completedQuests = filteredQuests.filter(quest => quest.completed);
 
@@ -55,6 +101,11 @@ const Quests = () => {
   };
   
   const availableDifficulties = rankToDifficultyMap[rank] || ['E'];
+
+  // Handle quest editing
+  const handleEditQuest = (id: string, title: string, description: string) => {
+    setEditingQuest({ id, title, description });
+  };
 
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
@@ -80,7 +131,7 @@ const Quests = () => {
               quests up to {rank}-Rank.
             </p>
 
-            <div className="space-y-2">
+            <div className="space-y-2 mb-6">
               <button
                 onClick={() => setFilter(null)}
                 className={`w-full text-left px-4 py-3 rounded-md flex items-center justify-between transition-all duration-200 ${
@@ -89,7 +140,7 @@ const Quests = () => {
                     : 'bg-sl-grey-dark/30 text-slate-300 hover:bg-sl-grey-dark/50'
                 }`}
               >
-                <span>All Quests</span>
+                <span>All Difficulties</span>
                 {filter === null && <Check className="w-4 h-4" />}
               </button>
               
@@ -114,6 +165,55 @@ const Quests = () => {
                 </button>
               ))}
             </div>
+
+            <h3 className="text-lg font-bold text-white mb-3 flex items-center">
+              <Clock className="text-sl-blue mr-2 w-5 h-5" />
+              Quest Types
+            </h3>
+
+            <div className="space-y-2 mb-6">
+              <button
+                onClick={() => setTypeFilter('all')}
+                className={`w-full text-left px-4 py-3 rounded-md flex items-center justify-between transition-all duration-200 ${
+                  typeFilter === 'all' 
+                    ? 'bg-sl-blue text-sl-dark font-medium' 
+                    : 'bg-sl-grey-dark/30 text-slate-300 hover:bg-sl-grey-dark/50'
+                }`}
+              >
+                <span>All Quests</span>
+                {typeFilter === 'all' && <Check className="w-4 h-4" />}
+              </button>
+              
+              <button
+                onClick={() => setTypeFilter('daily')}
+                className={`w-full text-left px-4 py-3 rounded-md flex items-center justify-between transition-all duration-200 ${
+                  typeFilter === 'daily' 
+                    ? 'bg-sl-blue text-sl-dark font-medium' 
+                    : 'bg-sl-grey-dark/30 text-slate-300 hover:bg-sl-grey-dark/50'
+                }`}
+              >
+                <div className="flex items-center">
+                  <RefreshCw className="w-4 h-4 mr-2 text-green-400" />
+                  <span>Daily Quests</span>
+                </div>
+                {typeFilter === 'daily' && <Check className="w-4 h-4" />}
+              </button>
+              
+              <button
+                onClick={() => setTypeFilter('normal')}
+                className={`w-full text-left px-4 py-3 rounded-md flex items-center justify-between transition-all duration-200 ${
+                  typeFilter === 'normal' 
+                    ? 'bg-sl-blue text-sl-dark font-medium' 
+                    : 'bg-sl-grey-dark/30 text-slate-300 hover:bg-sl-grey-dark/50'
+                }`}
+              >
+                <div className="flex items-center">
+                  <Target className="w-4 h-4 mr-2 text-purple-400" />
+                  <span>Story Quests</span>
+                </div>
+                {typeFilter === 'normal' && <Check className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="sl-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -122,7 +222,7 @@ const Quests = () => {
               Quest Status
             </h3>
             
-            <div className="space-y-4">
+            <div className="space-y-4 mb-5">
               <div>
                 <div className="flex justify-between mb-1">
                   <span className="text-sm text-slate-300">Available</span>
@@ -131,7 +231,7 @@ const Quests = () => {
                 <div className="h-2 w-full bg-sl-grey-dark rounded-full overflow-hidden">
                   <div
                     className="h-full bg-sl-blue rounded-full"
-                    style={{ width: `${(availableQuests.length / quests.length) * 100}%` }}
+                    style={{ width: `${(availableQuests.length / filteredQuests.length) * 100}%` }}
                   ></div>
                 </div>
               </div>
@@ -144,7 +244,7 @@ const Quests = () => {
                 <div className="h-2 w-full bg-sl-grey-dark rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500 rounded-full"
-                    style={{ width: `${(completedQuests.length / quests.length) * 100}%` }}
+                    style={{ width: `${(completedQuests.length / filteredQuests.length) * 100}%` }}
                   ></div>
                 </div>
               </div>
@@ -152,14 +252,53 @@ const Quests = () => {
               <div className="pt-2 border-t border-sl-grey-dark">
                 <div className="flex justify-between text-sm text-slate-300 mb-2">
                   <span>Total Quests Completed</span>
-                  <span>{completedQuests.length}</span>
+                  <span>{quests.filter(q => q.completed).length}</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-300">
                   <span>Completion Rate</span>
-                  <span>{Math.round((completedQuests.length / quests.length) * 100)}%</span>
+                  <span>{Math.round((quests.filter(q => q.completed).length / quests.length) * 100)}%</span>
                 </div>
               </div>
             </div>
+
+            <div className="pt-4 border-t border-sl-grey-dark">
+              <h4 className="text-sm font-semibold text-white mb-2">Daily Quest Reset</h4>
+              <div className="text-xs text-slate-400 space-y-1">
+                <div className="flex justify-between">
+                  <span>Last Reset:</span>
+                  <span>{getLastResetTime()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Next Reset:</span>
+                  <span>{getTimeUntilReset()}</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={resetDailyQuests}
+                className="mt-3 w-full flex justify-center items-center py-2 px-4 border border-sl-grey-dark rounded-md text-xs font-medium text-slate-300 hover:bg-sl-grey-dark/50 transition-all duration-200"
+              >
+                <RefreshCw className="mr-1 h-3 w-3" />
+                <span>Manual Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="sl-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <h3 className="text-lg font-bold text-white mb-3 flex items-center">
+              <PlusCircle className="text-sl-blue mr-2 w-5 h-5" />
+              Custom Quests
+            </h3>
+            <p className="text-slate-400 text-sm mb-4">
+              Create your own custom exercise quests to track your fitness goals.
+            </p>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="w-full flex justify-center items-center py-2 px-4 border border-sl-blue rounded-md text-sm font-medium text-sl-blue hover:bg-sl-blue hover:text-sl-dark transition-all duration-200"
+            >
+              <PlusCircle className="mr-1 h-4 w-4" />
+              <span>Create Custom Quest</span>
+            </button>
           </div>
         </div>
 
@@ -188,7 +327,26 @@ const Quests = () => {
                           {quest.difficulty}
                         </div>
                         <div>
-                          <h4 className="font-medium text-white text-lg">{quest.title}</h4>
+                          <div className="flex items-center">
+                            <h4 className="font-medium text-white text-lg">{quest.title}</h4>
+                            {quest.isDaily && (
+                              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400 flex items-center">
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Daily
+                              </span>
+                            )}
+                            {quest.customizable && (
+                              <button 
+                                className="ml-2 text-slate-400 hover:text-sl-blue transition-colors" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditQuest(quest.id, quest.title, quest.description);
+                                }}
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </button>
+                            )}
+                          </div>
                           <div className="flex items-center mt-1 space-x-2">
                             <span className="text-xs bg-sl-dark px-2 py-0.5 rounded text-slate-300 flex items-center">
                               <Zap className="w-3 h-3 mr-1 text-sl-blue" />
@@ -200,10 +358,10 @@ const Quests = () => {
                                 {quest.rewards.gold} Gold
                               </span>
                             )}
-                            {quest.rewards.items && quest.rewards.items.length > 0 && (
+                            {quest.exerciseType && (
                               <span className="text-xs bg-sl-dark px-2 py-0.5 rounded text-slate-300 flex items-center">
-                                <Package className="w-3 h-3 mr-1 text-purple-400" />
-                                {quest.rewards.items.length} {quest.rewards.items.length === 1 ? 'Item' : 'Items'}
+                                {exerciseTypeIcons[quest.exerciseType as keyof typeof exerciseTypeIcons]}
+                                {quest.exerciseType.charAt(0).toUpperCase() + quest.exerciseType.slice(1)}
                               </span>
                             )}
                           </div>
@@ -303,7 +461,15 @@ const Quests = () => {
                           <Check className="w-6 h-6" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-white text-lg">{quest.title}</h4>
+                          <div className="flex items-center">
+                            <h4 className="font-medium text-white text-lg">{quest.title}</h4>
+                            {quest.isDaily && (
+                              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400 flex items-center">
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Daily
+                              </span>
+                            )}
+                          </div>
                           <div className="flex items-center mt-1">
                             <span className="text-xs bg-sl-dark px-2 py-0.5 rounded text-slate-300 flex items-center">
                               <Zap className="w-3 h-3 mr-1 text-sl-blue" />
@@ -364,6 +530,12 @@ const Quests = () => {
                               </div>
                             ))}
                           </div>
+                          
+                          {quest.lastCompletedAt && (
+                            <div className="mt-3 text-xs text-slate-400">
+                              Completed on: {new Date(quest.lastCompletedAt).toLocaleString()}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -384,6 +556,21 @@ const Quests = () => {
           )}
         </div>
       </div>
+
+      {/* Add Custom Quest Form Modal */}
+      {showAddForm && (
+        <CustomQuestForm onClose={() => setShowAddForm(false)} />
+      )}
+
+      {/* Edit Quest Form Modal */}
+      {editingQuest && (
+        <EditQuestForm 
+          questId={editingQuest.id}
+          initialTitle={editingQuest.title}
+          initialDescription={editingQuest.description}
+          onClose={() => setEditingQuest(null)}
+        />
+      )}
     </div>
   );
 };
