@@ -17,7 +17,7 @@ const NotFound = () => {
     <div className="min-h-screen flex items-center justify-center bg-sl-darker px-4">
       <div className="sl-card max-w-md w-full text-center py-12 animate-fade-in">
         <XCircle className="w-20 h-20 text-sl-blue mx-auto mb-6" />
-        <h1 className="text-4xl font-bold mb-3 text-white">404</h1>
+        <h1 className="text-4xl font-bold mb-3 text-white">404 - Page Not Found</h1>
         <div className="inline-block px-3 py-1 rounded-full bg-sl-dark border border-sl-blue/30 text-sl-blue text-sm mb-3">
           System Error
         </div>
