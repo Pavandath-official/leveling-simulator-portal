@@ -18,12 +18,19 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Check if user is logged in by checking if player name exists in localStorage
   useEffect(() => {
     const playerName = localStorage.getItem('playerName');
     setIsLoggedIn(!!playerName);
+    setIsLoading(false);
   }, []);
+
+  // If still loading, show nothing to prevent flicker
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

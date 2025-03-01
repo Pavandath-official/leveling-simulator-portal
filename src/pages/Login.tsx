@@ -28,11 +28,12 @@ const Login = () => {
     if (showAnimation) {
       // Redirect after animation completes
       const timer = setTimeout(() => {
-        navigate('/');
+        // Force a reload of the app to ensure the login state is recognized
+        window.location.href = "/";
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [showAnimation, navigate]);
+  }, [showAnimation]);
 
   if (showAnimation) {
     return (
