@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Login from "./pages/Login";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 import ShadowArmy from "./pages/ShadowArmy";
+import Music from "./pages/Music";
 import LevelUpAnimation from "./components/LevelUpAnimation";
 import RankUpAnimation from "./components/RankUpAnimation";
 import { useState, useEffect } from "react";
@@ -63,6 +63,7 @@ const App = () => {
                   <Route path="/quests" element={isLoggedIn ? <Quests /> : <Navigate to="/login" />} />
                   <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
                   <Route path="/shadow-army" element={isLoggedIn ? <ShadowArmy /> : <Navigate to="/login" />} />
+                  <Route path="/music" element={isLoggedIn ? <Music /> : <Navigate to="/login" />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
