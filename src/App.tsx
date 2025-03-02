@@ -14,7 +14,15 @@ import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 import { useState, useEffect } from "react";
 
-const queryClient = new QueryClient();
+// Configure the Query Client with proper settings
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -36,21 +44,26 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <PlayerProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            {isLoggedIn && <Navbar />}
-            <main className={`${isLoggedIn ? 'flex-1' : 'min-h-screen'}`}>
-              <Routes>
-                <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
-                <Route path="/" element={isLoggedIn ? <Index /> : <Navigate to="/login" />} />
-                <Route path="/skills" element={isLoggedIn ? <Skills /> : <Navigate to="/login" />} />
-                <Route path="/quests" element={isLoggedIn ? <Quests /> : <Navigate to="/login" />} />
-                <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-          </BrowserRouter>
+          <div className="min-h-screen flex flex-col bg-sl-darker relative overflow-hidden">
+            {/* Background pattern */}
+            <div className="fixed inset-0 sl-hex-bg pointer-events-none"></div>
+            
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              {isLoggedIn && <Navbar />}
+              <main className={`${isLoggedIn ? 'flex-1' : 'min-h-screen'} relative z-10`}>
+                <Routes>
+                  <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
+                  <Route path="/" element={isLoggedIn ? <Index /> : <Navigate to="/login" />} />
+                  <Route path="/skills" element={isLoggedIn ? <Skills /> : <Navigate to="/login" />} />
+                  <Route path="/quests" element={isLoggedIn ? <Quests /> : <Navigate to="/login" />} />
+                  <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+            </BrowserRouter>
+          </div>
         </TooltipProvider>
       </PlayerProvider>
     </QueryClientProvider>
