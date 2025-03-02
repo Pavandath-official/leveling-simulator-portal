@@ -12,6 +12,9 @@ import Quests from "./pages/Quests";
 import Login from "./pages/Login";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
+import ShadowArmy from "./pages/ShadowArmy";
+import LevelUpAnimation from "./components/LevelUpAnimation";
+import RankUpAnimation from "./components/RankUpAnimation";
 import { useState, useEffect } from "react";
 
 // Configure the Query Client with proper settings
@@ -59,9 +62,13 @@ const App = () => {
                   <Route path="/skills" element={isLoggedIn ? <Skills /> : <Navigate to="/login" />} />
                   <Route path="/quests" element={isLoggedIn ? <Quests /> : <Navigate to="/login" />} />
                   <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
+                  <Route path="/shadow-army" element={isLoggedIn ? <ShadowArmy /> : <Navigate to="/login" />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
+              {/* Level up and rank up animations */}
+              <LevelUpAnimation />
+              <RankUpAnimation />
             </BrowserRouter>
           </div>
         </TooltipProvider>

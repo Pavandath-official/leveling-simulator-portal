@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useToast } from "@/hooks/use-toast";
 
 type Stat = {
   name: string;
@@ -37,6 +37,16 @@ type Quest = {
   customizable?: boolean;
 };
 
+type Shadow = {
+  id: string;
+  name: string;
+  level: number;
+  type: string;
+  power: number;
+  arisen: boolean;
+  image: string;
+};
+
 interface PlayerContextType {
   level: number;
   exp: number;
@@ -47,11 +57,17 @@ interface PlayerContextType {
   gold: number;
   name: string;
   rank: string;
+  shadows: Shadow[];
+  showLevelUpAnimation: boolean;
+  showRankUpAnimation: boolean;
   gainExp: (amount: number) => void;
   completeQuest: (id: string) => void;
   resetDailyQuests: () => void;
   updateQuestDetails: (id: string, title: string, description: string) => void;
   addCustomQuest: (quest: Omit<Quest, 'id' | 'completed' | 'progress'>) => void;
+  extractShadow: (type: string) => void;
+  ariseShadow: (id: string) => void;
+  dismissAnimations: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -156,6 +172,7 @@ const defaultQuests: Omit<Quest, 'completed' | 'progress'>[] = [
 ];
 
 export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
+  const { toast } = useToast();
   const [notification, setNotification] = useState<string | null>(null);
   const [level, setLevel] = useState(1);
   const [exp, setExp] = useState(0);
@@ -164,6 +181,13 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     return localStorage.getItem('playerName') || 'Hunter';
   });
   const [rank, setRank] = useState('E');
+  const [shadows, setShadows] = useState<Shadow[]>(() => {
+    const savedShadows = localStorage.getItem('shadows');
+    return savedShadows ? JSON.parse(savedShadows) : [];
+  });
+  const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false);
+  const [showRankUpAnimation, setShowRankUpAnimation] = useState(false);
+  const [previousRank, setPreviousRank] = useState(rank);
   
   const expToNextLevel = level * 100;
   
@@ -217,14 +241,12 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     }
   ]);
   
-  // Load quests from localStorage or use defaults
   const [quests, setQuests] = useState<Quest[]>(() => {
     const savedQuests = localStorage.getItem('playerQuests');
     if (savedQuests) {
       return JSON.parse(savedQuests);
     }
     
-    // Initialize with default quests
     return defaultQuests.map(quest => ({
       ...quest,
       completed: false,
@@ -232,12 +254,10 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     }));
   });
   
-  // Save quests to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('playerQuests', JSON.stringify(quests));
   }, [quests]);
   
-  // Reset daily quests at midnight
   useEffect(() => {
     const checkAndResetDailyQuests = () => {
       const lastReset = localStorage.getItem('lastQuestReset');
@@ -250,11 +270,9 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
       }
     };
     
-    // Check on initial load
     checkAndResetDailyQuests();
     
-    // Set up interval to check periodically
-    const interval = setInterval(checkAndResetDailyQuests, 60 * 60 * 1000); // Check every hour
+    const interval = setInterval(checkAndResetDailyQuests, 60 * 60 * 1000);
     
     return () => clearInterval(interval);
   }, []);
@@ -294,22 +312,82 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     setTimeout(() => setNotification(null), 3000);
   };
   
+  const extractShadow = (type: string) => {
+    const powerBase = Math.floor(Math.random() * 10) + 1;
+    const power = powerBase + Math.floor(level / 2);
+    
+    const shadowNames = [
+      "Grímr", "Skuggr", "Nóttr", "Dökk", "Myrkr", "Svartir", 
+      "Tánios", "Erebus", "Umbra", "Tenebris", "Nyx", "Skia"
+    ];
+    const randomNameIndex = Math.floor(Math.random() * shadowNames.length);
+    const shadowName = `${shadowNames[randomNameIndex]} the ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+    
+    const newShadow: Shadow = {
+      id: `shadow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: shadowName,
+      level: Math.max(1, Math.floor(level / 2)),
+      type,
+      power,
+      arisen: false,
+      image: type.toLowerCase(),
+    };
+    
+    setShadows(prev => [...prev, newShadow]);
+    
+    toast({
+      title: "Shadow Extracted!",
+      description: `You have extracted ${shadowName} from the defeated enemy.`,
+      variant: "default",
+    });
+  };
+  
+  const ariseShadow = (id: string) => {
+    setShadows(prev => 
+      prev.map(shadow => 
+        shadow.id === id 
+          ? { ...shadow, arisen: true, power: shadow.power + 5 }
+          : shadow
+      )
+    );
+    
+    const arisenShadow = shadows.find(s => s.id === id);
+    
+    if (arisenShadow) {
+      toast({
+        title: "ARISE!",
+        description: `${arisenShadow.name} has joined your shadow army!`,
+        variant: "destructive",
+      });
+    }
+  };
+  
   const gainExp = (amount: number) => {
     let newExp = exp + amount;
     let newLevel = level;
+    let leveledUp = false;
     
     while (newExp >= expToNextLevel) {
       newExp -= expToNextLevel;
       newLevel++;
-      setNotification(`Level Up! You are now level ${newLevel}`);
+      leveledUp = true;
       
-      // Automatically dismiss notification after 3 seconds
-      setTimeout(() => setNotification(null), 3000);
+      if (Math.random() < 0.7) {
+        const shadowTypes = ["soldier", "knight", "mage", "beast", "assassin"];
+        const randomType = shadowTypes[Math.floor(Math.random() * shadowTypes.length)];
+        setTimeout(() => extractShadow(randomType), 1500);
+      }
     }
     
     setExp(newExp);
+    
     if (newLevel !== level) {
       setLevel(newLevel);
+      setShowLevelUpAnimation(true);
+      
+      setTimeout(() => {
+        setShowLevelUpAnimation(false);
+      }, 3000);
     }
   };
   
@@ -330,7 +408,6 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     
     setQuests(newQuests);
     
-    // Award rewards
     gainExp(quest.rewards.exp);
     if (quest.rewards.gold) {
       setGold(prevGold => prevGold + quest.rewards.gold!);
@@ -340,15 +417,34 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     setTimeout(() => setNotification(null), 3000);
   };
   
-  // Rank up based on level
   useEffect(() => {
-    if (level >= 25) setRank('S');
-    else if (level >= 20) setRank('A');
-    else if (level >= 15) setRank('B');
-    else if (level >= 10) setRank('C');
-    else if (level >= 5) setRank('D');
-    else setRank('E');
-  }, [level]);
+    const newRank = level >= 25 ? 'S' : 
+                  level >= 20 ? 'A' : 
+                  level >= 15 ? 'B' : 
+                  level >= 10 ? 'C' : 
+                  level >= 5 ? 'D' : 'E';
+    
+    if (newRank !== rank) {
+      setPreviousRank(rank);
+      setRank(newRank);
+      setShowRankUpAnimation(true);
+      
+      toast({
+        title: "Rank Up!",
+        description: `You have been promoted from ${rank} to ${newRank} rank!`,
+        variant: "default",
+      });
+      
+      setTimeout(() => {
+        setShowRankUpAnimation(false);
+      }, 4000);
+    }
+  }, [level, rank]);
+  
+  const dismissAnimations = () => {
+    setShowLevelUpAnimation(false);
+    setShowRankUpAnimation(false);
+  };
   
   return (
     <PlayerContext.Provider
@@ -362,11 +458,17 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
         gold,
         name,
         rank,
+        shadows,
+        showLevelUpAnimation,
+        showRankUpAnimation,
         gainExp,
         completeQuest,
         resetDailyQuests,
         updateQuestDetails,
-        addCustomQuest
+        addCustomQuest,
+        extractShadow,
+        ariseShadow,
+        dismissAnimations
       }}
     >
       {notification && (
