@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,7 +26,7 @@
     --ring: 0 72% 51%;
     --radius: 0.5rem;
 
-    // Sidebar colors
+    /* Sidebar colors */
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 80%;
     --sidebar-primary: 0 0% 98%;
@@ -57,7 +58,7 @@
     --input: 0 0% 14%;
     --ring: 0 72% 51%;
 
-    // Sidebar colors
+    /* Sidebar colors */
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 80%;
     --sidebar-primary: 0 0% 98%;
