@@ -1,15 +1,16 @@
-
 import React, { useState } from 'react';
 import { usePlayer } from '@/context/PlayerContext';
-import { Ghost, Shield, Sword, Wand2, User, ArrowRight, Sparkles } from 'lucide-react';
+import { Ghost, Shield, Sword, Wand2, User, ArrowRight, Sparkles, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from '@/hooks/use-toast';
+import { Button } from "@/components/ui/button";
 
 const ShadowArmy = () => {
-  const { shadows, ariseShadow } = usePlayer();
+  const { shadows, ariseShadow, extractShadow } = usePlayer();
   const [selectedShadow, setSelectedShadow] = useState<string | null>(null);
   const [showAriseAnimation, setShowAriseAnimation] = useState(false);
   const [shadowToArise, setShadowToArise] = useState<string | null>(null);
+  const [showExtractDialog, setShowExtractDialog] = useState(false);
 
   const ariseCommand = (id: string) => {
     setShadowToArise(id);
@@ -38,6 +39,11 @@ const ShadowArmy = () => {
     }
   };
 
+  const handleManualExtraction = (type: string) => {
+    extractShadow(type);
+    setShowExtractDialog(false);
+  };
+
   // Group shadows by arisen status
   const arisenShadows = shadows.filter(shadow => shadow.arisen);
   const unarisen = shadows.filter(shadow => !shadow.arisen);
@@ -52,7 +58,67 @@ const ShadowArmy = () => {
         <p className="text-slate-400 max-w-2xl mx-auto">
           Manage your shadow army. Extract shadows from defeated enemies and command them with the power of necromancy.
         </p>
+        
+        {/* Manual Extraction Button */}
+        <Button 
+          variant="outline" 
+          onClick={() => setShowExtractDialog(true)} 
+          className="mt-4 border-sl-purple/50 text-sl-purple hover:bg-sl-purple/10 hover:text-sl-purple-light"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Extract Shadow (Test)
+        </Button>
       </div>
+
+      {/* Manual Extract Dialog */}
+      <AnimatePresence>
+        {showExtractDialog && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowExtractDialog(false)}
+          >
+            <motion.div 
+              className="bg-sl-dark border border-sl-grey-dark/50 rounded-lg p-6 max-w-md w-full"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                <Ghost className="text-sl-purple mr-2" />
+                Extract Shadow
+              </h3>
+              <p className="text-slate-300 mb-6">
+                Select a shadow type to extract. In the real game, shadows would be extracted automatically when leveling up.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {["soldier", "knight", "mage", "beast", "assassin"].map(type => (
+                  <Button 
+                    key={type}
+                    variant="outline"
+                    className="flex items-center justify-start border-sl-grey-dark/50 hover:border-sl-purple/50 hover:bg-sl-purple/10"
+                    onClick={() => handleManualExtraction(type)}
+                  >
+                    {getShadowIcon(type)}
+                    <span className="ml-2 capitalize">{type}</span>
+                  </Button>
+                ))}
+              </div>
+              
+              <Button 
+                className="w-full mt-4 bg-sl-dark border border-sl-grey-dark text-sl-grey hover:border-sl-grey-dark/80"
+                onClick={() => setShowExtractDialog(false)}
+              >
+                Cancel
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Arise Animation */}
       <AnimatePresence>
