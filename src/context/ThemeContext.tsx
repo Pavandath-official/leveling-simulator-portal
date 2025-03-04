@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Theme = 'dark' | 'light';
@@ -43,6 +44,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     } else {
       document.documentElement.classList.remove('dark');
     }
+    
+    // Add a transition effect for smooth theme changes
+    document.documentElement.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+    
+    // Log to make sure the theme is being toggled
+    console.log('Theme changed to:', theme);
   }, [theme]);
 
   const toggleTheme = () => {

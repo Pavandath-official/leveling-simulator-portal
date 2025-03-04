@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Menu, X, User, Zap, BookOpen, Target, Trophy, LogOut, Ghost, Music, MessageSquare } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import ThemeToggle from './ThemeToggle';
+import { GlowPulse } from './VisualEffects';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,8 +42,10 @@ const Navbar = () => {
           <NavLink to="/" className="flex items-center space-x-2" onClick={closeMenu}>
             <BookOpen className="text-sl-blue w-6 h-6" />
             <div>
-              <span className="font-bold text-xl text-white">System</span>
-              <span className="text-sl-blue">Interface</span>
+              <GlowPulse>
+                <span className="font-bold text-xl text-white">System</span>
+                <span className="text-sl-blue">Interface</span>
+              </GlowPulse>
             </div>
           </NavLink>
 
