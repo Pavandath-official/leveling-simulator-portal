@@ -60,6 +60,8 @@ interface PlayerContextType {
   shadows: Shadow[];
   showLevelUpAnimation: boolean;
   showRankUpAnimation: boolean;
+  showExtractionAnimation: boolean;
+  shadowTypeToExtract: string | null;
   gainExp: (amount: number) => void;
   completeQuest: (id: string) => void;
   resetDailyQuests: () => void;
@@ -68,6 +70,7 @@ interface PlayerContextType {
   extractShadow: (type: string) => void;
   ariseShadow: (id: string) => void;
   dismissAnimations: () => void;
+  onExtractionComplete: () => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -188,6 +191,9 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false);
   const [showRankUpAnimation, setShowRankUpAnimation] = useState(false);
   const [previousRank, setPreviousRank] = useState(rank);
+  
+  const [showExtractionAnimation, setShowExtractionAnimation] = useState(false);
+  const [shadowTypeToExtract, setShadowTypeToExtract] = useState<string | null>(null);
   
   const expToNextLevel = level * 100;
   
@@ -313,6 +319,16 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   };
   
   const extractShadow = (type: string) => {
+    setShadowTypeToExtract(type);
+    setShowExtractionAnimation(true);
+    
+    // The actual extraction logic will be called when the animation completes
+    // This is handled in the onExtractionComplete callback
+  };
+  
+  const onExtractionComplete = () => {
+    if (!shadowTypeToExtract) return;
+    
     const powerBase = Math.floor(Math.random() * 10) + 1;
     const power = powerBase + Math.floor(level / 2);
     
@@ -321,19 +337,21 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
       "Tánios", "Erebus", "Umbra", "Tenebris", "Nyx", "Skia"
     ];
     const randomNameIndex = Math.floor(Math.random() * shadowNames.length);
-    const shadowName = `${shadowNames[randomNameIndex]} the ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+    const shadowName = `${shadowNames[randomNameIndex]} the ${shadowTypeToExtract.charAt(0).toUpperCase() + shadowTypeToExtract.slice(1)}`;
     
     const newShadow: Shadow = {
       id: `shadow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name: shadowName,
       level: Math.max(1, Math.floor(level / 2)),
-      type,
+      type: shadowTypeToExtract,
       power,
       arisen: false,
-      image: type.toLowerCase(),
+      image: shadowTypeToExtract.toLowerCase(),
     };
     
     setShadows(prev => [...prev, newShadow]);
+    setShowExtractionAnimation(false);
+    setShadowTypeToExtract(null);
     
     toast({
       title: "Shadow Extracted!",
@@ -444,6 +462,7 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   const dismissAnimations = () => {
     setShowLevelUpAnimation(false);
     setShowRankUpAnimation(false);
+    setShowExtractionAnimation(false);
   };
   
   return (
@@ -461,6 +480,8 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
         shadows,
         showLevelUpAnimation,
         showRankUpAnimation,
+        showExtractionAnimation,
+        shadowTypeToExtract,
         gainExp,
         completeQuest,
         resetDailyQuests,
@@ -468,7 +489,8 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
         addCustomQuest,
         extractShadow,
         ariseShadow,
-        dismissAnimations
+        dismissAnimations,
+        onExtractionComplete
       }}
     >
       {notification && (

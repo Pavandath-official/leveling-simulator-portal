@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Menu, X, User, Zap, BookOpen, Target, Trophy, LogOut, Ghost, Music } from 'lucide-react';
+import { Menu, X, User, Zap, BookOpen, Target, Trophy, LogOut, Ghost, Music, MessageSquare } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 
 const Navbar = () => {
@@ -29,6 +29,7 @@ const Navbar = () => {
     { to: '/quests', icon: <Target className="w-5 h-5" />, text: 'Quests' },
     { to: '/shadow-army', icon: <Ghost className="w-5 h-5" />, text: 'Shadows' },
     { to: '/music', icon: <Music className="w-5 h-5" />, text: 'Music' },
+    { to: '/chat', icon: <MessageSquare className="w-5 h-5" />, text: 'Chat' },
     { to: '/leaderboard', icon: <Trophy className="w-5 h-5" />, text: 'Leaderboard' },
   ];
 

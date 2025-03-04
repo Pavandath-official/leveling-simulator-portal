@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,9 +14,12 @@ import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 import ShadowArmy from "./pages/ShadowArmy";
 import Music from "./pages/Music";
+import Chat from "./pages/Chat";
 import LevelUpAnimation from "./components/LevelUpAnimation";
 import RankUpAnimation from "./components/RankUpAnimation";
+import ShadowExtractionAnimation from "./components/ShadowExtractionAnimation";
 import { useState, useEffect } from "react";
+import { usePlayer } from "@/context/PlayerContext";
 
 // Configure the Query Client with proper settings
 const queryClient = new QueryClient({
@@ -26,6 +30,31 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Create a separate animation component to avoid context issues
+const AnimationsContainer = () => {
+  const { 
+    showLevelUpAnimation, 
+    showRankUpAnimation, 
+    showExtractionAnimation, 
+    shadowTypeToExtract,
+    onExtractionComplete,
+    dismissAnimations 
+  } = usePlayer();
+  
+  return (
+    <>
+      {showLevelUpAnimation && <LevelUpAnimation />}
+      {showRankUpAnimation && <RankUpAnimation />}
+      {showExtractionAnimation && shadowTypeToExtract && (
+        <ShadowExtractionAnimation 
+          shadowType={shadowTypeToExtract} 
+          onComplete={onExtractionComplete} 
+        />
+      )}
+    </>
+  );
+};
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -64,12 +93,12 @@ const App = () => {
                   <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
                   <Route path="/shadow-army" element={isLoggedIn ? <ShadowArmy /> : <Navigate to="/login" />} />
                   <Route path="/music" element={isLoggedIn ? <Music /> : <Navigate to="/login" />} />
+                  <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/login" />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
-              {/* Level up and rank up animations */}
-              <LevelUpAnimation />
-              <RankUpAnimation />
+              {/* Animations */}
+              <AnimationsContainer />
             </BrowserRouter>
           </div>
         </TooltipProvider>
