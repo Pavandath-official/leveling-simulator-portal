@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Menu, X, User, Zap, BookOpen, Target, Trophy, LogOut, Ghost, Music, MessageSquare } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +35,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-sl-dark border-b border-sl-grey-dark">
+    <nav className="bg-sl-dark dark:bg-sl-darker border-b border-sl-grey-dark">
       <div className="sl-container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <NavLink to="/" className="flex items-center space-x-2" onClick={closeMenu}>
@@ -65,7 +66,9 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-3 px-4 py-2 rounded bg-sl-dark border border-sl-grey-dark">
+            <ThemeToggle />
+            
+            <div className="flex items-center space-x-3 px-4 py-2 rounded bg-sl-dark dark:bg-sl-grey-dark/20 border border-sl-grey-dark/30">
               <div className="text-right">
                 <p className="text-slate-400 text-sm">Hunter</p>
                 <p className="text-white font-medium">{name}</p>
@@ -90,7 +93,8 @@ const Navbar = () => {
             </button>
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-3">
+            <ThemeToggle />
             <button
               onClick={toggleMenu}
               className="flex items-center justify-center p-2 rounded-md text-slate-300 hover:text-white focus:outline-none"
@@ -109,7 +113,7 @@ const Navbar = () => {
       <div
         className={`md:hidden ${
           isOpen ? 'block' : 'hidden'
-        } bg-sl-grey-dark bg-opacity-95 border-b border-sl-grey-dark animate-fade-in`}
+        } bg-sl-grey-dark dark:bg-sl-darker bg-opacity-95 border-b border-sl-grey-dark animate-fade-in`}
       >
         <div className="px-4 py-3 space-y-1">
           {navItems.map((item) => (
@@ -119,8 +123,8 @@ const Navbar = () => {
               className={({ isActive }) =>
                 `flex items-center space-x-3 px-4 py-3 rounded-md ${
                   isActive
-                    ? 'text-sl-blue bg-sl-dark sl-border-glow'
-                    : 'text-slate-300 hover:bg-sl-dark hover:text-sl-blue'
+                    ? 'text-sl-blue bg-sl-dark dark:bg-sl-grey-dark/30 sl-border-glow'
+                    : 'text-slate-300 hover:bg-sl-dark dark:hover:bg-sl-grey-dark/20 hover:text-sl-blue'
                 }`
               }
               onClick={closeMenu}
@@ -145,7 +149,7 @@ const Navbar = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="w-full mt-2 flex items-center space-x-3 px-4 py-3 rounded-md text-red-400 hover:bg-sl-dark"
+              className="w-full mt-2 flex items-center space-x-3 px-4 py-3 rounded-md text-red-400 hover:bg-sl-dark dark:hover:bg-sl-grey-dark/20"
             >
               <LogOut className="w-5 h-5" />
               <span>Logout</span>

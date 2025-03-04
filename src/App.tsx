@@ -1,10 +1,10 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PlayerProvider } from "@/context/PlayerContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import Navbar from "@/components/Navbar";
 import Index from "./pages/Index";
 import Skills from "./pages/Skills";
@@ -74,35 +74,37 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PlayerProvider>
-        <TooltipProvider>
-          <div className="min-h-screen flex flex-col bg-sl-darker relative overflow-hidden">
-            {/* Background pattern */}
-            <div className="fixed inset-0 sl-hex-bg pointer-events-none"></div>
-            
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              {isLoggedIn && <Navbar />}
-              <main className={`${isLoggedIn ? 'flex-1' : 'min-h-screen'} relative z-10`}>
-                <Routes>
-                  <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
-                  <Route path="/" element={isLoggedIn ? <Index /> : <Navigate to="/login" />} />
-                  <Route path="/skills" element={isLoggedIn ? <Skills /> : <Navigate to="/login" />} />
-                  <Route path="/quests" element={isLoggedIn ? <Quests /> : <Navigate to="/login" />} />
-                  <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
-                  <Route path="/shadow-army" element={isLoggedIn ? <ShadowArmy /> : <Navigate to="/login" />} />
-                  <Route path="/music" element={isLoggedIn ? <Music /> : <Navigate to="/login" />} />
-                  <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/login" />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-              {/* Animations */}
-              <AnimationsContainer />
-            </BrowserRouter>
-          </div>
-        </TooltipProvider>
-      </PlayerProvider>
+      <ThemeProvider>
+        <PlayerProvider>
+          <TooltipProvider>
+            <div className="min-h-screen flex flex-col bg-sl-darker relative overflow-hidden">
+              {/* Background pattern */}
+              <div className="fixed inset-0 sl-hex-bg pointer-events-none"></div>
+              
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                {isLoggedIn && <Navbar />}
+                <main className={`${isLoggedIn ? 'flex-1' : 'min-h-screen'} relative z-10`}>
+                  <Routes>
+                    <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
+                    <Route path="/" element={isLoggedIn ? <Index /> : <Navigate to="/login" />} />
+                    <Route path="/skills" element={isLoggedIn ? <Skills /> : <Navigate to="/login" />} />
+                    <Route path="/quests" element={isLoggedIn ? <Quests /> : <Navigate to="/login" />} />
+                    <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
+                    <Route path="/shadow-army" element={isLoggedIn ? <ShadowArmy /> : <Navigate to="/login" />} />
+                    <Route path="/music" element={isLoggedIn ? <Music /> : <Navigate to="/login" />} />
+                    <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/login" />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                {/* Animations */}
+                <AnimationsContainer />
+              </BrowserRouter>
+            </div>
+          </TooltipProvider>
+        </PlayerProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

@@ -5,36 +5,37 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 0 0% 14%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 98%;
+    /* Light mode variables */
+    --background: 240 30% 98%;
+    --foreground: 230 20% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 230 20% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 20% 20%;
+    --primary: 220 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 90%;
+    --secondary-foreground: 230 20% 20%;
+    --muted: 220 20% 95%;
+    --muted-foreground: 220 10% 40%;
+    --accent: 220 30% 90%;
+    --accent-foreground: 230 20% 20%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 0 72% 51%;
+    --border: 220 20% 85%;
+    --input: 220 20% 85%;
+    --ring: 220 80% 50%;
     --radius: 0.5rem;
 
-    /* Sidebar colors */
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 14%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 0 72% 51%;
+    /* Sidebar colors - light mode */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 230 20% 20%;
+    --sidebar-primary: 220 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 30% 90%;
+    --sidebar-accent-foreground: 230 20% 20%;
+    --sidebar-border: 220 20% 85%;
+    --sidebar-ring: 220 80% 50%;
   }
 
   .dark {
@@ -58,7 +59,7 @@
     --input: 0 0% 14%;
     --ring: 0 72% 51%;
 
-    /* Sidebar colors */
+    /* Sidebar colors - dark mode */
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 80%;
     --sidebar-primary: 0 0% 98%;
@@ -76,11 +77,11 @@
   }
   
   .sl-heading {
-    @apply text-4xl md:text-5xl font-bold text-white font-orbitron;
+    @apply text-4xl md:text-5xl font-bold text-white dark:text-white font-orbitron;
   }
   
   .sl-card {
-    @apply bg-sl-grey-dark/10 backdrop-blur-sm border border-sl-grey-dark/30 p-6 rounded-lg;
+    @apply bg-white/80 dark:bg-sl-grey-dark/10 backdrop-blur-sm border border-light-border dark:border-sl-grey-dark/30 p-6 rounded-lg shadow-sm dark:shadow-none;
   }
   
   .sl-page-transition {
@@ -93,20 +94,20 @@
   
   /* Shadow Army specific styles */
   .shadow-card {
-    @apply relative overflow-hidden border border-sl-grey-dark rounded-lg transition-all duration-300;
+    @apply relative overflow-hidden border border-light-border dark:border-sl-grey-dark rounded-lg transition-all duration-300;
   }
   
   .shadow-card:hover {
-    @apply border-sl-purple/50;
+    @apply border-sl-blue/50 dark:border-sl-purple/50;
   }
   
   .shadow-card-arisen {
-    @apply border-sl-purple/30 bg-sl-purple/5;
+    @apply border-sl-blue/30 bg-sl-blue/5 dark:border-sl-purple/30 dark:bg-sl-purple/5;
   }
   
   .shadow-card-arisen::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-sl-purple/10 to-transparent pointer-events-none;
+    @apply absolute inset-0 bg-gradient-to-br from-sl-blue/10 dark:from-sl-purple/10 to-transparent pointer-events-none;
   }
   
   /* Animations */
@@ -183,6 +184,27 @@
   }
   
   .sl-hex-bg {
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30 L15 7.5 L45 7.5 L60 30 L45 52.5 L15 52.5 Z' fill='none' stroke='rgba(123, 180, 255, 0.05)' stroke-width='1'/%3E%3C/svg%3E");
+    @apply dark:bg-sl-hex-pattern bg-none;
+  }
+  
+  /* Light/Dark mode utilities */
+  .light-shadow {
+    @apply shadow-md dark:shadow-none;
+  }
+  
+  .border-theme {
+    @apply border-light-border dark:border-sl-grey-dark;
+  }
+  
+  .text-theme {
+    @apply text-light-text dark:text-white;
+  }
+  
+  .bg-theme {
+    @apply bg-light-bg dark:bg-sl-darker;
+  }
+  
+  .card-theme {
+    @apply bg-white dark:bg-sl-dark;
   }
 }

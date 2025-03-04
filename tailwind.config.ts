@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -80,6 +81,11 @@ export default {
 				'sl-red': '#FF5E5E',
 				'sl-green': '#50E3A4',
 				'sl-yellow': '#FFD166',
+				// Light mode colors
+				'light-bg': '#F4F6FE',
+				'light-card': '#FFFFFF',
+				'light-text': '#333344',
+				'light-border': '#E4E6F1',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
