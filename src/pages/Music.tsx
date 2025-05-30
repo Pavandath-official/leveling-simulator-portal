@@ -98,6 +98,46 @@ const Music = () => {
       url: "https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3",
       isLocal: false,
     },
+    {
+      id: "11",
+      title: "Iron Body Training",
+      artist: "Physical Enhancement",
+      duration: 198,
+      url: "https://www.soundjay.com/misc/sounds/magic-chime-02.mp3",
+      isLocal: false,
+    },
+    {
+      id: "12",
+      title: "Mana Circulation",
+      artist: "Magic Training",
+      duration: 212,
+      url: "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3",
+      isLocal: false,
+    },
+    {
+      id: "13",
+      title: "Speed Enhancement",
+      artist: "Agility Boost",
+      duration: 189,
+      url: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3",
+      isLocal: false,
+    },
+    {
+      id: "14",
+      title: "Shadow Step",
+      artist: "Stealth Mode",
+      duration: 176,
+      url: "https://www.soundjay.com/misc/sounds/page-flip-01a.mp3",
+      isLocal: false,
+    },
+    {
+      id: "15",
+      title: "Guild War March",
+      artist: "Battle Anthem",
+      duration: 245,
+      url: "https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3",
+      isLocal: false,
+    },
   ]);
   const [currentSongIndex, setCurrentSongIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -291,7 +331,7 @@ const Music = () => {
         clearInterval(progressInterval.current);
       }
       
-      progressInterval.current = setInterval(() => {
+      progressInterval.current = window.setInterval(() => {
         if (audio && !audio.paused && !audio.ended) {
           const current = audio.currentTime;
           const total = audio.duration;
@@ -301,7 +341,7 @@ const Music = () => {
             setProgress((current / total) * 100);
           }
         }
-      }, 500); // Update every 500ms instead of 1000ms for smoother progress
+      }, 500);
     }
   };
 
