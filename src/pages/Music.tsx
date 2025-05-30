@@ -176,7 +176,6 @@ const Music = () => {
   const progressInterval = useRef<number | null>(null);
   const { toast } = useToast();
 
-  // Clear interval on unmount
   useEffect(() => {
     return () => {
       if (progressInterval.current) {
@@ -185,14 +184,12 @@ const Music = () => {
     };
   }, []);
 
-  // Handle volume changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
 
-  // Load new song when currentSongIndex changes
   useEffect(() => {
     if (currentSongIndex !== null && audioRef.current) {
       const audio = audioRef.current;
@@ -200,17 +197,14 @@ const Music = () => {
       
       setIsLoading(true);
       
-      // Clear existing progress interval
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
       
-      // Reset state
       setProgress(0);
       setCurrentTime(0);
       setDuration(0);
       
-      // Set new source
       audio.src = currentSong.url;
       audio.load();
       
@@ -218,7 +212,6 @@ const Music = () => {
     }
   }, [currentSongIndex]);
 
-  // Handle play/pause changes
   useEffect(() => {
     if (audioRef.current && currentSongIndex !== null && !isLoading) {
       if (isPlaying) {
@@ -332,7 +325,6 @@ const Music = () => {
     }
   };
 
-  // Audio event handlers
   const handleCanPlayThrough = () => {
     if (audioRef.current && currentSongIndex !== null) {
       const audio = audioRef.current;
@@ -343,7 +335,6 @@ const Music = () => {
       setDuration(actualDuration);
       setIsLoading(false);
       
-      // Update song duration if it was unknown or different
       if (songs[currentSongIndex].duration === 0 || Math.abs(songs[currentSongIndex].duration - actualDuration) > 5) {
         const updatedSongs = [...songs];
         updatedSongs[currentSongIndex].duration = actualDuration;
@@ -351,7 +342,6 @@ const Music = () => {
         console.log('Updated song duration to actual:', actualDuration);
       }
       
-      // Start progress tracking
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
@@ -390,8 +380,8 @@ const Music = () => {
     handleNext();
   };
 
-  const handleError = (e: Event) => {
-    const audio = e.target as HTMLAudioElement;
+  const handleError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+    const audio = e.currentTarget;
     console.error('Audio error occurred:', audio.error);
     setIsLoading(false);
     setIsPlaying(false);
