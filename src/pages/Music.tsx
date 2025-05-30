@@ -106,90 +106,72 @@ const Music = () => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<number | null>(null);
   const { toast } = useToast();
 
+  // Clear interval on unmount
   useEffect(() => {
     return () => {
       if (progressInterval.current) {
-        window.clearInterval(progressInterval.current);
+        clearInterval(progressInterval.current);
       }
     };
   }, []);
 
+  // Handle volume changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
 
-  // Improved audio loading and playing
+  // Load new song when currentSongIndex changes
   useEffect(() => {
     if (currentSongIndex !== null && audioRef.current) {
       const audio = audioRef.current;
       const currentSong = songs[currentSongIndex];
       
-      // Reset audio state
-      audio.pause();
-      audio.currentTime = 0;
+      setIsLoading(true);
+      
+      // Clear existing progress interval
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+      }
+      
+      // Reset state
       setProgress(0);
       setCurrentTime(0);
+      setDuration(0);
       
+      // Set new source
       audio.src = currentSong.url;
-      
-      const handleCanPlay = () => {
-        console.log('Audio can play:', currentSong.title);
-        setDuration(audio.duration || currentSong.duration);
-        if (isPlaying) {
-          audio.play().catch(error => {
-            console.error('Error playing audio:', error);
-            setIsPlaying(false);
-            toast({
-              title: "Audio Error",
-              description: `Cannot play ${currentSong.title}. Trying next song...`,
-              variant: "destructive",
-            });
-            // Auto skip to next song on error
-            setTimeout(() => handleNext(), 1000);
-          });
-        }
-      };
-
-      const handleError = () => {
-        console.error('Audio load error for:', currentSong.title);
-        toast({
-          title: "Audio Error",
-          description: `Failed to load ${currentSong.title}`,
-          variant: "destructive",
-        });
-        setIsPlaying(false);
-      };
-
-      audio.addEventListener('canplaythrough', handleCanPlay);
-      audio.addEventListener('error', handleError);
       audio.load();
-
-      return () => {
-        audio.removeEventListener('canplaythrough', handleCanPlay);
-        audio.removeEventListener('error', handleError);
-      };
+      
+      console.log('Loading song:', currentSong.title);
     }
   }, [currentSongIndex]);
 
+  // Handle play/pause changes
   useEffect(() => {
-    if (audioRef.current && currentSongIndex !== null) {
+    if (audioRef.current && currentSongIndex !== null && !isLoading) {
       if (isPlaying) {
         audioRef.current.play().catch(error => {
           console.error('Error playing audio:', error);
           setIsPlaying(false);
+          toast({
+            title: "Playback Error",
+            description: "Failed to play the audio file",
+            variant: "destructive",
+          });
         });
       } else {
         audioRef.current.pause();
       }
     }
-  }, [isPlaying]);
+  }, [isPlaying, isLoading]);
 
   const formatTime = (time: number) => {
     if (!isFinite(time) || isNaN(time)) return "0:00";
@@ -238,12 +220,11 @@ const Music = () => {
   };
 
   const handleProgressChange = (value: number[]) => {
-    if (audioRef.current && currentSongIndex !== null && isFinite(audioRef.current.duration)) {
-      const newTime = (value[0] / 100) * audioRef.current.duration;
-      if (isFinite(newTime)) {
-        audioRef.current.currentTime = newTime;
-        setProgress(value[0]);
-      }
+    if (audioRef.current && duration > 0) {
+      const newTime = (value[0] / 100) * duration;
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+      setProgress(value[0]);
     }
   };
 
@@ -287,36 +268,72 @@ const Music = () => {
     }
   };
 
-  const handleAudioLoad = () => {
+  // Audio event handlers
+  const handleCanPlayThrough = () => {
     if (audioRef.current && currentSongIndex !== null) {
       const audio = audioRef.current;
-      setDuration(audio.duration);
-      setCurrentTime(audio.currentTime);
+      const actualDuration = audio.duration;
       
-      if (songs[currentSongIndex].duration === 0) {
+      console.log('Audio ready to play:', songs[currentSongIndex].title, 'Duration:', actualDuration);
+      
+      setDuration(actualDuration);
+      setIsLoading(false);
+      
+      // Update song duration if it was unknown
+      if (songs[currentSongIndex].duration === 0 || songs[currentSongIndex].duration !== actualDuration) {
         const updatedSongs = [...songs];
-        updatedSongs[currentSongIndex].duration = audio.duration;
+        updatedSongs[currentSongIndex].duration = actualDuration;
         setSongs(updatedSongs);
       }
       
+      // Start progress tracking
       if (progressInterval.current) {
-        window.clearInterval(progressInterval.current);
+        clearInterval(progressInterval.current);
       }
       
-      progressInterval.current = window.setInterval(() => {
-        if (audio && isFinite(audio.currentTime) && isFinite(audio.duration)) {
-          setCurrentTime(audio.currentTime);
-          const progressPercent = (audio.currentTime / audio.duration) * 100;
-          if (isFinite(progressPercent)) {
-            setProgress(progressPercent);
+      progressInterval.current = setInterval(() => {
+        if (audio && !audio.paused && !audio.ended) {
+          const current = audio.currentTime;
+          const total = audio.duration;
+          
+          if (isFinite(current) && isFinite(total) && total > 0) {
+            setCurrentTime(current);
+            setProgress((current / total) * 100);
           }
         }
-      }, 1000);
+      }, 500); // Update every 500ms instead of 1000ms for smoother progress
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      const current = audioRef.current.currentTime;
+      const total = audioRef.current.duration;
+      
+      if (isFinite(current) && isFinite(total) && total > 0) {
+        setCurrentTime(current);
+        setProgress((current / total) * 100);
+      }
     }
   };
 
   const handleAudioEnded = () => {
+    console.log('Song ended, playing next');
+    if (progressInterval.current) {
+      clearInterval(progressInterval.current);
+    }
     handleNext();
+  };
+
+  const handleError = () => {
+    console.error('Audio error occurred');
+    setIsLoading(false);
+    setIsPlaying(false);
+    toast({
+      title: "Audio Error",
+      description: "Failed to load or play the audio file",
+      variant: "destructive",
+    });
   };
 
   const selectSong = (index: number) => {
@@ -342,6 +359,7 @@ const Music = () => {
                       {songs[currentSongIndex].title}
                     </h2>
                     <p className="text-sl-blue mt-2">{songs[currentSongIndex].artist}</p>
+                    {isLoading && <p className="text-sl-text-muted mt-2">Loading...</p>}
                   </div>
                 ) : (
                   <MusicIcon className="w-24 h-24 text-sl-blue/30" />
@@ -359,6 +377,7 @@ const Music = () => {
                   step={0.1}
                   onValueChange={handleProgressChange}
                   className="w-full"
+                  disabled={isLoading || duration === 0}
                 />
               </div>
               
@@ -368,7 +387,7 @@ const Music = () => {
                   variant="ghost"
                   size="icon"
                   className="text-slate-300 hover:text-sl-blue hover:bg-sl-darker"
-                  disabled={currentSongIndex === null}
+                  disabled={currentSongIndex === null || isLoading}
                 >
                   <SkipBack className="h-6 w-6" />
                 </Button>
@@ -378,7 +397,7 @@ const Music = () => {
                   variant="outline"
                   size="icon"
                   className="bg-sl-dark border-sl-blue text-sl-blue hover:bg-sl-blue hover:text-sl-darker rounded-full h-14 w-14"
-                  disabled={songs.length === 0}
+                  disabled={songs.length === 0 || isLoading}
                 >
                   {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
                 </Button>
@@ -388,7 +407,7 @@ const Music = () => {
                   variant="ghost"
                   size="icon"
                   className="text-slate-300 hover:text-sl-blue hover:bg-sl-darker"
-                  disabled={currentSongIndex === null}
+                  disabled={currentSongIndex === null || isLoading}
                 >
                   <SkipForward className="h-6 w-6" />
                 </Button>
@@ -498,8 +517,10 @@ const Music = () => {
       
       <audio
         ref={audioRef}
-        onLoadedMetadata={handleAudioLoad}
+        onCanPlayThrough={handleCanPlayThrough}
+        onTimeUpdate={handleTimeUpdate}
         onEnded={handleAudioEnded}
+        onError={handleError}
         preload="metadata"
       />
     </div>
