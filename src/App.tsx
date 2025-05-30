@@ -94,6 +94,7 @@ const App = () => {
                     <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
                     <Route path="/shadow-army" element={isLoggedIn ? <ShadowArmy /> : <Navigate to="/login" />} />
                     <Route path="/music" element={isLoggedIn ? <Music /> : <Navigate to="/login" />} />
+                    <Route path="/gym" element={isLoggedIn ? <Gym /> : <Navigate to="/login" />} />
                     <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/login" />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>

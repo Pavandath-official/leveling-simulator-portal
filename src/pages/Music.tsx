@@ -24,15 +24,39 @@ const Music = () => {
       title: "Rise from the Shadows",
       artist: "System Interface",
       duration: 218,
-      url: "https://storage.googleapis.com/media-session/sintel/snow-fight.mp3", // Example URL
+      url: "https://storage.googleapis.com/media-session/sintel/snow-fight.mp3",
       isLocal: false,
     },
     {
       id: "2",
-      title: "Hunter's Awakening",
+      title: "Hunter's Awakening", 
       artist: "E Rank",
       duration: 185,
-      url: "https://storage.googleapis.com/media-session/big-buck-bunny/big-buck-bunny.mp3", // Example URL
+      url: "https://storage.googleapis.com/media-session/big-buck-bunny/big-buck-bunny.mp3",
+      isLocal: false,
+    },
+    {
+      id: "3",
+      title: "Shadow Monarch's Theme",
+      artist: "Sung Jin-Woo",
+      duration: 203,
+      url: "https://storage.googleapis.com/media-session/elephants-dream/the-wires.mp3",
+      isLocal: false,
+    },
+    {
+      id: "4",
+      title: "Arise",
+      artist: "Shadow Army",
+      duration: 195,
+      url: "https://storage.googleapis.com/media-session/caminandes/short-5-piano.mp3",
+      isLocal: false,
+    },
+    {
+      id: "5",
+      title: "System Notification",
+      artist: "Solo Leveling OST",
+      duration: 178,
+      url: "https://storage.googleapis.com/media-session/sintel/snow-fight.mp3",
       isLocal: false,
     },
   ]);
@@ -42,6 +66,7 @@ const Music = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<number | null>(null);
@@ -61,7 +86,46 @@ const Music = () => {
     }
   }, [volume, isMuted]);
 
+  // Fix the audio loading and playing issue
+  useEffect(() => {
+    if (currentSongIndex !== null && audioRef.current) {
+      const audio = audioRef.current;
+      audio.src = songs[currentSongIndex].url;
+      
+      const handleCanPlay = () => {
+        console.log('Audio can play:', songs[currentSongIndex].title);
+        if (isPlaying) {
+          audio.play().catch(error => {
+            console.error('Error playing audio:', error);
+            setIsPlaying(false);
+          });
+        }
+      };
+
+      audio.addEventListener('canplaythrough', handleCanPlay);
+      audio.load();
+
+      return () => {
+        audio.removeEventListener('canplaythrough', handleCanPlay);
+      };
+    }
+  }, [currentSongIndex]);
+
+  useEffect(() => {
+    if (audioRef.current && currentSongIndex !== null) {
+      if (isPlaying) {
+        audioRef.current.play().catch(error => {
+          console.error('Error playing audio:', error);
+          setIsPlaying(false);
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
+
   const formatTime = (time: number) => {
+    if (!isFinite(time) || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -74,14 +138,7 @@ const Music = () => {
       return;
     }
 
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
+    setIsPlaying(!isPlaying);
   };
 
   const handlePrevious = () => {
@@ -114,10 +171,12 @@ const Music = () => {
   };
 
   const handleProgressChange = (value: number[]) => {
-    if (audioRef.current && currentSongIndex !== null) {
+    if (audioRef.current && currentSongIndex !== null && isFinite(audioRef.current.duration)) {
       const newTime = (value[0] / 100) * audioRef.current.duration;
-      audioRef.current.currentTime = newTime;
-      setProgress(value[0]);
+      if (isFinite(newTime)) {
+        audioRef.current.currentTime = newTime;
+        setProgress(value[0]);
+      }
     }
   };
 
@@ -130,7 +189,6 @@ const Music = () => {
     Array.from(files).forEach((file) => {
       const fileURL = URL.createObjectURL(file);
       
-      // Extract title and artist from filename (assuming format: Artist - Title.mp3)
       let title = file.name.replace(/\.[^/.]+$/, "");
       let artist = "Unknown Artist";
       
@@ -144,7 +202,7 @@ const Music = () => {
         id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         title,
         artist,
-        duration: 0, // Will be updated when audio loads
+        duration: 0,
         url: fileURL,
         isLocal: true,
       });
@@ -156,7 +214,6 @@ const Music = () => {
       description: `${newSongs.length} songs have been added to your library.`,
     });
 
-    // Select the first new song if nothing is currently playing
     if (currentSongIndex === null) {
       setCurrentSongIndex(songs.length);
       setIsPlaying(true);
@@ -165,17 +222,14 @@ const Music = () => {
 
   const handleAudioLoad = () => {
     if (audioRef.current && currentSongIndex !== null) {
-      setDuration(audioRef.current.duration);
+      const audio = audioRef.current;
+      setDuration(audio.duration);
+      setCurrentTime(audio.currentTime);
       
-      // Update the duration in the songs array if it's 0 (for local files)
       if (songs[currentSongIndex].duration === 0) {
         const updatedSongs = [...songs];
-        updatedSongs[currentSongIndex].duration = audioRef.current.duration;
+        updatedSongs[currentSongIndex].duration = audio.duration;
         setSongs(updatedSongs);
-      }
-      
-      if (isPlaying) {
-        audioRef.current.play();
       }
       
       if (progressInterval.current) {
@@ -183,9 +237,12 @@ const Music = () => {
       }
       
       progressInterval.current = window.setInterval(() => {
-        if (audioRef.current) {
-          const progressPercent = (audioRef.current.currentTime / audioRef.current.duration) * 100;
-          setProgress(progressPercent);
+        if (audio && isFinite(audio.currentTime) && isFinite(audio.duration)) {
+          setCurrentTime(audio.currentTime);
+          const progressPercent = (audio.currentTime / audio.duration) * 100;
+          if (isFinite(progressPercent)) {
+            setProgress(progressPercent);
+          }
         }
       }, 1000);
     }
@@ -195,16 +252,21 @@ const Music = () => {
     handleNext();
   };
 
+  const selectSong = (index: number) => {
+    setCurrentSongIndex(index);
+    setIsPlaying(true);
+  };
+
   return (
     <div className="sl-container mx-auto px-4 py-8 sl-page-transition">
-      <h1 className="sl-heading mb-8 flex items-center gap-3">
+      <h1 className="sl-heading mb-8 flex items-center gap-3 text-white">
         <MusicIcon className="text-sl-blue" />
         Music System
       </h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <div className="sl-card">
+          <div className="sl-card bg-sl-dark/80 border-sl-grey-dark">
             <div className="flex flex-col items-center">
               <div className="w-full h-60 bg-sl-darker rounded-lg flex items-center justify-center mb-6 border border-sl-grey-dark animate-pulse-glow">
                 {currentSongIndex !== null ? (
@@ -220,17 +282,9 @@ const Music = () => {
               </div>
               
               <div className="w-full mb-4">
-                <div className="flex justify-between text-sm text-slate-400 mb-1">
-                  <span>
-                    {currentSongIndex !== null && audioRef.current
-                      ? formatTime(audioRef.current.currentTime)
-                      : "0:00"}
-                  </span>
-                  <span>
-                    {currentSongIndex !== null 
-                      ? formatTime(songs[currentSongIndex].duration)
-                      : "0:00"}
-                  </span>
+                <div className="flex justify-between text-sm text-slate-200 mb-1">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
                 </div>
                 <Slider
                   value={[progress]}
@@ -315,7 +369,7 @@ const Music = () => {
         </div>
         
         <div className="lg:col-span-1">
-          <div className="sl-card h-full max-h-[600px] overflow-y-auto">
+          <div className="sl-card h-full max-h-[600px] overflow-y-auto bg-sl-dark/80 border-sl-grey-dark">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
               <MusicIcon className="mr-2 h-5 w-5 text-sl-blue" />
               Your Playlist
@@ -324,8 +378,8 @@ const Music = () => {
             {songs.length === 0 ? (
               <div className="text-center text-slate-400 py-8">
                 <MusicIcon className="mx-auto h-12 w-12 mb-3 text-sl-grey" />
-                <p>No songs in your playlist</p>
-                <p className="text-sm mt-2">Upload some music to get started</p>
+                <p className="text-slate-200">No songs in your playlist</p>
+                <p className="text-sm mt-2 text-slate-300">Upload some music to get started</p>
               </div>
             ) : (
               <ul className="space-y-2">
@@ -337,10 +391,7 @@ const Music = () => {
                         ? "bg-sl-blue/10 border border-sl-blue/30"
                         : "hover:bg-sl-darker"
                     }`}
-                    onClick={() => {
-                      setCurrentSongIndex(index);
-                      setIsPlaying(true);
-                    }}
+                    onClick={() => selectSong(index)}
                   >
                     <div className="flex items-center">
                       <div className="h-8 w-8 rounded-full bg-sl-darker flex items-center justify-center mr-3">
@@ -359,12 +410,12 @@ const Music = () => {
                         <div className="truncate font-medium text-white">
                           {song.title}
                         </div>
-                        <div className="truncate text-sm text-slate-400">
+                        <div className="truncate text-sm text-slate-300">
                           {song.artist}
                         </div>
                       </div>
                       
-                      <div className="text-sm text-slate-500 ml-2">
+                      <div className="text-sm text-slate-400 ml-2">
                         {song.duration > 0
                           ? formatTime(song.duration)
                           : "--:--"}
@@ -378,12 +429,11 @@ const Music = () => {
         </div>
       </div>
       
-      {/* Hidden audio element */}
       <audio
         ref={audioRef}
-        src={currentSongIndex !== null ? songs[currentSongIndex].url : ""}
         onLoadedMetadata={handleAudioLoad}
         onEnded={handleAudioEnded}
+        preload="metadata"
       />
     </div>
   );
