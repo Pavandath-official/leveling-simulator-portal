@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -191,6 +190,7 @@ export default {
 			backgroundImage: {
 				'sl-grid': 'linear-gradient(rgba(123, 180, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(123, 180, 255, 0.1) 1px, transparent 1px)',
 				'sl-hex-pattern': 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 30 L15 7.5 L45 7.5 L60 30 L45 52.5 L15 52.5 Z\' fill=\'none\' stroke=\'rgba(123, 180, 255, 0.05)\' stroke-width=\'1\'/%3E%3C/svg%3E")',
+				'light-pattern': 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 30 L15 7.5 L45 7.5 L60 30 L45 52.5 L15 52.5 Z\' fill=\'none\' stroke=\'rgba(123, 180, 255, 0.02)\' stroke-width=\'1\'/%3E%3C/svg%3E")',
 			},
 		}
 	},

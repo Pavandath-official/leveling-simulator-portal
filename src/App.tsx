@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import ShadowArmy from "./pages/ShadowArmy";
 import Music from "./pages/Music";
 import Chat from "./pages/Chat";
+import Gym from "./pages/Gym";
 import LevelUpAnimation from "./components/LevelUpAnimation";
 import RankUpAnimation from "./components/RankUpAnimation";
 import ShadowExtractionAnimation from "./components/ShadowExtractionAnimation";
