@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { usePlayer } from '@/context/PlayerContext';
 import StatBar from '@/components/StatBar';
-import { Shield, Zap, Brain, Heart, Clock, User, Star, Coins, Target } from 'lucide-react';
+import { Shield, Zap, Brain, Heart, Clock, User, Star, Coins, Target, MapPin } from 'lucide-react';
 
 const Index = () => {
   const { name, level, exp, expToNextLevel, stats, rank, gold } = usePlayer();
@@ -275,7 +274,7 @@ const Index = () => {
                 </p>
               </div>
               
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <a 
                   href="/skills" 
                   className="sl-button group transition-all"
@@ -290,6 +289,14 @@ const Index = () => {
                 >
                   <Target className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
                   <span>Available Quests</span>
+                </a>
+
+                <a 
+                  href="/dungeon-gates" 
+                  className="sl-button group transition-all"
+                >
+                  <MapPin className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
+                  <span>Dungeon Gates</span>
                 </a>
               </div>
             </div>

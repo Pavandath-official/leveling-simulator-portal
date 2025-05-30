@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,7 @@ import RankUpAnimation from "./components/RankUpAnimation";
 import ShadowExtractionAnimation from "./components/ShadowExtractionAnimation";
 import { useState, useEffect } from "react";
 import { usePlayer } from "@/context/PlayerContext";
+import DungeonGates from "./pages/DungeonGates";
 
 // Configure the Query Client with proper settings
 const queryClient = new QueryClient({
@@ -98,6 +98,7 @@ const App = () => {
                     <Route path="/music" element={isLoggedIn ? <Music /> : <Navigate to="/login" />} />
                     <Route path="/gym" element={isLoggedIn ? <Gym /> : <Navigate to="/login" />} />
                     <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/login" />} />
+                    <Route path="/dungeon-gates" element={isLoggedIn ? <DungeonGates /> : <Navigate to="/login" />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
