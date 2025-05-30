@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipBack, SkipForward, 
@@ -24,7 +23,7 @@ const Music = () => {
       title: "Rise from the Shadows",
       artist: "System Interface",
       duration: 218,
-      url: "https://storage.googleapis.com/media-session/sintel/snow-fight.mp3",
+      url: "https://www.soundjay.com/misc/sounds/magic-chime-02.mp3",
       isLocal: false,
     },
     {
@@ -32,7 +31,7 @@ const Music = () => {
       title: "Hunter's Awakening", 
       artist: "E Rank",
       duration: 185,
-      url: "https://storage.googleapis.com/media-session/big-buck-bunny/big-buck-bunny.mp3",
+      url: "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3",
       isLocal: false,
     },
     {
@@ -40,7 +39,7 @@ const Music = () => {
       title: "Shadow Monarch's Theme",
       artist: "Sung Jin-Woo",
       duration: 203,
-      url: "https://storage.googleapis.com/media-session/elephants-dream/the-wires.mp3",
+      url: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3",
       isLocal: false,
     },
     {
@@ -48,7 +47,7 @@ const Music = () => {
       title: "Arise",
       artist: "Shadow Army",
       duration: 195,
-      url: "https://storage.googleapis.com/media-session/caminandes/short-5-piano.mp3",
+      url: "https://www.soundjay.com/misc/sounds/page-flip-01a.mp3",
       isLocal: false,
     },
     {
@@ -56,7 +55,47 @@ const Music = () => {
       title: "System Notification",
       artist: "Solo Leveling OST",
       duration: 178,
-      url: "https://storage.googleapis.com/media-session/sintel/snow-fight.mp3",
+      url: "https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3",
+      isLocal: false,
+    },
+    {
+      id: "6",
+      title: "Gate Opening",
+      artist: "Dungeon Break",
+      duration: 205,
+      url: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3",
+      isLocal: false,
+    },
+    {
+      id: "7",
+      title: "Battle Theme",
+      artist: "Raid Boss",
+      duration: 192,
+      url: "https://www.soundjay.com/misc/sounds/magic-chime-02.mp3",
+      isLocal: false,
+    },
+    {
+      id: "8",
+      title: "Leveling Up",
+      artist: "System",
+      duration: 156,
+      url: "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3",
+      isLocal: false,
+    },
+    {
+      id: "9",
+      title: "Shadow Extraction",
+      artist: "Necromancer",
+      duration: 234,
+      url: "https://www.soundjay.com/misc/sounds/page-flip-01a.mp3",
+      isLocal: false,
+    },
+    {
+      id: "10",
+      title: "Final Boss",
+      artist: "Monarch",
+      duration: 267,
+      url: "https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3",
       isLocal: false,
     },
   ]);
@@ -86,27 +125,55 @@ const Music = () => {
     }
   }, [volume, isMuted]);
 
-  // Fix the audio loading and playing issue
+  // Improved audio loading and playing
   useEffect(() => {
     if (currentSongIndex !== null && audioRef.current) {
       const audio = audioRef.current;
-      audio.src = songs[currentSongIndex].url;
+      const currentSong = songs[currentSongIndex];
+      
+      // Reset audio state
+      audio.pause();
+      audio.currentTime = 0;
+      setProgress(0);
+      setCurrentTime(0);
+      
+      audio.src = currentSong.url;
       
       const handleCanPlay = () => {
-        console.log('Audio can play:', songs[currentSongIndex].title);
+        console.log('Audio can play:', currentSong.title);
+        setDuration(audio.duration || currentSong.duration);
         if (isPlaying) {
           audio.play().catch(error => {
             console.error('Error playing audio:', error);
             setIsPlaying(false);
+            toast({
+              title: "Audio Error",
+              description: `Cannot play ${currentSong.title}. Trying next song...`,
+              variant: "destructive",
+            });
+            // Auto skip to next song on error
+            setTimeout(() => handleNext(), 1000);
           });
         }
       };
 
+      const handleError = () => {
+        console.error('Audio load error for:', currentSong.title);
+        toast({
+          title: "Audio Error",
+          description: `Failed to load ${currentSong.title}`,
+          variant: "destructive",
+        });
+        setIsPlaying(false);
+      };
+
       audio.addEventListener('canplaythrough', handleCanPlay);
+      audio.addEventListener('error', handleError);
       audio.load();
 
       return () => {
         audio.removeEventListener('canplaythrough', handleCanPlay);
+        audio.removeEventListener('error', handleError);
       };
     }
   }, [currentSongIndex]);

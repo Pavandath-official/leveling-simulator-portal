@@ -9,16 +9,16 @@ import { Dumbbell, Target, Zap, Trophy, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Gym = () => {
-  const { playerStats, updateStats } = usePlayer();
+  const { level, rank, exp, gainExp } = usePlayer();
   const [selectedExercise, setSelectedExercise] = useState<string>('');
   const [currentReps, setCurrentReps] = useState(0);
   const [isWorking, setIsWorking] = useState(false);
 
   // Calculate rank-based targets
   const getRankMultiplier = () => {
-    const rank = playerStats.rank || 'E';
+    const currentRank = rank || 'E';
     const multipliers = { E: 1, D: 1.5, C: 2, B: 2.5, A: 3, S: 4 };
-    return multipliers[rank as keyof typeof multipliers] || 1;
+    return multipliers[currentRank as keyof typeof multipliers] || 1;
   };
 
   const exercises = [
@@ -61,8 +61,8 @@ const Gym = () => {
     const target = Math.floor(exercise.baseTarget * multiplier);
     const expGained = Math.floor(exercise.expReward * multiplier);
     
-    // Update player experience
-    updateStats({ experience: playerStats.experience + expGained });
+    // Update player experience using gainExp
+    gainExp(expGained);
     
     toast.success(`${exercise.name} completed! +${expGained} EXP`, {
       description: `Target: ${target} ${exercise.id === 'running' ? 'km' : exercise.id === 'planks' ? 'seconds' : 'reps'}`
@@ -108,7 +108,7 @@ const Gym = () => {
             Train your body to match your hunter rank
           </p>
           <Badge variant="outline" className="bg-sl-blue/20 text-sl-blue border-sl-blue">
-            Rank {playerStats.rank} Multiplier: {getRankMultiplier()}x
+            Rank {rank} Multiplier: {getRankMultiplier()}x
           </Badge>
         </div>
 
@@ -214,15 +214,15 @@ const Gym = () => {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-sl-blue">{playerStats.level}</div>
+                <div className="text-2xl font-bold text-sl-blue">{level}</div>
                 <div className="text-sl-text-muted text-sm">Level</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-sl-green">{playerStats.rank}</div>
+                <div className="text-2xl font-bold text-sl-green">{rank}</div>
                 <div className="text-sl-text-muted text-sm">Rank</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-sl-purple">{playerStats.experience}</div>
+                <div className="text-2xl font-bold text-sl-purple">{exp}</div>
                 <div className="text-sl-text-muted text-sm">Total EXP</div>
               </div>
               <div>
