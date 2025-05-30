@@ -22,24 +22,24 @@ const Music = () => {
       id: "1",
       title: "Rise from the Shadows",
       artist: "System Interface",
-      duration: 218,
-      url: "https://www.soundjay.com/misc/sounds/magic-chime-02.mp3",
+      duration: 180,
+      url: "https://www.bensound.com/bensound-music/bensound-epic.mp3",
       isLocal: false,
     },
     {
       id: "2",
       title: "Hunter's Awakening", 
       artist: "E Rank",
-      duration: 185,
-      url: "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3",
+      duration: 165,
+      url: "https://www.bensound.com/bensound-music/bensound-adventure.mp3",
       isLocal: false,
     },
     {
       id: "3",
       title: "Shadow Monarch's Theme",
       artist: "Sung Jin-Woo",
-      duration: 203,
-      url: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3",
+      duration: 200,
+      url: "https://www.bensound.com/bensound-music/bensound-actionable.mp3",
       isLocal: false,
     },
     {
@@ -47,7 +47,7 @@ const Music = () => {
       title: "Arise",
       artist: "Shadow Army",
       duration: 195,
-      url: "https://www.soundjay.com/misc/sounds/page-flip-01a.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-titanium.mp3",
       isLocal: false,
     },
     {
@@ -55,7 +55,7 @@ const Music = () => {
       title: "System Notification",
       artist: "Solo Leveling OST",
       duration: 178,
-      url: "https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-deepblue.mp3",
       isLocal: false,
     },
     {
@@ -63,7 +63,7 @@ const Music = () => {
       title: "Gate Opening",
       artist: "Dungeon Break",
       duration: 205,
-      url: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-extremeaction.mp3",
       isLocal: false,
     },
     {
@@ -71,7 +71,7 @@ const Music = () => {
       title: "Battle Theme",
       artist: "Raid Boss",
       duration: 192,
-      url: "https://www.soundjay.com/misc/sounds/magic-chime-02.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-rumble.mp3",
       isLocal: false,
     },
     {
@@ -79,7 +79,7 @@ const Music = () => {
       title: "Leveling Up",
       artist: "System",
       duration: 156,
-      url: "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-evolution.mp3",
       isLocal: false,
     },
     {
@@ -87,7 +87,7 @@ const Music = () => {
       title: "Shadow Extraction",
       artist: "Necromancer",
       duration: 234,
-      url: "https://www.soundjay.com/misc/sounds/page-flip-01a.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-punky.mp3",
       isLocal: false,
     },
     {
@@ -95,7 +95,7 @@ const Music = () => {
       title: "Final Boss",
       artist: "Monarch",
       duration: 267,
-      url: "https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-energy.mp3",
       isLocal: false,
     },
     {
@@ -103,7 +103,7 @@ const Music = () => {
       title: "Iron Body Training",
       artist: "Physical Enhancement",
       duration: 198,
-      url: "https://www.soundjay.com/misc/sounds/magic-chime-02.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-moose.mp3",
       isLocal: false,
     },
     {
@@ -111,7 +111,7 @@ const Music = () => {
       title: "Mana Circulation",
       artist: "Magic Training",
       duration: 212,
-      url: "https://www.soundjay.com/misc/sounds/magic-chime-01.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-hipjazz.mp3",
       isLocal: false,
     },
     {
@@ -119,7 +119,7 @@ const Music = () => {
       title: "Speed Enhancement",
       artist: "Agility Boost",
       duration: 189,
-      url: "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-badass.mp3",
       isLocal: false,
     },
     {
@@ -127,7 +127,7 @@ const Music = () => {
       title: "Shadow Step",
       artist: "Stealth Mode",
       duration: 176,
-      url: "https://www.soundjay.com/misc/sounds/page-flip-01a.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-newdawn.mp3",
       isLocal: false,
     },
     {
@@ -135,7 +135,31 @@ const Music = () => {
       title: "Guild War March",
       artist: "Battle Anthem",
       duration: 245,
-      url: "https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3",
+      url: "https://www.bensound.com/bensound-music/bensound-instinct.mp3",
+      isLocal: false,
+    },
+    {
+      id: "16",
+      title: "Dimensional Rift",
+      artist: "Space-Time",
+      duration: 220,
+      url: "https://www.bensound.com/bensound-music/bensound-sciencefiction.mp3",
+      isLocal: false,
+    },
+    {
+      id: "17",
+      title: "Monarch's Descent",
+      artist: "True Power",
+      duration: 188,
+      url: "https://www.bensound.com/bensound-music/bensound-highoctane.mp3",
+      isLocal: false,
+    },
+    {
+      id: "18",
+      title: "Solo Raid",
+      artist: "Elite Hunter",
+      duration: 203,
+      url: "https://www.bensound.com/bensound-music/bensound-betterdays.mp3",
       isLocal: false,
     },
   ]);
@@ -190,7 +214,7 @@ const Music = () => {
       audio.src = currentSong.url;
       audio.load();
       
-      console.log('Loading song:', currentSong.title);
+      console.log('Loading song:', currentSong.title, 'URL:', currentSong.url);
     }
   }, [currentSongIndex]);
 
@@ -203,7 +227,7 @@ const Music = () => {
           setIsPlaying(false);
           toast({
             title: "Playback Error",
-            description: "Failed to play the audio file",
+            description: "Failed to play the audio file. Some audio sources may not be accessible.",
             variant: "destructive",
           });
         });
@@ -314,16 +338,17 @@ const Music = () => {
       const audio = audioRef.current;
       const actualDuration = audio.duration;
       
-      console.log('Audio ready to play:', songs[currentSongIndex].title, 'Duration:', actualDuration);
+      console.log('Audio ready to play:', songs[currentSongIndex].title, 'Actual Duration:', actualDuration, 'Expected Duration:', songs[currentSongIndex].duration);
       
       setDuration(actualDuration);
       setIsLoading(false);
       
-      // Update song duration if it was unknown
-      if (songs[currentSongIndex].duration === 0 || songs[currentSongIndex].duration !== actualDuration) {
+      // Update song duration if it was unknown or different
+      if (songs[currentSongIndex].duration === 0 || Math.abs(songs[currentSongIndex].duration - actualDuration) > 5) {
         const updatedSongs = [...songs];
         updatedSongs[currentSongIndex].duration = actualDuration;
         setSongs(updatedSongs);
+        console.log('Updated song duration to actual:', actualDuration);
       }
       
       // Start progress tracking
@@ -365,13 +390,14 @@ const Music = () => {
     handleNext();
   };
 
-  const handleError = () => {
-    console.error('Audio error occurred');
+  const handleError = (e: Event) => {
+    const audio = e.target as HTMLAudioElement;
+    console.error('Audio error occurred:', audio.error);
     setIsLoading(false);
     setIsPlaying(false);
     toast({
       title: "Audio Error",
-      description: "Failed to load or play the audio file",
+      description: "Failed to load or play the audio file. The audio source may not be accessible.",
       variant: "destructive",
     });
   };
@@ -562,6 +588,7 @@ const Music = () => {
         onEnded={handleAudioEnded}
         onError={handleError}
         preload="metadata"
+        crossOrigin="anonymous"
       />
     </div>
   );
