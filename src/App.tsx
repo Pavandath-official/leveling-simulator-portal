@@ -21,7 +21,7 @@ import Navbar from "./components/Navbar";
 import LevelUpAnimation from "./components/LevelUpAnimation";
 import RankUpAnimation from "./components/RankUpAnimation";
 import ShadowExtractionAnimation from "./components/ShadowExtractionAnimation";
-import VisualEffects from "./components/VisualEffects";
+import { Particles } from "./components/VisualEffects";
 import CircularLogoutButton from "./components/CircularLogoutButton";
 import AudioPlayer from "./components/AudioPlayer";
 
@@ -86,7 +86,7 @@ const App = () => {
           <PlayerProvider>
             <BrowserRouter>
               <div className="min-h-screen bg-sl-dark text-white">
-                <VisualEffects />
+                <Particles className="fixed inset-0 z-0" />
                 <Navbar />
                 <CircularLogoutButton />
                 <AudioPlayer className="fixed bottom-4 left-4 z-40" />
@@ -103,7 +103,10 @@ const App = () => {
 
                 <LevelUpAnimation />
                 <RankUpAnimation />
-                <ShadowExtractionAnimation />
+                <ShadowExtractionAnimation 
+                  shadowType="Igris" 
+                  onComplete={() => {}} 
+                />
               </div>
             </BrowserRouter>
           </PlayerProvider>

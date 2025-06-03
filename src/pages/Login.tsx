@@ -2,38 +2,74 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, User, Lock, ArrowRight, Zap, ChevronRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import StatBar from '@/components/StatBar';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Fake login - accept any credentials
-    setTimeout(() => {
+    try {
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              username: email.split('@')[0] // Use email prefix as username
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.user && !data.session) {
+          toast({
+            title: "Check your email",
+            description: "We sent you a confirmation link to complete registration.",
+          });
+        } else {
+          setShowAnimation(true);
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+        setShowAnimation(true);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Authentication Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-      // Store username in localStorage to use it as player name
-      localStorage.setItem('playerName', username);
-      setShowAnimation(true);
-    }, 1500);
+    }
   };
 
   useEffect(() => {
     if (showAnimation) {
-      // Redirect after animation completes
       const timer = setTimeout(() => {
-        // Force a reload of the app to ensure the login state is recognized
-        window.location.href = "/";
+        navigate('/');
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [showAnimation]);
+  }, [showAnimation, navigate]);
 
   if (showAnimation) {
     return (
@@ -45,7 +81,7 @@ const Login = () => {
             <Shield className="h-20 w-20 text-sl-blue mx-auto" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 animate-fade-in font-orbitron">
-            Welcome, <span className="text-sl-blue">{username}</span>
+            Welcome, <span className="text-sl-blue">Hunter</span>
           </h1>
           <p className="text-xl text-slate-300 animate-fade-in font-rajdhani" style={{ animationDelay: '0.3s' }}>
             Initializing Hunter System...
@@ -107,36 +143,38 @@ const Login = () => {
               <Shield className="h-16 w-16 text-sl-blue mx-auto relative z-10" />
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-white font-orbitron">Hunter System</h1>
-            <p className="text-slate-400 mt-2 font-rajdhani">Enter your credentials to access the system</p>
+            <p className="text-slate-400 mt-2 font-rajdhani">
+              {isSignUp ? 'Register for Hunter Association' : 'Enter your credentials to access the system'}
+            </p>
           </div>
 
           <div className="sl-card bg-sl-dark/80 backdrop-blur-sm">
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleAuth} className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-1">
-                    Hunter ID
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
+                    Email
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <User className="h-5 w-5 text-slate-400" />
                     </div>
                     <input
-                      id="username"
-                      name="username"
-                      type="text"
+                      id="email"
+                      name="email"
+                      type="email"
                       required
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="bg-sl-dark border border-sl-grey-dark focus:ring-sl-blue focus:border-sl-blue block w-full pl-10 pr-3 py-2 rounded-md text-white"
-                      placeholder="Enter your hunter name"
+                      placeholder="hunter@association.com"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
-                    Access Code
+                    Password
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -166,25 +204,23 @@ const Login = () => {
                     <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
                   ) : (
                     <>
-                      <span>Access System</span>
+                      <span>{isSignUp ? 'Register Hunter' : 'Access System'}</span>
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </>
                   )}
-                  {!isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transform translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
-                    </div>
-                  )}
+                </button>
+              </div>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-sl-blue hover:text-sl-blue-light text-sm"
+                >
+                  {isSignUp ? 'Already have an account? Sign in' : 'Need an account? Register'}
                 </button>
               </div>
             </form>
-          </div>
-
-          <div className="mt-6 text-center text-sm text-slate-400">
-            <p className="flex items-center justify-center">
-              <Zap className="w-4 h-4 mr-1 text-sl-blue" />
-              This is a demonstration system. Enter any credentials to log in.
-            </p>
           </div>
         </div>
       </div>
