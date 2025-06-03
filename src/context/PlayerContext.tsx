@@ -63,6 +63,7 @@ interface PlayerContextType {
   showExtractionAnimation: boolean;
   shadowTypeToExtract: string | null;
   gainExp: (amount: number) => void;
+  addGold: (amount: number) => void;
   completeQuest: (id: string) => void;
   resetDailyQuests: () => void;
   updateQuestDetails: (id: string, title: string, description: string) => void;
@@ -380,6 +381,10 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     }
   };
   
+  const addGold = (amount: number) => {
+    setGold(prevGold => prevGold + amount);
+  };
+  
   const gainExp = (amount: number) => {
     let newExp = exp + amount;
     let newLevel = level;
@@ -483,6 +488,7 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
         showExtractionAnimation,
         shadowTypeToExtract,
         gainExp,
+        addGold,
         completeQuest,
         resetDailyQuests,
         updateQuestDetails,
