@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { usePlayer } from '@/context/PlayerContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Users, Sword, Shield, Clock, Trophy, Star } from 'lucide-react';
+import { MapPin, Users, Sword, Shield, Clock, Trophy, Star, Zap } from 'lucide-react';
 import TeamSelector from '@/components/TeamSelector';
 import { useToast } from '@/hooks/use-toast';
 
@@ -37,7 +36,7 @@ interface DungeonGate {
 }
 
 const DungeonGates = () => {
-  const { level, stats, shadows, gainExp, gold } = usePlayer();
+  const { level, stats, shadows, gainExp, addGold } = usePlayer();
   const { toast } = useToast();
   const [gates, setGates] = useState<DungeonGate[]>([]);
   const [selectedGate, setSelectedGate] = useState<DungeonGate | null>(null);
@@ -151,7 +150,7 @@ const DungeonGates = () => {
 
     // Initial gates
     const initialGates = [];
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       initialGates.push(generateRandomGate());
     }
     setGates(initialGates);
@@ -196,6 +195,18 @@ const DungeonGates = () => {
     return colors[rank];
   };
 
+  const getRankGlow = (rank: GateRank) => {
+    const glows = {
+      E: 'shadow-gray-500/20',
+      D: 'shadow-green-500/20',
+      C: 'shadow-blue-500/20',
+      B: 'shadow-purple-500/20',
+      A: 'shadow-orange-500/20',
+      S: 'shadow-red-500/20'
+    };
+    return glows[rank];
+  };
+
   const canEnterGate = (gate: DungeonGate) => {
     return level >= gate.requirements.minLevel;
   };
@@ -218,13 +229,14 @@ const DungeonGates = () => {
     }
 
     setSelectedGate(gate);
+    setSelectedTeam([]);
   };
 
   const handleStartBattle = async () => {
     if (!selectedGate || selectedTeam.length < selectedGate.requirements.teamSize) {
       toast({
-        title: "Invalid Team",
-        description: `You need at least ${selectedGate.requirements.teamSize} team members.`,
+        title: "Incomplete Team",
+        description: `You need exactly ${selectedGate.requirements.teamSize} team members to enter this dungeon.`,
         variant: "destructive",
       });
       return;
@@ -244,8 +256,11 @@ const DungeonGates = () => {
 
     if (success) {
       gainExp(selectedGate.rewards.exp);
+      if (addGold) {
+        addGold(selectedGate.rewards.gold);
+      }
       toast({
-        title: "Victory!",
+        title: "🎉 Victory!",
         description: `Successfully cleared ${selectedGate.name}! Gained ${selectedGate.rewards.exp} EXP and ${selectedGate.rewards.gold} gold.`,
         variant: "default",
       });
@@ -254,7 +269,7 @@ const DungeonGates = () => {
       setGates(prev => prev.filter(g => g.id !== selectedGate.id));
     } else {
       toast({
-        title: "Defeat",
+        title: "💀 Defeat",
         description: `Your team was defeated in ${selectedGate.name}. Train harder and try again!`,
         variant: "destructive",
       });
@@ -268,87 +283,127 @@ const DungeonGates = () => {
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
       <div className="mt-8 mb-12 text-center">
-        <div className="inline-block px-3 py-1 rounded-full bg-sl-dark border border-sl-blue/30 text-sl-blue text-sm mb-3">
-          Dungeon Gates
+        <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-sl-blue/20 to-sl-purple/20 border border-sl-blue/30 text-sl-blue text-sm mb-4">
+          <MapPin className="w-4 h-4 inline mr-2" />
+          Dungeon Gates System
         </div>
-        <h1 className="sl-heading mb-2">Active Gates</h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
-          Dungeon gates appear randomly around the world. Assemble your shadow army and clear them for rewards!
+        <h1 className="sl-heading mb-4 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          Active Gates
+        </h1>
+        <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+          Dungeon gates appear randomly around the world. Assemble your shadow army and clear them for massive rewards!
         </p>
+        <div className="mt-6 flex justify-center gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span className="text-slate-300">Available</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+            <span className="text-slate-300">High Difficulty</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="w-3 h-3 text-yellow-500" />
+            <span className="text-slate-300">Time Limited</span>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {gates.map((gate) => (
-          <Card key={gate.id} className="sl-card animate-fade-in relative overflow-hidden">
-            <div className="absolute top-4 right-4">
-              <Badge className={`${getRankColor(gate.rank)} text-white font-bold`}>
+          <Card key={gate.id} className={`sl-card animate-fade-in relative overflow-hidden border-2 ${getRankColor(gate.rank).replace('bg-', 'border-')}/30 hover:${getRankColor(gate.rank).replace('bg-', 'border-')}/50 transition-all duration-300 ${getRankGlow(gate.rank)}`}>
+            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-sl-blue/5 to-sl-purple/5"></div>
+            <div className="absolute top-4 right-4 z-10">
+              <Badge className={`${getRankColor(gate.rank)} text-white font-bold text-lg px-3 py-1 shadow-lg`}>
                 {gate.rank}-Rank
               </Badge>
             </div>
             
-            <CardHeader>
-              <CardTitle className="text-white text-lg pr-16">{gate.name}</CardTitle>
-              <CardDescription className="text-slate-400">
+            <CardHeader className="relative z-10">
+              <CardTitle className="text-white text-xl pr-20 mb-2">{gate.name}</CardTitle>
+              <CardDescription className="text-slate-300 text-base">
                 {gate.description}
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-4">
-              <div className="flex items-center text-slate-300 text-sm">
+            <CardContent className="space-y-4 relative z-10">
+              <div className="flex items-center text-slate-300">
                 <MapPin className="w-4 h-4 mr-2 text-sl-blue" />
-                {gate.location}
+                <span className="font-medium">{gate.location}</span>
               </div>
 
-              <div className="flex items-center text-slate-300 text-sm">
+              <div className="flex items-center text-slate-300">
                 <Clock className="w-4 h-4 mr-2 text-yellow-500" />
-                Time remaining: {formatTime(gate.timeRemaining)}
+                <span>Time remaining: </span>
+                <span className="font-mono font-bold text-yellow-400 ml-1">
+                  {formatTime(gate.timeRemaining)}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 py-3 border-y border-sl-grey-dark/30">
+                <div className="flex items-center text-slate-300">
+                  <Users className="w-4 h-4 mr-2 text-green-500" />
+                  <span className="text-sm">Team: {gate.requirements.teamSize}</span>
+                </div>
+                <div className="flex items-center text-slate-300">
+                  <Star className="w-4 h-4 mr-2 text-purple-500" />
+                  <span className="text-sm">Lv.{gate.requirements.minLevel}+</span>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center text-slate-300 text-sm">
-                  <Users className="w-4 h-4 mr-2 text-green-500" />
-                  Team size: {gate.requirements.teamSize}
-                </div>
-                <div className="flex items-center text-slate-300 text-sm">
-                  <Star className="w-4 h-4 mr-2 text-purple-500" />
-                  Min level: {gate.requirements.minLevel}
-                </div>
-              </div>
-
-              <div className="border-t border-sl-grey-dark pt-4">
-                <h4 className="text-white font-medium mb-2 flex items-center">
+                <h4 className="text-white font-medium flex items-center">
                   <Trophy className="w-4 h-4 mr-2 text-yellow-500" />
                   Rewards
                 </h4>
-                <div className="space-y-1 text-sm text-slate-400">
-                  <div>EXP: +{gate.rewards.exp}</div>
-                  <div>Gold: +{gate.rewards.gold}</div>
-                  <div>Items: {gate.rewards.items.join(', ')}</div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex items-center">
+                    <Zap className="w-3 h-3 mr-1 text-blue-400" />
+                    <span className="text-blue-400">+{gate.rewards.exp} EXP</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="w-3 h-3 mr-1 text-yellow-400">💰</span>
+                    <span className="text-yellow-400">+{gate.rewards.gold} Gold</span>
+                  </div>
+                </div>
+                <div className="text-xs text-slate-400">
+                  Items: {gate.rewards.items.join(', ')}
                 </div>
               </div>
 
               <Dialog>
                 <DialogTrigger asChild>
                   <Button 
-                    className="w-full sl-button"
+                    className={`w-full font-medium py-3 ${
+                      canEnterGate(gate) 
+                        ? `${getRankColor(gate.rank)} hover:opacity-90 text-white shadow-lg` 
+                        : 'bg-slate-600 text-slate-300 cursor-not-allowed'
+                    } transition-all duration-300`}
                     disabled={!canEnterGate(gate)}
                     onClick={() => handleEnterGate(gate)}
                   >
-                    {canEnterGate(gate) ? 'Enter Gate' : `Level ${gate.requirements.minLevel} Required`}
+                    {canEnterGate(gate) ? (
+                      <>
+                        <Sword className="w-4 h-4 mr-2" />
+                        Enter Gate
+                      </>
+                    ) : (
+                      `Level ${gate.requirements.minLevel} Required`
+                    )}
                   </Button>
                 </DialogTrigger>
 
                 {selectedGate?.id === gate.id && (
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-sl-dark border-sl-blue/30">
                     <DialogHeader>
-                      <DialogTitle className="flex items-center">
-                        <Badge className={`${getRankColor(gate.rank)} text-white font-bold mr-3`}>
+                      <DialogTitle className="flex items-center text-2xl">
+                        <Badge className={`${getRankColor(gate.rank)} text-white font-bold mr-3 text-lg px-3 py-1`}>
                           {gate.rank}
                         </Badge>
                         {gate.name}
                       </DialogTitle>
-                      <DialogDescription>
-                        Select your team to enter this dungeon gate. Choose wisely based on the requirements.
+                      <DialogDescription className="text-slate-300 text-base">
+                        Select your team carefully. Your success depends on your combined power and strategy.
                       </DialogDescription>
                     </DialogHeader>
 
@@ -359,13 +414,23 @@ const DungeonGates = () => {
                       calculateTeamPower={calculateTeamPower}
                     />
 
-                    <div className="flex gap-3 pt-4">
+                    <div className="flex gap-3 pt-6 border-t border-sl-grey-dark/30">
                       <Button
                         onClick={handleStartBattle}
                         disabled={selectedTeam.length < gate.requirements.teamSize || isInBattle}
-                        className="sl-button flex-1"
+                        className="sl-button flex-1 bg-gradient-to-r from-sl-blue to-sl-purple hover:from-sl-blue-dark hover:to-sl-purple-dark text-white font-medium py-3"
                       >
-                        {isInBattle ? 'Fighting...' : 'Start Battle'}
+                        {isInBattle ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
+                            Fighting...
+                          </>
+                        ) : (
+                          <>
+                            <Sword className="w-4 h-4 mr-2" />
+                            Start Battle
+                          </>
+                        )}
                       </Button>
                     </div>
                   </DialogContent>
@@ -377,10 +442,16 @@ const DungeonGates = () => {
       </div>
 
       {gates.length === 0 && (
-        <div className="text-center py-12">
-          <MapPin className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-          <h3 className="text-xl text-slate-400 mb-2">No Active Gates</h3>
-          <p className="text-slate-500">New dungeon gates will appear soon. Stay alert!</p>
+        <div className="text-center py-16">
+          <div className="relative">
+            <MapPin className="w-20 h-20 text-slate-600 mx-auto mb-6 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sl-blue/20 to-transparent blur-xl"></div>
+          </div>
+          <h3 className="text-2xl text-slate-400 mb-3 font-medium">No Active Gates</h3>
+          <p className="text-slate-500 text-lg">New dungeon gates will appear soon. Stay alert, Hunter!</p>
+          <div className="mt-6 text-sm text-slate-600">
+            Gates spawn every 2-5 minutes
+          </div>
         </div>
       )}
     </div>

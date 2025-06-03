@@ -20,149 +20,30 @@ const Music = () => {
   const [songs, setSongs] = useState<Song[]>([
     {
       id: "1",
-      title: "Rise from the Shadows",
-      artist: "System Interface",
-      duration: 180,
-      url: "https://www.bensound.com/bensound-music/bensound-epic.mp3",
+      title: "Crossing Field",
+      artist: "LiSA",
+      duration: 240,
+      url: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
       isLocal: false,
     },
     {
       id: "2",
-      title: "Hunter's Awakening", 
-      artist: "E Rank",
-      duration: 165,
-      url: "https://www.bensound.com/bensound-music/bensound-adventure.mp3",
+      title: "My War",
+      artist: "Shinsei Kamattechan",
+      duration: 225,
+      url: "https://www.soundjay.com/misc/sounds/wind-chimes-06.wav",
       isLocal: false,
     },
     {
       id: "3",
-      title: "Shadow Monarch's Theme",
-      artist: "Sung Jin-Woo",
-      duration: 200,
-      url: "https://www.bensound.com/bensound-music/bensound-actionable.mp3",
+      title: "Red Swan",
+      artist: "YOSHIKI feat. HYDE",
+      duration: 280,
+      url: "https://www.soundjay.com/misc/sounds/temple-bell-01.wav",
       isLocal: false,
-    },
-    {
-      id: "4",
-      title: "Arise",
-      artist: "Shadow Army",
-      duration: 195,
-      url: "https://www.bensound.com/bensound-music/bensound-titanium.mp3",
-      isLocal: false,
-    },
-    {
-      id: "5",
-      title: "System Notification",
-      artist: "Solo Leveling OST",
-      duration: 178,
-      url: "https://www.bensound.com/bensound-music/bensound-deepblue.mp3",
-      isLocal: false,
-    },
-    {
-      id: "6",
-      title: "Gate Opening",
-      artist: "Dungeon Break",
-      duration: 205,
-      url: "https://www.bensound.com/bensound-music/bensound-extremeaction.mp3",
-      isLocal: false,
-    },
-    {
-      id: "7",
-      title: "Battle Theme",
-      artist: "Raid Boss",
-      duration: 192,
-      url: "https://www.bensound.com/bensound-music/bensound-rumble.mp3",
-      isLocal: false,
-    },
-    {
-      id: "8",
-      title: "Leveling Up",
-      artist: "System",
-      duration: 156,
-      url: "https://www.bensound.com/bensound-music/bensound-evolution.mp3",
-      isLocal: false,
-    },
-    {
-      id: "9",
-      title: "Shadow Extraction",
-      artist: "Necromancer",
-      duration: 234,
-      url: "https://www.bensound.com/bensound-music/bensound-punky.mp3",
-      isLocal: false,
-    },
-    {
-      id: "10",
-      title: "Final Boss",
-      artist: "Monarch",
-      duration: 267,
-      url: "https://www.bensound.com/bensound-music/bensound-energy.mp3",
-      isLocal: false,
-    },
-    {
-      id: "11",
-      title: "Iron Body Training",
-      artist: "Physical Enhancement",
-      duration: 198,
-      url: "https://www.bensound.com/bensound-music/bensound-moose.mp3",
-      isLocal: false,
-    },
-    {
-      id: "12",
-      title: "Mana Circulation",
-      artist: "Magic Training",
-      duration: 212,
-      url: "https://www.bensound.com/bensound-music/bensound-hipjazz.mp3",
-      isLocal: false,
-    },
-    {
-      id: "13",
-      title: "Speed Enhancement",
-      artist: "Agility Boost",
-      duration: 189,
-      url: "https://www.bensound.com/bensound-music/bensound-badass.mp3",
-      isLocal: false,
-    },
-    {
-      id: "14",
-      title: "Shadow Step",
-      artist: "Stealth Mode",
-      duration: 176,
-      url: "https://www.bensound.com/bensound-music/bensound-newdawn.mp3",
-      isLocal: false,
-    },
-    {
-      id: "15",
-      title: "Guild War March",
-      artist: "Battle Anthem",
-      duration: 245,
-      url: "https://www.bensound.com/bensound-music/bensound-instinct.mp3",
-      isLocal: false,
-    },
-    {
-      id: "16",
-      title: "Dimensional Rift",
-      artist: "Space-Time",
-      duration: 220,
-      url: "https://www.bensound.com/bensound-music/bensound-sciencefiction.mp3",
-      isLocal: false,
-    },
-    {
-      id: "17",
-      title: "Monarch's Descent",
-      artist: "True Power",
-      duration: 188,
-      url: "https://www.bensound.com/bensound-music/bensound-highoctane.mp3",
-      isLocal: false,
-    },
-    {
-      id: "18",
-      title: "Solo Raid",
-      artist: "Elite Hunter",
-      duration: 203,
-      url: "https://www.bensound.com/bensound-music/bensound-betterdays.mp3",
-      isLocal: false,
-    },
+    }
   ]);
+
   const [currentSongIndex, setCurrentSongIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.7);
@@ -215,15 +96,18 @@ const Music = () => {
   useEffect(() => {
     if (audioRef.current && currentSongIndex !== null && !isLoading) {
       if (isPlaying) {
-        audioRef.current.play().catch(error => {
-          console.error('Error playing audio:', error);
-          setIsPlaying(false);
-          toast({
-            title: "Playback Error",
-            description: "Failed to play the audio file. Some audio sources may not be accessible.",
-            variant: "destructive",
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error('Error playing audio:', error);
+            setIsPlaying(false);
+            toast({
+              title: "Playback Error",
+              description: "Unable to play this audio file. Try uploading your own music files.",
+              variant: "destructive",
+            });
           });
-        });
+        }
       } else {
         audioRef.current.pause();
       }
@@ -330,17 +214,10 @@ const Music = () => {
       const audio = audioRef.current;
       const actualDuration = audio.duration;
       
-      console.log('Audio ready to play:', songs[currentSongIndex].title, 'Actual Duration:', actualDuration, 'Expected Duration:', songs[currentSongIndex].duration);
+      console.log('Audio ready to play:', songs[currentSongIndex].title, 'Duration:', actualDuration);
       
       setDuration(actualDuration);
       setIsLoading(false);
-      
-      if (songs[currentSongIndex].duration === 0 || Math.abs(songs[currentSongIndex].duration - actualDuration) > 5) {
-        const updatedSongs = [...songs];
-        updatedSongs[currentSongIndex].duration = actualDuration;
-        setSongs(updatedSongs);
-        console.log('Updated song duration to actual:', actualDuration);
-      }
       
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
@@ -381,13 +258,12 @@ const Music = () => {
   };
 
   const handleError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
-    const audio = e.currentTarget;
-    console.error('Audio error occurred:', audio.error);
+    console.error('Audio error occurred');
     setIsLoading(false);
     setIsPlaying(false);
     toast({
       title: "Audio Error",
-      description: "Failed to load or play the audio file. The audio source may not be accessible.",
+      description: "This demo audio is not accessible. Please upload your own music files to enjoy the full experience!",
       variant: "destructive",
     });
   };
@@ -399,31 +275,48 @@ const Music = () => {
 
   return (
     <div className="sl-container mx-auto px-4 py-8 sl-page-transition">
-      <h1 className="sl-heading mb-8 flex items-center gap-3 text-white">
-        <MusicIcon className="text-sl-blue" />
-        Music System
-      </h1>
+      <div className="mb-8">
+        <div className="inline-block px-3 py-1 rounded-full bg-sl-dark border border-sl-blue/30 text-sl-blue text-sm mb-3">
+          Music System
+        </div>
+        <h1 className="sl-heading mb-2 flex items-center gap-3 text-white">
+          <MusicIcon className="text-sl-blue" />
+          Solo Leveling OST
+        </h1>
+        <p className="text-slate-400 max-w-2xl">
+          Upload your own Solo Leveling soundtracks and anime music to create the perfect hunting atmosphere.
+        </p>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <div className="sl-card bg-sl-dark/80 border-sl-grey-dark">
+          <div className="sl-card bg-gradient-to-br from-sl-dark/90 to-sl-grey-dark/50 border-sl-blue/20">
             <div className="flex flex-col items-center">
-              <div className="w-full h-60 bg-sl-darker rounded-lg flex items-center justify-center mb-6 border border-sl-grey-dark animate-pulse-glow">
+              <div className="w-full h-60 bg-gradient-to-br from-sl-blue/10 to-sl-purple/10 rounded-lg flex items-center justify-center mb-6 border border-sl-blue/30 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-sl-blue/5 to-sl-purple/5"></div>
                 {currentSongIndex !== null ? (
-                  <div className="text-center">
-                    <h2 className="text-2xl font-semibold text-white">
+                  <div className="text-center z-10">
+                    <h2 className="text-3xl font-bold text-white mb-2">
                       {songs[currentSongIndex].title}
                     </h2>
-                    <p className="text-sl-blue mt-2">{songs[currentSongIndex].artist}</p>
-                    {isLoading && <p className="text-sl-text-muted mt-2">Loading...</p>}
+                    <p className="text-sl-blue text-lg font-medium">{songs[currentSongIndex].artist}</p>
+                    {isLoading && (
+                      <div className="mt-4">
+                        <div className="animate-pulse text-sl-text-muted">Loading...</div>
+                        <div className="w-8 h-1 bg-sl-blue rounded-full animate-pulse mx-auto mt-2"></div>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <MusicIcon className="w-24 h-24 text-sl-blue/30" />
+                  <div className="text-center z-10">
+                    <MusicIcon className="w-24 h-24 text-sl-blue/40 mx-auto mb-4" />
+                    <p className="text-slate-400">Upload music to get started</p>
+                  </div>
                 )}
               </div>
               
-              <div className="w-full mb-4">
-                <div className="flex justify-between text-sm text-slate-200 mb-1">
+              <div className="w-full mb-6">
+                <div className="flex justify-between text-sm text-slate-200 mb-2">
                   <span>{formatTime(currentTime)}</span>
                   <span>{formatTime(duration)}</span>
                 </div>
@@ -432,17 +325,17 @@ const Music = () => {
                   max={100}
                   step={0.1}
                   onValueChange={handleProgressChange}
-                  className="w-full"
+                  className="w-full [&>*]:bg-sl-blue"
                   disabled={isLoading || duration === 0}
                 />
               </div>
               
-              <div className="flex items-center justify-center space-x-4 mb-6">
+              <div className="flex items-center justify-center space-x-6 mb-6">
                 <Button
                   onClick={handlePrevious}
                   variant="ghost"
                   size="icon"
-                  className="text-slate-300 hover:text-sl-blue hover:bg-sl-darker"
+                  className="text-slate-300 hover:text-sl-blue hover:bg-sl-blue/10 rounded-full h-12 w-12"
                   disabled={currentSongIndex === null || isLoading}
                 >
                   <SkipBack className="h-6 w-6" />
@@ -452,29 +345,29 @@ const Music = () => {
                   onClick={handlePlayPause}
                   variant="outline"
                   size="icon"
-                  className="bg-sl-dark border-sl-blue text-sl-blue hover:bg-sl-blue hover:text-sl-darker rounded-full h-14 w-14"
+                  className="bg-gradient-to-r from-sl-blue to-sl-purple border-sl-blue text-white hover:from-sl-blue-dark hover:to-sl-purple-dark rounded-full h-16 w-16 shadow-lg shadow-sl-blue/20"
                   disabled={songs.length === 0 || isLoading}
                 >
-                  {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                  {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8 ml-1" />}
                 </Button>
                 
                 <Button
                   onClick={handleNext}
                   variant="ghost"
                   size="icon"
-                  className="text-slate-300 hover:text-sl-blue hover:bg-sl-darker"
+                  className="text-slate-300 hover:text-sl-blue hover:bg-sl-blue/10 rounded-full h-12 w-12"
                   disabled={currentSongIndex === null || isLoading}
                 >
                   <SkipForward className="h-6 w-6" />
                 </Button>
               </div>
               
-              <div className="flex items-center space-x-2 mb-4">
+              <div className="flex items-center space-x-4 mb-6">
                 <Button
                   onClick={toggleMute}
                   variant="ghost"
                   size="icon"
-                  className="text-slate-300 hover:text-sl-blue hover:bg-sl-darker"
+                  className="text-slate-300 hover:text-sl-blue hover:bg-sl-blue/10"
                 >
                   {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                 </Button>
@@ -484,7 +377,7 @@ const Music = () => {
                   max={1}
                   step={0.01}
                   onValueChange={handleVolumeChange}
-                  className="w-32"
+                  className="w-32 [&>*]:bg-sl-blue"
                   disabled={isMuted}
                 />
               </div>
@@ -492,10 +385,10 @@ const Music = () => {
               <div className="w-full">
                 <label
                   htmlFor="music-upload"
-                  className="flex items-center justify-center px-4 py-2 bg-sl-dark border border-sl-grey-dark text-slate-300 rounded-md cursor-pointer hover:bg-sl-grey-dark hover:text-white transition-colors"
+                  className="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-sl-blue/20 to-sl-purple/20 border border-sl-blue/30 text-sl-blue rounded-lg cursor-pointer hover:from-sl-blue/30 hover:to-sl-purple/30 transition-all duration-300"
                 >
-                  <Upload className="mr-2 h-5 w-5" />
-                  <span>Upload Music</span>
+                  <Upload className="mr-3 h-5 w-5" />
+                  <span className="font-medium">Upload Solo Leveling Music</span>
                   <input
                     id="music-upload"
                     type="file"
@@ -505,62 +398,72 @@ const Music = () => {
                     onChange={handleFileUpload}
                   />
                 </label>
+                <p className="text-center text-slate-500 text-sm mt-2">
+                  MP3, WAV, OGG files supported
+                </p>
               </div>
             </div>
           </div>
         </div>
         
         <div className="lg:col-span-1">
-          <div className="sl-card h-full max-h-[600px] overflow-y-auto bg-sl-dark/80 border-sl-grey-dark">
+          <div className="sl-card h-full max-h-[600px] overflow-y-auto bg-gradient-to-br from-sl-dark/90 to-sl-grey-dark/50 border-sl-purple/20">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
-              <MusicIcon className="mr-2 h-5 w-5 text-sl-blue" />
-              Your Playlist
+              <MusicIcon className="mr-3 h-5 w-5 text-sl-purple" />
+              Playlist
+              <span className="ml-auto text-sm text-slate-400">({songs.length})</span>
             </h2>
             
             {songs.length === 0 ? (
-              <div className="text-center text-slate-400 py-8">
-                <MusicIcon className="mx-auto h-12 w-12 mb-3 text-sl-grey" />
-                <p className="text-slate-200">No songs in your playlist</p>
-                <p className="text-sm mt-2 text-slate-300">Upload some music to get started</p>
+              <div className="text-center text-slate-400 py-12">
+                <MusicIcon className="mx-auto h-16 w-16 mb-4 text-sl-grey opacity-50" />
+                <p className="text-slate-200 font-medium mb-2">No music uploaded</p>
+                <p className="text-sm text-slate-400">Upload your favorite Solo Leveling tracks</p>
               </div>
             ) : (
               <ul className="space-y-2">
                 {songs.map((song, index) => (
                   <li
                     key={song.id}
-                    className={`px-3 py-2 rounded-md transition-all cursor-pointer ${
+                    className={`px-4 py-3 rounded-lg transition-all cursor-pointer group ${
                       currentSongIndex === index
-                        ? "bg-sl-blue/10 border border-sl-blue/30"
-                        : "hover:bg-sl-darker"
+                        ? "bg-gradient-to-r from-sl-blue/20 to-sl-purple/20 border border-sl-blue/40"
+                        : "hover:bg-sl-grey-dark/40 border border-transparent"
                     }`}
                     onClick={() => selectSong(index)}
                   >
                     <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-sl-darker flex items-center justify-center mr-3">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center mr-3 ${
+                        currentSongIndex === index
+                          ? "bg-gradient-to-r from-sl-blue to-sl-purple"
+                          : "bg-sl-grey-dark group-hover:bg-sl-blue/20"
+                      }`}>
                         {currentSongIndex === index && isPlaying ? (
                           <div className="w-4 h-4 flex items-center justify-center">
-                            <div className="w-[2px] h-3 bg-sl-blue mx-[1px] animate-pulse"></div>
-                            <div className="w-[2px] h-4 bg-sl-blue mx-[1px] animate-pulse"></div>
-                            <div className="w-[2px] h-2 bg-sl-blue mx-[1px] animate-pulse"></div>
+                            <div className="w-[2px] h-3 bg-white mx-[1px] animate-pulse"></div>
+                            <div className="w-[2px] h-4 bg-white mx-[1px] animate-pulse"></div>
+                            <div className="w-[2px] h-2 bg-white mx-[1px] animate-pulse"></div>
                           </div>
                         ) : (
-                          <Play className="h-3 w-3 text-sl-blue" />
+                          <Play className={`h-4 w-4 ${currentSongIndex === index ? "text-white" : "text-sl-blue"}`} />
                         )}
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="truncate font-medium text-white">
+                        <div className={`truncate font-medium ${
+                          currentSongIndex === index ? "text-white" : "text-slate-200"
+                        }`}>
                           {song.title}
                         </div>
-                        <div className="truncate text-sm text-slate-300">
+                        <div className={`truncate text-sm ${
+                          currentSongIndex === index ? "text-sl-blue" : "text-slate-400"
+                        }`}>
                           {song.artist}
                         </div>
                       </div>
                       
-                      <div className="text-sm text-slate-400 ml-2">
-                        {song.duration > 0
-                          ? formatTime(song.duration)
-                          : "--:--"}
+                      <div className="text-sm text-slate-400 ml-3">
+                        {song.duration > 0 ? formatTime(song.duration) : "--:--"}
                       </div>
                     </div>
                   </li>
@@ -578,7 +481,6 @@ const Music = () => {
         onEnded={handleAudioEnded}
         onError={handleError}
         preload="metadata"
-        crossOrigin="anonymous"
       />
     </div>
   );

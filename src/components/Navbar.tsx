@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Menu, X, User, Zap, BookOpen, Target, Trophy, LogOut, Ghost, Music, MessageSquare } from 'lucide-react';
+import { Menu, X, User, Zap, BookOpen, Target, Trophy, LogOut, Ghost, Music, MessageSquare, MapPin } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import ThemeToggle from './ThemeToggle';
 import { GlowPulse } from './VisualEffects';
@@ -30,6 +30,7 @@ const Navbar = () => {
     { to: '/skills', icon: <Zap className="w-5 h-5" />, text: 'Skills' },
     { to: '/quests', icon: <Target className="w-5 h-5" />, text: 'Quests' },
     { to: '/shadow-army', icon: <Ghost className="w-5 h-5" />, text: 'Shadows' },
+    { to: '/dungeon-gates', icon: <MapPin className="w-5 h-5" />, text: 'Dungeons' },
     { to: '/music', icon: <Music className="w-5 h-5" />, text: 'Music' },
     { to: '/chat', icon: <MessageSquare className="w-5 h-5" />, text: 'Chat' },
     { to: '/leaderboard', icon: <Trophy className="w-5 h-5" />, text: 'Leaderboard' },
