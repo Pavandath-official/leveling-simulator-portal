@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { usePlayer } from '@/context/PlayerContext';
+import { useSupabasePlayer } from '@/hooks/useSupabasePlayer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -36,7 +36,7 @@ interface DungeonGate {
 }
 
 const DungeonGates = () => {
-  const { level, stats, shadows, gainExp, addGold } = usePlayer();
+  const { profile, stats, shadows, updateProfile, recordBattle } = useSupabasePlayer();
   const { toast } = useToast();
   const [gates, setGates] = useState<DungeonGate[]>([]);
   const [selectedGate, setSelectedGate] = useState<DungeonGate | null>(null);
@@ -208,14 +208,14 @@ const DungeonGates = () => {
   };
 
   const canEnterGate = (gate: DungeonGate) => {
-    return level >= gate.requirements.minLevel;
+    return profile && profile.level >= gate.requirements.minLevel;
   };
 
   const calculateTeamPower = (teamIds: string[]) => {
     const arisenShadows = shadows.filter(s => s.arisen && teamIds.includes(s.id));
-    const totalPower = arisenShadows.reduce((sum, shadow) => sum + shadow.power, 0);
-    const playerPower = stats.reduce((sum, stat) => sum + stat.value, 0);
-    return totalPower + playerPower;
+    const totalShadowPower = arisenShadows.reduce((sum, shadow) => sum + shadow.power, 0);
+    const playerPower = stats ? (stats.strength + stats.agility + stats.intelligence + stats.vitality + stats.endurance) : 0;
+    return totalShadowPower + playerPower;
   };
 
   const handleEnterGate = async (gate: DungeonGate) => {
@@ -233,7 +233,7 @@ const DungeonGates = () => {
   };
 
   const handleStartBattle = async () => {
-    if (!selectedGate || selectedTeam.length < selectedGate.requirements.teamSize) {
+    if (!selectedGate || selectedTeam.length < selectedGate.requirements.teamSize || !profile) {
       toast({
         title: "Incomplete Team",
         description: `You need exactly ${selectedGate.requirements.teamSize} team members to enter this dungeon.`,
@@ -255,10 +255,28 @@ const DungeonGates = () => {
     const success = Math.random() < successChance;
 
     if (success) {
-      gainExp(selectedGate.rewards.exp);
-      if (addGold) {
-        addGold(selectedGate.rewards.gold);
-      }
+      // Update player with rewards
+      const newLevel = profile.level + Math.floor(selectedGate.rewards.exp / 100);
+      const newExp = profile.exp + selectedGate.rewards.exp;
+      const newGold = profile.gold + selectedGate.rewards.gold;
+
+      await updateProfile({
+        level: newLevel,
+        exp: newExp,
+        gold: newGold
+      });
+
+      // Record battle
+      await recordBattle({
+        gate_name: selectedGate.name,
+        gate_rank: selectedGate.rank,
+        team_power: teamPower,
+        success: true,
+        exp_gained: selectedGate.rewards.exp,
+        gold_gained: selectedGate.rewards.gold,
+        artifacts: selectedGate.rewards.items
+      });
+
       toast({
         title: "🎉 Victory!",
         description: `Successfully cleared ${selectedGate.name}! Gained ${selectedGate.rewards.exp} EXP and ${selectedGate.rewards.gold} gold.`,
@@ -268,6 +286,17 @@ const DungeonGates = () => {
       // Remove cleared gate
       setGates(prev => prev.filter(g => g.id !== selectedGate.id));
     } else {
+      // Record failed battle
+      await recordBattle({
+        gate_name: selectedGate.name,
+        gate_rank: selectedGate.rank,
+        team_power: teamPower,
+        success: false,
+        exp_gained: 0,
+        gold_gained: 0,
+        artifacts: []
+      });
+
       toast({
         title: "💀 Defeat",
         description: `Your team was defeated in ${selectedGate.name}. Train harder and try again!`,
@@ -279,6 +308,17 @@ const DungeonGates = () => {
     setSelectedGate(null);
     setSelectedTeam([]);
   };
+
+  if (!profile || !stats) {
+    return (
+      <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
+        <div className="text-center py-16">
+          <MapPin className="w-12 h-12 text-sl-blue mx-auto mb-4 animate-pulse" />
+          <p className="text-slate-400">Loading dungeon gates...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">

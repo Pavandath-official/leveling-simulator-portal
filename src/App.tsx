@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,110 +6,109 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { ThemeProvider } from "@/context/ThemeContext";
-import Navbar from "@/components/Navbar";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
+
 import Index from "./pages/Index";
 import Skills from "./pages/Skills";
 import Quests from "./pages/Quests";
-import Login from "./pages/Login";
-import Leaderboard from "./pages/Leaderboard";
-import NotFound from "./pages/NotFound";
 import ShadowArmy from "./pages/ShadowArmy";
-import Music from "./pages/Music";
-import Chat from "./pages/Chat";
-import Gym from "./pages/Gym";
+import DungeonGates from "./pages/DungeonGates";
+import Leaderboard from "./pages/Leaderboard";
+import Login from "./pages/Login";
+import Navbar from "./components/Navbar";
 import LevelUpAnimation from "./components/LevelUpAnimation";
 import RankUpAnimation from "./components/RankUpAnimation";
 import ShadowExtractionAnimation from "./components/ShadowExtractionAnimation";
-import { useState, useEffect } from "react";
-import { usePlayer } from "@/context/PlayerContext";
-import DungeonGates from "./pages/DungeonGates";
+import VisualEffects from "./components/VisualEffects";
+import CircularLogoutButton from "./components/CircularLogoutButton";
+import AudioPlayer from "./components/AudioPlayer";
 
-// Configure the Query Client with proper settings
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
-
-// Create a separate animation component to avoid context issues
-const AnimationsContainer = () => {
-  const { 
-    showLevelUpAnimation, 
-    showRankUpAnimation, 
-    showExtractionAnimation, 
-    shadowTypeToExtract,
-    onExtractionComplete,
-    dismissAnimations 
-  } = usePlayer();
-  
-  return (
-    <>
-      {showLevelUpAnimation && <LevelUpAnimation />}
-      {showRankUpAnimation && <RankUpAnimation />}
-      {showExtractionAnimation && shadowTypeToExtract && (
-        <ShadowExtractionAnimation 
-          shadowType={shadowTypeToExtract} 
-          onComplete={onExtractionComplete} 
-        />
-      )}
-    </>
-  );
-};
+const queryClient = new QueryClient();
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Check if user is logged in by checking if player name exists in localStorage
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const playerName = localStorage.getItem('playerName');
-    setIsLoggedIn(!!playerName);
-    setIsLoading(false);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // If still loading, show nothing to prevent flicker
-  if (isLoading) {
-    return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-sl-dark flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-sl-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sl-blue">Loading Solo Leveling System...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
   }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <PlayerProvider>
-          <TooltipProvider>
-            <div className="min-h-screen flex flex-col bg-sl-darker relative overflow-hidden">
-              {/* Background pattern */}
-              <div className="fixed inset-0 sl-hex-bg pointer-events-none"></div>
-              
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                {isLoggedIn && <Navbar />}
-                <main className={`${isLoggedIn ? 'flex-1' : 'min-h-screen'} relative z-10`}>
-                  <Routes>
-                    <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
-                    <Route path="/" element={isLoggedIn ? <Index /> : <Navigate to="/login" />} />
-                    <Route path="/skills" element={isLoggedIn ? <Skills /> : <Navigate to="/login" />} />
-                    <Route path="/quests" element={isLoggedIn ? <Quests /> : <Navigate to="/login" />} />
-                    <Route path="/leaderboard" element={isLoggedIn ? <Leaderboard /> : <Navigate to="/login" />} />
-                    <Route path="/shadow-army" element={isLoggedIn ? <ShadowArmy /> : <Navigate to="/login" />} />
-                    <Route path="/music" element={isLoggedIn ? <Music /> : <Navigate to="/login" />} />
-                    <Route path="/gym" element={isLoggedIn ? <Gym /> : <Navigate to="/login" />} />
-                    <Route path="/chat" element={isLoggedIn ? <Chat /> : <Navigate to="/login" />} />
-                    <Route path="/dungeon-gates" element={isLoggedIn ? <DungeonGates /> : <Navigate to="/login" />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </main>
-                {/* Animations */}
-                <AnimationsContainer />
-              </BrowserRouter>
-            </div>
-          </TooltipProvider>
-        </PlayerProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <ThemeProvider>
+          <PlayerProvider>
+            <BrowserRouter>
+              <div className="min-h-screen bg-sl-dark text-white">
+                <VisualEffects />
+                <Navbar />
+                <CircularLogoutButton />
+                <AudioPlayer className="fixed bottom-4 left-4 z-40" />
+                
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/skills" element={<Skills />} />
+                  <Route path="/quests" element={<Quests />} />
+                  <Route path="/shadow-army" element={<ShadowArmy />} />
+                  <Route path="/dungeon-gates" element={<DungeonGates />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+
+                <LevelUpAnimation />
+                <RankUpAnimation />
+                <ShadowExtractionAnimation />
+              </div>
+            </BrowserRouter>
+          </PlayerProvider>
+        </ThemeProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };

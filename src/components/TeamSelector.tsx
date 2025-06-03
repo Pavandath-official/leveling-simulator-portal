@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { usePlayer } from '@/context/PlayerContext';
+import { useSupabasePlayer } from '@/hooks/useSupabasePlayer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +36,7 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
   onTeamChange,
   calculateTeamPower,
 }) => {
-  const { name, level, stats, shadows } = usePlayer();
+  const { profile, stats, shadows } = useSupabasePlayer();
 
   const arisenShadows = shadows.filter(shadow => shadow.arisen);
   const teamPower = calculateTeamPower(selectedTeam);
@@ -66,6 +66,14 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
     return 'text-red-400';
   };
 
+  if (!profile || !stats) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-slate-400">Loading player data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Team Leader (Player) */}
@@ -79,28 +87,28 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-white font-medium">{name}</h3>
-              <p className="text-slate-400 text-sm">Level {level} Hunter</p>
+              <h3 className="text-white font-medium">{profile.username}</h3>
+              <p className="text-slate-400 text-sm">Level {profile.level} Hunter</p>
             </div>
             <div className="text-right">
               <div className="text-slate-300 text-sm">Total Stats</div>
               <div className="text-white font-medium">
-                {stats.reduce((sum, stat) => sum + stat.value, 0)}
+                {stats.strength + stats.agility + stats.intelligence + stats.vitality + stats.endurance}
               </div>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
             <div className="text-center">
               <div className="text-red-400">STR</div>
-              <div className="text-white">{stats.find(s => s.name === 'Strength')?.value || 0}</div>
+              <div className="text-white">{stats.strength}</div>
             </div>
             <div className="text-center">
               <div className="text-green-400">AGI</div>
-              <div className="text-white">{stats.find(s => s.name === 'Agility')?.value || 0}</div>
+              <div className="text-white">{stats.agility}</div>
             </div>
             <div className="text-center">
               <div className="text-blue-400">INT</div>
-              <div className="text-white">{stats.find(s => s.name === 'Intelligence')?.value || 0}</div>
+              <div className="text-white">{stats.intelligence}</div>
             </div>
           </div>
         </CardContent>
@@ -119,7 +127,7 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
             <div className="text-center py-6">
               <Users className="w-12 h-12 text-slate-600 mx-auto mb-3" />
               <p className="text-slate-400">No arisen shadows available</p>
-              <p className="text-slate-500 text-sm">Arise shadows to add them to your team</p>
+              <p className="text-slate-500 text-sm">Visit Shadow Army to arise shadows for battle</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

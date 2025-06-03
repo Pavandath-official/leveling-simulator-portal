@@ -1,55 +1,132 @@
-import React, { useState } from 'react';
-import { usePlayer } from '@/context/PlayerContext';
-import { Ghost, Shield, Sword, Wand2, User, ArrowRight, Sparkles, Plus } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import { useSupabasePlayer } from '@/hooks/useSupabasePlayer';
+import { Ghost, Shield, Sword, Wand2, User, ArrowRight, Sparkles, Plus, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from "@/components/ui/button";
+import MultiAriseAnimation from '@/components/MultiAriseAnimation';
+
+// Famous Solo Leveling shadows
+const FAMOUS_SHADOWS = [
+  { name: 'Igris', type: 'knight', power: 150, level: 15 },
+  { name: 'Beru', type: 'beast', power: 180, level: 18 },
+  { name: 'Iron', type: 'soldier', power: 120, level: 12 },
+  { name: 'Tank', type: 'soldier', power: 110, level: 11 },
+  { name: 'Tusk', type: 'beast', power: 140, level: 14 },
+  { name: 'Kaisel', type: 'beast', power: 200, level: 20 },
+  { name: 'Greed', type: 'mage', power: 160, level: 16 },
+  { name: 'Jima', type: 'soldier', power: 100, level: 10 }
+];
 
 const ShadowArmy = () => {
-  const { shadows, ariseShadow, extractShadow } = usePlayer();
+  const { shadows, createShadow, updateShadow, loading } = useSupabasePlayer();
+  const { toast } = useToast();
   const [selectedShadow, setSelectedShadow] = useState<string | null>(null);
-  const [showAriseAnimation, setShowAriseAnimation] = useState(false);
-  const [shadowToArise, setShadowToArise] = useState<string | null>(null);
+  const [selectedForArise, setSelectedForArise] = useState<string[]>([]);
+  const [showMultiAriseAnimation, setShowMultiAriseAnimation] = useState(false);
   const [showExtractDialog, setShowExtractDialog] = useState(false);
 
-  const ariseCommand = (id: string) => {
-    setShadowToArise(id);
-    setShowAriseAnimation(true);
+  const arisenShadows = shadows.filter(shadow => shadow.arisen);
+  const unarisenShadows = shadows.filter(shadow => !shadow.arisen);
+
+  const extractRandomShadow = async () => {
+    const randomShadow = FAMOUS_SHADOWS[Math.floor(Math.random() * FAMOUS_SHADOWS.length)];
+    const powerVariation = Math.floor(Math.random() * 30) - 15; // ±15 power variation
     
-    // Complete the arise animation after 3 seconds
-    setTimeout(() => {
-      setShowAriseAnimation(false);
-      ariseShadow(id);
-      setSelectedShadow(null);
-    }, 3000);
+    const newShadow = {
+      name: randomShadow.name,
+      type: randomShadow.type,
+      level: randomShadow.level + Math.floor(Math.random() * 3) - 1, // ±1 level variation
+      power: randomShadow.power + powerVariation,
+      arisen: false
+    };
+
+    await createShadow(newShadow);
+    toast({
+      title: "Shadow Extracted!",
+      description: `You have extracted ${newShadow.name} from a defeated enemy.`,
+      variant: "default",
+    });
+  };
+
+  const handleShadowSelection = (shadowId: string) => {
+    setSelectedForArise(prev => 
+      prev.includes(shadowId) 
+        ? prev.filter(id => id !== shadowId)
+        : [...prev, shadowId]
+    );
+  };
+
+  const ariseSelectedShadows = () => {
+    if (selectedForArise.length === 0) {
+      toast({
+        title: "No Shadows Selected",
+        description: "Please select at least one shadow to arise.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setShowMultiAriseAnimation(true);
+  };
+
+  const completeMultiArise = async () => {
+    // Update all selected shadows to arisen status
+    for (const shadowId of selectedForArise) {
+      const shadow = shadows.find(s => s.id === shadowId);
+      if (shadow) {
+        await updateShadow(shadowId, { 
+          arisen: true, 
+          power: shadow.power + 10 // Bonus power when arising
+        });
+      }
+    }
+
+    toast({
+      title: "🔥 ARISE COMPLETE!",
+      description: `${selectedForArise.length} shadows have joined your army!`,
+      variant: "default",
+    });
+
+    setSelectedForArise([]);
+    setShowMultiAriseAnimation(false);
   };
 
   const getShadowIcon = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'soldier':
-        return <User className="w-6 h-6" />;
       case 'knight':
         return <Shield className="w-6 h-6" />;
+      case 'beast':
+        return <Sword className="w-6 h-6" />;
       case 'mage':
         return <Wand2 className="w-6 h-6" />;
-      case 'assassin':
-        return <Sword className="w-6 h-6" />;
+      case 'soldier':
+        return <User className="w-6 h-6" />;
       default:
         return <Ghost className="w-6 h-6" />;
     }
   };
 
-  const handleManualExtraction = (type: string) => {
-    extractShadow(type);
-    setShowExtractDialog(false);
-  };
-
-  // Group shadows by arisen status
-  const arisenShadows = shadows.filter(shadow => shadow.arisen);
-  const unarisen = shadows.filter(shadow => !shadow.arisen);
+  if (loading) {
+    return (
+      <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
+        <div className="text-center py-16">
+          <Ghost className="w-12 h-12 text-sl-purple mx-auto mb-4 animate-pulse" />
+          <p className="text-slate-400">Loading your shadow army...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
+      <MultiAriseAnimation 
+        isVisible={showMultiAriseAnimation}
+        shadowCount={selectedForArise.length}
+        onComplete={completeMultiArise}
+      />
+
       <div className="mt-8 mb-12 text-center">
         <div className="inline-block px-3 py-1 rounded-full bg-sl-dark border border-sl-purple/30 text-sl-purple text-sm mb-3">
           Shadow Management
@@ -59,138 +136,27 @@ const ShadowArmy = () => {
           Manage your shadow army. Extract shadows from defeated enemies and command them with the power of necromancy.
         </p>
         
-        {/* Manual Extraction Button */}
-        <Button 
-          variant="outline" 
-          onClick={() => setShowExtractDialog(true)} 
-          className="mt-4 border-sl-purple/50 text-sl-purple hover:bg-sl-purple/10 hover:text-sl-purple-light"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Extract Shadow (Test)
-        </Button>
+        <div className="mt-4 flex justify-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={extractRandomShadow}
+            className="border-sl-purple/50 text-sl-purple hover:bg-sl-purple/10 hover:text-sl-purple-light"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Extract Shadow
+          </Button>
+
+          {selectedForArise.length > 0 && (
+            <Button
+              onClick={ariseSelectedShadows}
+              className="bg-gradient-to-r from-purple-900 to-purple-700 hover:from-purple-800 hover:to-purple-600 text-white"
+            >
+              <Flame className="w-4 h-4 mr-2" />
+              ARISE ({selectedForArise.length})
+            </Button>
+          )}
+        </div>
       </div>
-
-      {/* Manual Extract Dialog */}
-      <AnimatePresence>
-        {showExtractDialog && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowExtractDialog(false)}
-          >
-            <motion.div 
-              className="bg-sl-dark border border-sl-grey-dark/50 rounded-lg p-6 max-w-md w-full"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center">
-                <Ghost className="text-sl-purple mr-2" />
-                Extract Shadow
-              </h3>
-              <p className="text-slate-300 mb-6">
-                Select a shadow type to extract. In the real game, shadows would be extracted automatically when leveling up.
-              </p>
-              
-              <div className="grid grid-cols-2 gap-3">
-                {["soldier", "knight", "mage", "beast", "assassin"].map(type => (
-                  <Button 
-                    key={type}
-                    variant="outline"
-                    className="flex items-center justify-start border-sl-grey-dark/50 hover:border-sl-purple/50 hover:bg-sl-purple/10"
-                    onClick={() => handleManualExtraction(type)}
-                  >
-                    {getShadowIcon(type)}
-                    <span className="ml-2 capitalize">{type}</span>
-                  </Button>
-                ))}
-              </div>
-              
-              <Button 
-                className="w-full mt-4 bg-sl-dark border border-sl-grey-dark text-sl-grey hover:border-sl-grey-dark/80"
-                onClick={() => setShowExtractDialog(false)}
-              >
-                Cancel
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Arise Animation */}
-      <AnimatePresence>
-        {showAriseAnimation && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="text-center"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-            >
-              <motion.h2
-                className="text-7xl font-orbitron text-sl-purple mb-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0,
-                  textShadow: [
-                    "0 0 7px #9b87f5",
-                    "0 0 10px #9b87f5",
-                    "0 0 21px #9b87f5",
-                    "0 0 42px #9b87f5",
-                    "0 0 82px #9b87f5",
-                    "0 0 92px #9b87f5",
-                    "0 0 102px #9b87f5",
-                    "0 0 151px #9b87f5"
-                  ]
-                }}
-                transition={{ 
-                  delay: 0.5, 
-                  duration: 0.8,
-                  textShadow: {
-                    duration: 1.5,
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                  }
-                }}
-              >
-                ARISE
-              </motion.h2>
-              
-              <motion.div
-                className="relative"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.5 }}
-              >
-                <motion.div 
-                  className="absolute inset-0"
-                  animate={{
-                    background: [
-                      "radial-gradient(circle, rgba(155,135,245,0) 0%, rgba(155,135,245,0) 100%)",
-                      "radial-gradient(circle, rgba(155,135,245,0.3) 0%, rgba(155,135,245,0) 70%)",
-                      "radial-gradient(circle, rgba(155,135,245,0) 0%, rgba(155,135,245,0) 100%)"
-                    ]
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity
-                  }}
-                />
-                <Ghost className="w-24 h-24 mx-auto text-sl-purple opacity-80" />
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Shadow Army Overview */}
@@ -202,7 +168,7 @@ const ShadowArmy = () => {
             </h3>
             <p className="text-slate-400 text-sm mb-5">
               Your shadow army consists of defeated enemies that you have extracted.
-              Use the "Arise" command to permanently add them to your shadow legion.
+              Select multiple shadows and use the "Arise" command to add them to your legion.
             </p>
 
             <div className="space-y-4">
@@ -231,7 +197,7 @@ const ShadowArmy = () => {
 
         {/* Shadow Collection */}
         <div className="lg:col-span-2 space-y-6">
-          {unarisen.length > 0 && (
+          {unarisenShadows.length > 0 && (
             <div className="sl-card animate-fade-in">
               <h3 className="text-lg font-bold text-white mb-5 flex items-center">
                 <Ghost className="text-sl-grey mr-2 w-5 h-5" />
@@ -239,20 +205,27 @@ const ShadowArmy = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                {unarisen.map((shadow) => (
-                  <div 
+                {unarisenShadows.map((shadow) => (
+                  <motion.div 
                     key={shadow.id}
-                    className={`border rounded-md transition-all duration-300 ${
-                      selectedShadow === shadow.id 
+                    className={`border rounded-md transition-all duration-300 cursor-pointer relative ${
+                      selectedForArise.includes(shadow.id)
+                        ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/20' 
+                        : selectedShadow === shadow.id 
                         ? 'border-sl-purple sl-border-glow' 
                         : 'border-sl-grey-dark hover:border-sl-purple/50'
-                    } cursor-pointer relative`}
-                    onClick={() => setSelectedShadow(
-                      selectedShadow === shadow.id ? null : shadow.id
-                    )}
+                    }`}
+                    onClick={() => {
+                      setSelectedShadow(selectedShadow === shadow.id ? null : shadow.id);
+                      handleShadowSelection(shadow.id);
+                    }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     <div className="p-4 flex items-center">
-                      <div className={`w-12 h-12 rounded-md flex items-center justify-center mr-3 bg-sl-grey-dark/50`}>
+                      <div className={`w-12 h-12 rounded-md flex items-center justify-center mr-3 ${
+                        selectedForArise.includes(shadow.id) ? 'bg-purple-500/30' : 'bg-sl-grey-dark/50'
+                      }`}>
                         {getShadowIcon(shadow.type)}
                       </div>
                       <div>
@@ -268,26 +241,14 @@ const ShadowArmy = () => {
                       </div>
                     </div>
                     
-                    {selectedShadow === shadow.id && (
-                      <div className="p-4 border-t border-sl-grey-dark bg-sl-dark/30 animate-fade-in">
-                        <p className="text-slate-300 mb-3 text-sm">
-                          A {shadow.type} shadow with power level {shadow.power}. 
-                          Use the "Arise" command to add it to your shadow army permanently.
-                        </p>
-                        
-                        <button 
-                          className="w-full mt-2 py-2 bg-sl-purple/20 border border-sl-purple text-sl-purple-light rounded-md text-sm font-medium hover:bg-sl-purple/30 transition-colors flex items-center justify-center"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            ariseCommand(shadow.id);
-                          }}
-                        >
-                          <span className="mr-2">ARISE</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
+                    {selectedForArise.includes(shadow.id) && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -304,15 +265,18 @@ const ShadowArmy = () => {
                 <Ghost className="w-12 h-12 text-sl-grey-dark mx-auto mb-2" />
                 <p className="text-slate-400">Your shadow army is empty.</p>
                 <p className="text-sm text-slate-500 mt-1">
-                  Level up to extract shadows, then use the "Arise" command.
+                  Extract shadows, then use the "Arise" command.
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {arisenShadows.map((shadow) => (
-                  <div 
+                  <motion.div 
                     key={shadow.id}
                     className="border border-sl-purple/30 rounded-md bg-sl-grey-dark/20 p-4 relative overflow-hidden"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
                   >
                     <div className="flex items-center">
                       <div className="w-12 h-12 rounded-md flex items-center justify-center mr-3 bg-sl-purple/20 text-sl-purple">
@@ -336,7 +300,7 @@ const ShadowArmy = () => {
                         Arisen
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}
