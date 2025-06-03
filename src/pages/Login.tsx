@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, User, Lock, ArrowRight, Zap, ChevronRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import StatBar from '@/components/StatBar';
 
@@ -19,47 +18,32 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    try {
-      if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              username: email.split('@')[0] // Use email prefix as username
-            }
-          }
+    // Fake authentication - accept any email/password
+    setTimeout(() => {
+      if (email && password) {
+        // Store fake user data in localStorage
+        const fakeUser = {
+          id: 'fake-user-123',
+          email: email,
+          username: email.split('@')[0] || 'Hunter'
+        };
+        localStorage.setItem('fakeUser', JSON.stringify(fakeUser));
+        
+        toast({
+          title: "Authentication Successful",
+          description: isSignUp ? "Account created successfully!" : "Welcome back, Hunter!",
         });
-
-        if (error) throw error;
-
-        if (data.user && !data.session) {
-          toast({
-            title: "Check your email",
-            description: "We sent you a confirmation link to complete registration.",
-          });
-        } else {
-          setShowAnimation(true);
-        }
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
+        
         setShowAnimation(true);
+      } else {
+        toast({
+          title: "Authentication Error",
+          description: "Please enter both email and password",
+          variant: "destructive",
+        });
       }
-    } catch (error: any) {
-      toast({
-        title: "Authentication Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
       setIsLoading(false);
-    }
+    }, 1000);
   };
 
   useEffect(() => {
@@ -144,8 +128,11 @@ const Login = () => {
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-white font-orbitron">Hunter System</h1>
             <p className="text-slate-400 mt-2 font-rajdhani">
-              {isSignUp ? 'Register for Hunter Association' : 'Enter your credentials to access the system'}
+              {isSignUp ? 'Register for Hunter Association (Demo Mode)' : 'Enter any credentials to access the system (Demo Mode)'}
             </p>
+            <div className="mt-2 text-xs text-yellow-400 bg-yellow-400/10 rounded-lg p-2">
+              Demo Mode: Enter any email and password to continue
+            </div>
           </div>
 
           <div className="sl-card bg-sl-dark/80 backdrop-blur-sm">
@@ -153,7 +140,7 @@ const Login = () => {
               <div className="space-y-4">
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
-                    Email
+                    Email (any email works)
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -167,14 +154,14 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="bg-sl-dark border border-sl-grey-dark focus:ring-sl-blue focus:border-sl-blue block w-full pl-10 pr-3 py-2 rounded-md text-white"
-                      placeholder="hunter@association.com"
+                      placeholder="demo@hunter.com"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
-                    Password
+                    Password (any password works)
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -188,7 +175,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="bg-sl-dark border border-sl-grey-dark focus:ring-sl-blue focus:border-sl-blue block w-full pl-10 pr-3 py-2 rounded-md text-white"
-                      placeholder="••••••••"
+                      placeholder="demo123"
                     />
                   </div>
                 </div>
@@ -204,7 +191,7 @@ const Login = () => {
                     <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
                   ) : (
                     <>
-                      <span>{isSignUp ? 'Register Hunter' : 'Access System'}</span>
+                      <span>{isSignUp ? 'Register Hunter (Demo)' : 'Access System (Demo)'}</span>
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </>
                   )}

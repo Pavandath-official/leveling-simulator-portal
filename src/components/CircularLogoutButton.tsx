@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { LogOut, User } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,8 +8,9 @@ const CircularLogoutButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    // Clear fake user data
+    localStorage.removeItem('fakeUser');
     navigate('/login');
   };
 
@@ -25,6 +25,9 @@ const CircularLogoutButton = () => {
           className="w-12 h-12 bg-sl-dark border-2 border-sl-blue rounded-full flex items-center justify-center text-sl-blue hover:bg-sl-blue hover:text-sl-dark transition-colors shadow-lg"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
         >
           <User className="w-5 h-5" />
         </motion.button>

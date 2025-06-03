@@ -7,8 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Session } from "@supabase/supabase-js";
 
 import Index from "./pages/Index";
 import Skills from "./pages/Skills";
@@ -28,25 +26,16 @@ import AudioPlayer from "./components/AudioPlayer";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    // Check for fake user in localStorage
+    const fakeUser = localStorage.getItem('fakeUser');
+    if (fakeUser) {
+      setUser(JSON.parse(fakeUser));
+    }
+    setLoading(false);
   }, []);
 
   if (loading) {
@@ -60,7 +49,7 @@ const App = () => {
     );
   }
 
-  if (!session) {
+  if (!user) {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
