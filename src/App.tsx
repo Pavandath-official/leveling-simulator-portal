@@ -13,6 +13,8 @@ import Skills from "./pages/Skills";
 import Quests from "./pages/Quests";
 import ShadowArmy from "./pages/ShadowArmy";
 import DungeonGates from "./pages/DungeonGates";
+import Music from "./pages/Music";
+import Chat from "./pages/Chat";
 import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
@@ -85,6 +87,8 @@ const App = () => {
                   <Route path="/quests" element={<Quests />} />
                   <Route path="/shadow-army" element={<ShadowArmy />} />
                   <Route path="/dungeon-gates" element={<DungeonGates />} />
+                  <Route path="/music" element={<Music />} />
+                  <Route path="/chat" element={<Chat />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>

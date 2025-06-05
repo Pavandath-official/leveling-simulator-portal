@@ -2,17 +2,15 @@
 import React, { useState } from 'react';
 import { LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 
 const CircularLogoutButton = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     // Clear fake user data
     localStorage.removeItem('fakeUser');
-    // Navigate to login page
-    navigate('/login', { replace: true });
+    // Force reload to go back to login
+    window.location.href = '/login';
   };
 
   return (

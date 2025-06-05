@@ -20,9 +20,8 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('playerName');
-    navigate('/login');
-    window.location.reload(); // Force reload to update auth state
+    localStorage.removeItem('fakeUser');
+    window.location.href = '/login';
   };
 
   const navItems = [
@@ -37,20 +36,22 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-sl-dark dark:bg-sl-darker border-b border-sl-grey-dark">
-      <div className="sl-container mx-auto px-4 py-3">
+    <nav className="bg-sl-dark dark:bg-sl-darker border-b border-sl-grey-dark sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
+          {/* Logo */}
           <NavLink to="/" className="flex items-center space-x-2" onClick={closeMenu}>
             <BookOpen className="text-sl-blue w-6 h-6" />
-            <div>
+            <div className="hidden sm:block">
               <GlowPulse>
-                <span className="font-bold text-xl text-white">System</span>
+                <span className="font-bold text-lg text-white">System</span>
                 <span className="text-sl-blue">Interface</span>
               </GlowPulse>
             </div>
           </NavLink>
 
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-6">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -64,27 +65,28 @@ const Navbar = () => {
                 }
               >
                 {item.icon}
-                <span>{item.text}</span>
+                <span className="text-sm">{item.text}</span>
               </NavLink>
             ))}
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Desktop User Info */}
+          <div className="hidden lg:flex items-center space-x-4">
             <ThemeToggle />
             
-            <div className="flex items-center space-x-3 px-4 py-2 rounded bg-sl-dark dark:bg-sl-grey-dark/20 border border-sl-grey-dark/30">
+            <div className="flex items-center space-x-3 px-3 py-2 rounded bg-sl-dark dark:bg-sl-grey-dark/20 border border-sl-grey-dark/30">
               <div className="text-right">
-                <p className="text-slate-400 text-sm">Hunter</p>
-                <p className="text-white font-medium">{name}</p>
+                <p className="text-slate-400 text-xs">Hunter</p>
+                <p className="text-white font-medium text-sm">{name}</p>
               </div>
               <div>
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-sl-grey-dark border border-sl-blue text-sl-blue font-bold">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-sl-grey-dark border border-sl-blue text-sl-blue font-bold text-sm">
                   {rank}
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-slate-400 text-sm">Level</span>
-                <span className="text-white font-medium">{level}</span>
+                <span className="text-slate-400 text-xs">Level</span>
+                <span className="text-white font-medium text-sm">{level}</span>
               </div>
             </div>
             
@@ -92,12 +94,13 @@ const Navbar = () => {
               onClick={handleLogout}
               className="flex items-center space-x-2 px-3 py-2 rounded-md text-slate-300 hover:text-red-400 transition-all duration-300"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="hidden lg:inline">Logout</span>
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm">Logout</span>
             </button>
           </div>
 
-          <div className="md:hidden flex items-center space-x-3">
+          {/* Mobile Controls */}
+          <div className="lg:hidden flex items-center space-x-3">
             <ThemeToggle />
             <button
               onClick={toggleMenu}
@@ -115,7 +118,7 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden ${
+        className={`lg:hidden ${
           isOpen ? 'block' : 'hidden'
         } bg-sl-grey-dark dark:bg-sl-darker bg-opacity-95 border-b border-sl-grey-dark animate-fade-in`}
       >
