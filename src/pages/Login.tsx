@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, User, Lock, ArrowRight, Zap, ChevronRight } from 'lucide-react';
+import { Shield, User, Lock, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import StatBar from '@/components/StatBar';
 
@@ -41,19 +41,20 @@ const Login = () => {
           description: "Please enter both email and password",
           variant: "destructive",
         });
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }, 1000);
   };
 
   useEffect(() => {
     if (showAnimation) {
       const timer = setTimeout(() => {
-        navigate('/');
+        // Force a page reload to trigger the user state check in App.tsx
+        window.location.href = '/';
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [showAnimation, navigate]);
+  }, [showAnimation]);
 
   if (showAnimation) {
     return (
