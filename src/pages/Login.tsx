@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, User, Lock, ChevronRight } from 'lucide-react';
@@ -14,20 +13,43 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const fakeUser = localStorage.getItem('fakeUser');
+    if (fakeUser) {
+      console.log('User already logged in, redirecting...');
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Fake authentication - accept any email/password
+    // Validate input
+    if (!email || !password) {
+      toast({
+        title: "Authentication Error",
+        description: "Please enter both email and password",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Simulate authentication delay
     setTimeout(() => {
-      if (email && password) {
-        // Store fake user data in localStorage
+      try {
+        // Create fake user data
         const fakeUser = {
           id: 'fake-user-123',
           email: email,
           username: email.split('@')[0] || 'Hunter'
         };
+
+        // Store in localStorage
         localStorage.setItem('fakeUser', JSON.stringify(fakeUser));
+        console.log('User data stored:', fakeUser);
         
         toast({
           title: "Authentication Successful",
@@ -35,10 +57,11 @@ const Login = () => {
         });
         
         setShowAnimation(true);
-      } else {
+      } catch (error) {
+        console.error('Error during authentication:', error);
         toast({
           title: "Authentication Error",
-          description: "Please enter both email and password",
+          description: "Something went wrong. Please try again.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -49,12 +72,13 @@ const Login = () => {
   useEffect(() => {
     if (showAnimation) {
       const timer = setTimeout(() => {
-        // Navigate to home page
-        navigate('/', { replace: true });
+        console.log('Animation complete, navigating to home...');
+        // Force a page reload to ensure state is properly updated
+        window.location.href = '/';
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [showAnimation, navigate]);
+  }, [showAnimation]);
 
   if (showAnimation) {
     return (
@@ -186,7 +210,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-sl-darker bg-sl-blue hover:bg-sl-blue-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sl-blue transition-all duration-200 relative overflow-hidden"
+                  className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-sl-darker bg-sl-blue hover:bg-sl-blue-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sl-blue transition-all duration-200 relative overflow-hidden disabled:opacity-50"
                 >
                   {isLoading ? (
                     <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />

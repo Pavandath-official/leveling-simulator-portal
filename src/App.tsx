@@ -29,17 +29,47 @@ const queryClient = new QueryClient();
 const App = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Check for fake user in localStorage
-    const fakeUser = localStorage.getItem('fakeUser');
-    if (fakeUser) {
-      setUser(JSON.parse(fakeUser));
-    }
-    setLoading(false);
+    const checkAuth = () => {
+      try {
+        const fakeUser = localStorage.getItem('fakeUser');
+        console.log('Checking auth, fakeUser:', fakeUser);
+        
+        if (fakeUser) {
+          const userData = JSON.parse(fakeUser);
+          console.log('Setting user:', userData);
+          setUser(userData);
+        } else {
+          console.log('No user found');
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setUser(null);
+        localStorage.removeItem('fakeUser');
+      } finally {
+        setLoading(false);
+        setAuthChecked(true);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for storage changes (for logout from other tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'fakeUser') {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  if (loading) {
+  // Show loading screen while checking auth
+  if (loading || !authChecked) {
     return (
       <div className="min-h-screen bg-sl-dark flex items-center justify-center">
         <div className="text-center">
@@ -50,6 +80,9 @@ const App = () => {
     );
   }
 
+  console.log('Auth state - user:', user, 'authChecked:', authChecked);
+
+  // If no user, show login
   if (!user) {
     return (
       <QueryClientProvider client={queryClient}>
@@ -67,6 +100,7 @@ const App = () => {
     );
   }
 
+  // If user exists, show main app
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -90,6 +124,7 @@ const App = () => {
                   <Route path="/music" element={<Music />} />
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="/login" element={<Navigate to="/" replace />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
 
