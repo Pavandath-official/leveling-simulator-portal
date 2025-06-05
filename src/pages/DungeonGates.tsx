@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSupabasePlayer } from '@/hooks/useSupabasePlayer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -36,12 +35,36 @@ interface DungeonGate {
 }
 
 const DungeonGates = () => {
-  const { profile, stats, shadows, updateProfile, recordBattle } = useSupabasePlayer();
   const { toast } = useToast();
   const [gates, setGates] = useState<DungeonGate[]>([]);
   const [selectedGate, setSelectedGate] = useState<DungeonGate | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
   const [isInBattle, setIsInBattle] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fake user data for demo
+  const profile = {
+    username: "Shadow Monarch",
+    level: 15,
+    exp: 2500,
+    gold: 5000
+  };
+
+  const stats = {
+    strength: 45,
+    agility: 38,
+    intelligence: 42,
+    vitality: 35,
+    endurance: 40
+  };
+
+  const shadows = [
+    { id: '1', name: 'Igris', type: 'knight', level: 15, power: 150, arisen: true },
+    { id: '2', name: 'Beru', type: 'beast', level: 18, power: 180, arisen: true },
+    { id: '3', name: 'Iron', type: 'soldier', level: 12, power: 120, arisen: true },
+    { id: '4', name: 'Tank', type: 'soldier', level: 11, power: 110, arisen: false },
+    { id: '5', name: 'Tusk', type: 'beast', level: 14, power: 140, arisen: false }
+  ];
 
   // Gate templates for different ranks
   const gateTemplates = {
@@ -97,7 +120,7 @@ const DungeonGates = () => {
   // Generate random gate
   const generateRandomGate = (): DungeonGate => {
     const ranks: GateRank[] = ['E', 'D', 'C', 'B', 'A', 'S'];
-    const weights = [30, 25, 20, 15, 7, 3]; // Higher chance for lower ranks
+    const weights = [30, 25, 20, 15, 7, 3];
     
     let randomNum = Math.random() * 100;
     let selectedRank: GateRank = 'E';
@@ -120,7 +143,7 @@ const DungeonGates = () => {
       name: randomName,
       description: `A ${selectedRank}-Rank dungeon has appeared! Clear it before time runs out.`,
       location: randomLocation,
-      timeRemaining: 300 + Math.random() * 600, // 5-15 minutes
+      timeRemaining: 300 + Math.random() * 600,
       requirements: {
         minLevel: template.minLevel,
         teamSize: template.teamSize,
@@ -140,25 +163,23 @@ const DungeonGates = () => {
     };
   };
 
-  // Spawn gates randomly
+  // Initialize gates and stop loading
   useEffect(() => {
-    const spawnGate = () => {
-      if (gates.length < 5) { // Max 5 gates at a time
-        setGates(prev => [...prev, generateRandomGate()]);
+    const initializeGates = () => {
+      const initialGates = [];
+      for (let i = 0; i < 3; i++) {
+        initialGates.push(generateRandomGate());
       }
+      setGates(initialGates);
+      setLoading(false);
     };
 
-    // Initial gates
-    const initialGates = [];
-    for (let i = 0; i < 3; i++) {
-      initialGates.push(generateRandomGate());
-    }
-    setGates(initialGates);
+    // Simulate loading time
+    setTimeout(initializeGates, 1000);
 
-    // Spawn new gates every 2-5 minutes
     const spawnInterval = setInterval(() => {
-      if (Math.random() < 0.6) { // 60% chance to spawn
-        spawnGate();
+      if (Math.random() < 0.6 && gates.length < 5) {
+        setGates(prev => [...prev, generateRandomGate()]);
       }
     }, (2 + Math.random() * 3) * 60 * 1000);
 
@@ -208,13 +229,13 @@ const DungeonGates = () => {
   };
 
   const canEnterGate = (gate: DungeonGate) => {
-    return profile && profile.level >= gate.requirements.minLevel;
+    return profile.level >= gate.requirements.minLevel;
   };
 
   const calculateTeamPower = (teamIds: string[]) => {
     const arisenShadows = shadows.filter(s => s.arisen && teamIds.includes(s.id));
     const totalShadowPower = arisenShadows.reduce((sum, shadow) => sum + shadow.power, 0);
-    const playerPower = stats ? (stats.strength + stats.agility + stats.intelligence + stats.vitality + stats.endurance) : 0;
+    const playerPower = stats.strength + stats.agility + stats.intelligence + stats.vitality + stats.endurance;
     return totalShadowPower + playerPower;
   };
 
@@ -233,7 +254,7 @@ const DungeonGates = () => {
   };
 
   const handleStartBattle = async () => {
-    if (!selectedGate || selectedTeam.length < selectedGate.requirements.teamSize || !profile) {
+    if (!selectedGate || selectedTeam.length < selectedGate.requirements.teamSize) {
       toast({
         title: "Incomplete Team",
         description: `You need exactly ${selectedGate.requirements.teamSize} team members to enter this dungeon.`,
@@ -244,59 +265,23 @@ const DungeonGates = () => {
 
     setIsInBattle(true);
 
-    // Calculate success chance based on team power vs gate difficulty
     const teamPower = calculateTeamPower(selectedTeam);
     const requiredPower = selectedGate.requirements.recommendedStats.totalPower;
     const successChance = Math.min(0.95, Math.max(0.1, teamPower / requiredPower));
 
-    // Simulate battle time
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     const success = Math.random() < successChance;
 
     if (success) {
-      // Update player with rewards
-      const newLevel = profile.level + Math.floor(selectedGate.rewards.exp / 100);
-      const newExp = profile.exp + selectedGate.rewards.exp;
-      const newGold = profile.gold + selectedGate.rewards.gold;
-
-      await updateProfile({
-        level: newLevel,
-        exp: newExp,
-        gold: newGold
-      });
-
-      // Record battle
-      await recordBattle({
-        gate_name: selectedGate.name,
-        gate_rank: selectedGate.rank,
-        team_power: teamPower,
-        success: true,
-        exp_gained: selectedGate.rewards.exp,
-        gold_gained: selectedGate.rewards.gold,
-        artifacts: selectedGate.rewards.items
-      });
-
       toast({
         title: "🎉 Victory!",
         description: `Successfully cleared ${selectedGate.name}! Gained ${selectedGate.rewards.exp} EXP and ${selectedGate.rewards.gold} gold.`,
         variant: "default",
       });
 
-      // Remove cleared gate
       setGates(prev => prev.filter(g => g.id !== selectedGate.id));
     } else {
-      // Record failed battle
-      await recordBattle({
-        gate_name: selectedGate.name,
-        gate_rank: selectedGate.rank,
-        team_power: teamPower,
-        success: false,
-        exp_gained: 0,
-        gold_gained: 0,
-        artifacts: []
-      });
-
       toast({
         title: "💀 Defeat",
         description: `Your team was defeated in ${selectedGate.name}. Train harder and try again!`,
@@ -309,7 +294,7 @@ const DungeonGates = () => {
     setSelectedTeam([]);
   };
 
-  if (!profile || !stats) {
+  if (loading) {
     return (
       <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
         <div className="text-center py-16">
@@ -322,6 +307,7 @@ const DungeonGates = () => {
 
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
+      
       <div className="mt-8 mb-12 text-center">
         <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-sl-blue/20 to-sl-purple/20 border border-sl-blue/30 text-sl-blue text-sm mb-4">
           <MapPin className="w-4 h-4 inline mr-2" />
@@ -352,6 +338,7 @@ const DungeonGates = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {gates.map((gate) => (
           <Card key={gate.id} className={`sl-card animate-fade-in relative overflow-hidden border-2 ${getRankColor(gate.rank).replace('bg-', 'border-')}/30 hover:${getRankColor(gate.rank).replace('bg-', 'border-')}/50 transition-all duration-300 ${getRankGlow(gate.rank)}`}>
+            
             <div className="absolute inset-0 bg-gradient-to-br from-transparent via-sl-blue/5 to-sl-purple/5"></div>
             <div className="absolute top-4 right-4 z-10">
               <Badge className={`${getRankColor(gate.rank)} text-white font-bold text-lg px-3 py-1 shadow-lg`}>
@@ -452,6 +439,9 @@ const DungeonGates = () => {
                       selectedTeam={selectedTeam}
                       onTeamChange={setSelectedTeam}
                       calculateTeamPower={calculateTeamPower}
+                      profile={profile}
+                      stats={stats}
+                      shadows={shadows}
                     />
 
                     <div className="flex gap-3 pt-6 border-t border-sl-grey-dark/30">

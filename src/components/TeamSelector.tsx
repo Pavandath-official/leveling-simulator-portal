@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { useSupabasePlayer } from '@/hooks/useSupabasePlayer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +22,23 @@ interface DungeonGate {
   };
 }
 
+interface Shadow {
+  id: string;
+  name: string;
+  type: string;
+  level: number;
+  power: number;
+  arisen: boolean;
+}
+
 interface TeamSelectorProps {
   gate: DungeonGate;
   selectedTeam: string[];
   onTeamChange: (team: string[]) => void;
   calculateTeamPower: (teamIds: string[]) => number;
+  profile: any;
+  stats: any;
+  shadows: Shadow[];
 }
 
 const TeamSelector: React.FC<TeamSelectorProps> = ({
@@ -35,9 +46,10 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
   selectedTeam,
   onTeamChange,
   calculateTeamPower,
+  profile,
+  stats,
+  shadows,
 }) => {
-  const { profile, stats, shadows } = useSupabasePlayer();
-
   const arisenShadows = shadows.filter(shadow => shadow.arisen);
   const teamPower = calculateTeamPower(selectedTeam);
   const requiredPower = gate.requirements.recommendedStats.totalPower;
@@ -65,14 +77,6 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
     if (chance >= 40) return 'text-orange-400';
     return 'text-red-400';
   };
-
-  if (!profile || !stats) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-slate-400">Loading player data...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
