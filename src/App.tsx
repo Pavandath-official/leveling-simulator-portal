@@ -18,7 +18,6 @@ import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import LevelUpAnimation from "./components/LevelUpAnimation";
 import RankUpAnimation from "./components/RankUpAnimation";
-import ShadowExtractionAnimation from "./components/ShadowExtractionAnimation";
 import { Particles } from "./components/VisualEffects";
 import CircularLogoutButton from "./components/CircularLogoutButton";
 import AudioPlayer from "./components/AudioPlayer";
@@ -92,10 +91,6 @@ const App = () => {
 
                 <LevelUpAnimation />
                 <RankUpAnimation />
-                <ShadowExtractionAnimation 
-                  shadowType="Igris" 
-                  onComplete={() => {}} 
-                />
               </div>
             </BrowserRouter>
           </PlayerProvider>

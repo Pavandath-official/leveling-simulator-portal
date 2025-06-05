@@ -11,7 +11,8 @@ const CircularLogoutButton = () => {
   const handleLogout = () => {
     // Clear fake user data
     localStorage.removeItem('fakeUser');
-    navigate('/login');
+    // Navigate to login page
+    navigate('/login', { replace: true });
   };
 
   return (

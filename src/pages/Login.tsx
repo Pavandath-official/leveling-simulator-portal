@@ -49,12 +49,12 @@ const Login = () => {
   useEffect(() => {
     if (showAnimation) {
       const timer = setTimeout(() => {
-        // Force a page reload to trigger the user state check in App.tsx
-        window.location.href = '/';
+        // Navigate to home page
+        navigate('/', { replace: true });
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [showAnimation]);
+  }, [showAnimation, navigate]);
 
   if (showAnimation) {
     return (
