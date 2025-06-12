@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -94,19 +95,41 @@ const Index = () => {
   };
 
   return (
-    <div className="status-page-bg min-h-screen">
-      <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
+    <div 
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `
+          linear-gradient(rgba(21, 24, 35, 0.85), rgba(13, 15, 22, 0.85)),
+          url('https://www.bluestacks.com/blog/game-guides/solo-leveling-arise/sla-game-preview-en.html'),
+          url('https://wallpapersden.com/sung-jin-woo-digital-solo-leveling-wallpaper/')
+        `,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Better background with actual images */}
+      <div className="absolute inset-0">
+        <img 
+          src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop" 
+          alt="Solo Leveling Background" 
+          className="w-full h-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-sl-dark/90 via-sl-darker/80 to-sl-dark/90"></div>
+      </div>
+
+      <div className="relative z-10 sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
         
         <div className="mt-8 mb-12 text-center">
-          <div className="enhanced-text-bg inline-block mb-4">
-            <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-sl-blue/30 to-sl-purple/30 border border-sl-blue/50 text-sl-blue text-sm mb-4">
-              <User className="w-4 h-4 inline mr-2" />
+          <div className="enhanced-text-bg inline-block mb-4 shadow-2xl">
+            <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-sl-blue/40 to-sl-purple/40 border-2 border-sl-blue/60 text-sl-blue text-sm mb-6 shadow-lg">
+              <User className="w-5 h-5 inline mr-2" />
               Player Status Interface
             </div>
-            <h1 className="sl-heading mb-4 text-shadow-xl">
+            <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 text-shadow-xl font-orbitron">
               [Player Status]
             </h1>
-            <p className="text-slate-200 max-w-2xl mx-auto text-lg text-shadow-lg">
+            <p className="text-slate-200 max-w-3xl mx-auto text-xl text-shadow-lg">
               Monitor your progression as a Hunter. Allocate stat points and track your journey to become the ultimate Shadow Monarch.
             </p>
           </div>

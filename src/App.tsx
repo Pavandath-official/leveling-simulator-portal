@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,7 +21,6 @@ import LevelUpAnimation from "./components/LevelUpAnimation";
 import RankUpAnimation from "./components/RankUpAnimation";
 import { Particles } from "./components/VisualEffects";
 import CircularLogoutButton from "./components/CircularLogoutButton";
-import AudioPlayer from "./components/AudioPlayer";
 
 const queryClient = new QueryClient();
 
@@ -113,7 +111,6 @@ const App = () => {
                 <Particles className="fixed inset-0 z-0" />
                 <Navbar />
                 <CircularLogoutButton />
-                <AudioPlayer className="fixed bottom-4 left-4 z-40" />
                 
                 <Routes>
                   <Route path="/" element={<Index />} />

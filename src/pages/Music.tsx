@@ -1,10 +1,10 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Music as MusicIcon, Download, Heart } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Music as MusicIcon, Download, Heart, Upload, X } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 // Solo Leveling OST and inspired tracks
 const SOLO_LEVELING_TRACKS = [
@@ -14,8 +14,9 @@ const SOLO_LEVELING_TRACKS = [
     artist: "Hiroyuki Sawano",
     album: "Solo Leveling OST",
     duration: "3:45",
-    url: "https://www.soundjay.com/misc/bell-ringing-05.wav", // Placeholder
-    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
+    url: "", // Will be populated by user uploads
+    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    isUserUpload: false
   },
   {
     id: 2,
@@ -65,6 +66,7 @@ const SOLO_LEVELING_TRACKS = [
 ];
 
 const Music = () => {
+  const { toast } = useToast();
   const [currentTrack, setCurrentTrack] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -74,10 +76,74 @@ const Music = () => {
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [userTracks, setUserTracks] = useState<any[]>([]);
+  const [allTracks, setAllTracks] = useState(SOLO_LEVELING_TRACKS);
   
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const track = SOLO_LEVELING_TRACKS[currentTrack];
+  const track = allTracks[currentTrack];
+
+  // File upload handler
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('audio/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please select an audio file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const newTrack = {
+      id: Date.now(),
+      title: file.name.replace(/\.[^/.]+$/, ""),
+      artist: "Unknown Artist",
+      album: "User Upload",
+      duration: "0:00",
+      url: url,
+      cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      isUserUpload: true
+    };
+
+    const updatedTracks = [...allTracks, newTrack];
+    setAllTracks(updatedTracks);
+    setUserTracks([...userTracks, newTrack]);
+    
+    toast({
+      title: "Track Added!",
+      description: `${newTrack.title} has been added to your playlist`,
+      variant: "default",
+    });
+
+    // Clear the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Remove user uploaded track
+  const removeTrack = (trackId: number) => {
+    const updatedTracks = allTracks.filter(t => t.id !== trackId);
+    setAllTracks(updatedTracks);
+    setUserTracks(userTracks.filter(t => t.id !== trackId));
+    
+    // If currently playing track is removed, stop and go to first track
+    if (allTracks[currentTrack]?.id === trackId) {
+      setIsPlaying(false);
+      setCurrentTrack(0);
+    }
+    
+    toast({
+      title: "Track Removed",
+      description: "Track has been removed from your playlist",
+      variant: "default",
+    });
+  };
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -94,16 +160,24 @@ const Music = () => {
       }
     };
 
+    const handleLoadedData = () => {
+      if (track?.url && audio.src !== track.url) {
+        audio.src = track.url;
+      }
+    };
+
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('loadeddata', handleLoadedData);
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('loadeddata', handleLoadedData);
     };
-  }, [currentTrack, isRepeat]);
+  }, [currentTrack, isRepeat, track]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -111,30 +185,52 @@ const Music = () => {
     }
   }, [volume, isMuted]);
 
+  // Update audio source when track changes
+  useEffect(() => {
+    if (audioRef.current && track?.url) {
+      audioRef.current.src = track.url;
+      audioRef.current.load();
+    }
+  }, [currentTrack, track]);
+
   const togglePlayPause = () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !track?.url) {
+      toast({
+        title: "No Audio",
+        description: "Please upload an audio file to play",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (isPlaying) {
       audio.pause();
     } else {
-      audio.play();
+      audio.play().catch(error => {
+        console.error('Playback failed:', error);
+        toast({
+          title: "Playback Error",
+          description: "Failed to play audio file",
+          variant: "destructive",
+        });
+      });
     }
     setIsPlaying(!isPlaying);
   };
 
   const nextTrack = () => {
     if (isShuffle) {
-      const randomIndex = Math.floor(Math.random() * SOLO_LEVELING_TRACKS.length);
+      const randomIndex = Math.floor(Math.random() * allTracks.length);
       setCurrentTrack(randomIndex);
     } else {
-      setCurrentTrack((prev) => (prev + 1) % SOLO_LEVELING_TRACKS.length);
+      setCurrentTrack((prev) => (prev + 1) % allTracks.length);
     }
     setIsPlaying(true);
   };
 
   const prevTrack = () => {
-    setCurrentTrack((prev) => (prev - 1 + SOLO_LEVELING_TRACKS.length) % SOLO_LEVELING_TRACKS.length);
+    setCurrentTrack((prev) => (prev - 1 + allTracks.length) % allTracks.length);
     setIsPlaying(true);
   };
 
@@ -168,7 +264,7 @@ const Music = () => {
 
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
-      <audio ref={audioRef} src={track.url} />
+      <audio ref={audioRef} />
       
       <div className="mt-8 mb-12 text-center">
         <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-sl-blue/20 to-sl-purple/20 border border-sl-blue/30 text-sl-blue text-sm mb-4">
@@ -179,9 +275,38 @@ const Music = () => {
           Soundtrack Collection
         </h1>
         <p className="text-slate-400 max-w-2xl mx-auto text-lg">
-          Immerse yourself in the epic Solo Leveling soundtrack. Experience the power and emotion of Sung Jin-Woo's journey.
+          Upload and play your own music files. Experience the power and emotion of your favorite tracks.
         </p>
       </div>
+
+      {/* File Upload Section */}
+      <Card className="sl-card mb-8">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <Upload className="w-5 h-5 mr-2 text-sl-blue" />
+            Upload Music
+          </CardTitle>
+          <CardDescription className="text-slate-400">
+            Add your own audio files to the playlist
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full bg-sl-blue hover:bg-sl-blue-dark text-white"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Choose Audio File
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Now Playing */}
@@ -219,7 +344,7 @@ const Music = () => {
                 />
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>{formatTime(currentTime)}</span>
-                  <span>{track.duration}</span>
+                  <span>{duration ? formatTime(duration) : track.duration}</span>
                 </div>
               </div>
 
@@ -305,15 +430,15 @@ const Music = () => {
             <CardHeader>
               <CardTitle className="text-white flex items-center">
                 <MusicIcon className="w-5 h-5 mr-2 text-sl-purple" />
-                Playlist ({SOLO_LEVELING_TRACKS.length} tracks)
+                Playlist ({allTracks.length} tracks)
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Complete Solo Leveling soundtrack collection
+                Your music collection
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {SOLO_LEVELING_TRACKS.map((trackItem, index) => (
+                {allTracks.map((trackItem, index) => (
                   <div
                     key={trackItem.id}
                     className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
@@ -359,6 +484,19 @@ const Music = () => {
                             }`} 
                           />
                         </Button>
+                        {trackItem.isUserUpload && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeTrack(trackItem.id);
+                            }}
+                            className="p-1 h-auto text-red-400 hover:text-red-300"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
                         <span className="text-sm text-slate-400 w-12 text-right">
                           {trackItem.duration}
                         </span>
@@ -366,31 +504,6 @@ const Music = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card className="sl-card">
-            <CardHeader>
-              <CardTitle className="text-white text-sm">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-3">
-                <Button 
-                  variant="outline" 
-                  className="border-sl-blue/50 text-sl-blue hover:bg-sl-blue/10"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-sl-purple/50 text-sl-purple hover:bg-sl-purple/10"
-                >
-                  <Heart className="w-4 h-4 mr-2" />
-                  Favorites ({favorites.length})
-                </Button>
               </div>
             </CardContent>
           </Card>
