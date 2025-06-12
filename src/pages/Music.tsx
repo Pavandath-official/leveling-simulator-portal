@@ -1,10 +1,12 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Music as MusicIcon, Download, Heart, Upload, X } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Music as MusicIcon, Upload, Heart, X } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 // Solo Leveling OST and inspired tracks
 const SOLO_LEVELING_TRACKS = [
@@ -24,8 +26,9 @@ const SOLO_LEVELING_TRACKS = [
     artist: "Hiroyuki Sawano",
     album: "Solo Leveling OST",
     duration: "4:12",
-    url: "https://www.soundjay.com/misc/bell-ringing-05.wav", // Placeholder
-    cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop"
+    url: "", // Will be populated by user uploads
+    cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop",
+    isUserUpload: false
   },
   {
     id: 3,
@@ -33,35 +36,9 @@ const SOLO_LEVELING_TRACKS = [
     artist: "Hiroyuki Sawano",
     album: "Solo Leveling OST",
     duration: "5:23",
-    url: "https://www.soundjay.com/misc/bell-ringing-05.wav", // Placeholder
-    cover: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop"
-  },
-  {
-    id: 4,
-    title: "Arise",
-    artist: "Hiroyuki Sawano",
-    album: "Solo Leveling OST",
-    duration: "4:56",
-    url: "https://www.soundjay.com/misc/bell-ringing-05.wav", // Placeholder
-    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
-  },
-  {
-    id: 5,
-    title: "Monarch's Power",
-    artist: "Hiroyuki Sawano",
-    album: "Solo Leveling OST",
-    duration: "6:14",
-    url: "https://www.soundjay.com/misc/bell-ringing-05.wav", // Placeholder
-    cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop"
-  },
-  {
-    id: 6,
-    title: "Red Gate",
-    artist: "Hiroyuki Sawano", 
-    album: "Solo Leveling OST",
-    duration: "3:33",
-    url: "https://www.soundjay.com/misc/bell-ringing-05.wav", // Placeholder
-    cover: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop"
+    url: "", // Will be populated by user uploads
+    cover: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop",
+    isUserUpload: false
   }
 ];
 
@@ -78,14 +55,56 @@ const Music = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [userTracks, setUserTracks] = useState<any[]>([]);
   const [allTracks, setAllTracks] = useState(SOLO_LEVELING_TRACKS);
+  const [isLoading, setIsLoading] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const track = allTracks[currentTrack];
 
+  // Load saved tracks from database on component mount
+  useEffect(() => {
+    loadUserTracks();
+  }, []);
+
+  const loadUserTracks = async () => {
+    try {
+      const userData = localStorage.getItem('fakeUser');
+      if (!userData) return;
+
+      const user = JSON.parse(userData);
+      const { data, error } = await supabase
+        .from('user_music')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error loading tracks:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const dbTracks = data.map(track => ({
+          id: track.id,
+          title: track.title,
+          artist: track.artist || "Unknown Artist",
+          album: track.album || "User Upload",
+          duration: track.duration || "0:00",
+          url: track.file_url,
+          cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+          isUserUpload: true
+        }));
+
+        setUserTracks(dbTracks);
+        setAllTracks([...SOLO_LEVELING_TRACKS, ...dbTracks]);
+      }
+    } catch (error) {
+      console.error('Error loading user tracks:', error);
+    }
+  };
+
   // File upload handler
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -98,51 +117,129 @@ const Music = () => {
       return;
     }
 
-    const url = URL.createObjectURL(file);
-    const newTrack = {
-      id: Date.now(),
-      title: file.name.replace(/\.[^/.]+$/, ""),
-      artist: "Unknown Artist",
-      album: "User Upload",
-      duration: "0:00",
-      url: url,
-      cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-      isUserUpload: true
-    };
+    setIsLoading(true);
 
-    const updatedTracks = [...allTracks, newTrack];
-    setAllTracks(updatedTracks);
-    setUserTracks([...userTracks, newTrack]);
-    
-    toast({
-      title: "Track Added!",
-      description: `${newTrack.title} has been added to your playlist`,
-      variant: "default",
-    });
+    try {
+      const userData = localStorage.getItem('fakeUser');
+      if (!userData) {
+        throw new Error('User not found');
+      }
 
-    // Clear the input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      const user = JSON.parse(userData);
+
+      // Upload file to Supabase Storage
+      const fileName = `${Date.now()}-${file.name}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('music-files')
+        .upload(`${user.id}/${fileName}`, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('music-files')
+        .getPublicUrl(`${user.id}/${fileName}`);
+
+      // Save track info to database
+      const { data: trackData, error: dbError } = await supabase
+        .from('user_music')
+        .insert({
+          user_id: user.id,
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          artist: "Unknown Artist",
+          album: "User Upload",
+          file_url: publicUrl,
+          duration: "0:00"
+        })
+        .select()
+        .single();
+
+      if (dbError) {
+        throw dbError;
+      }
+
+      const newTrack = {
+        id: trackData.id,
+        title: trackData.title,
+        artist: trackData.artist,
+        album: trackData.album,
+        duration: trackData.duration,
+        url: trackData.file_url,
+        cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+        isUserUpload: true
+      };
+
+      const updatedTracks = [...allTracks, newTrack];
+      setAllTracks(updatedTracks);
+      setUserTracks([...userTracks, newTrack]);
+      
+      toast({
+        title: "Track Added!",
+        description: `${newTrack.title} has been uploaded successfully`,
+        variant: "default",
+      });
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload music file",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      // Clear the input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   // Remove user uploaded track
-  const removeTrack = (trackId: number) => {
-    const updatedTracks = allTracks.filter(t => t.id !== trackId);
-    setAllTracks(updatedTracks);
-    setUserTracks(userTracks.filter(t => t.id !== trackId));
-    
-    // If currently playing track is removed, stop and go to first track
-    if (allTracks[currentTrack]?.id === trackId) {
-      setIsPlaying(false);
-      setCurrentTrack(0);
+  const removeTrack = async (trackId: number) => {
+    try {
+      const userData = localStorage.getItem('fakeUser');
+      if (!userData) return;
+
+      const user = JSON.parse(userData);
+      
+      // Delete from database
+      const { error } = await supabase
+        .from('user_music')
+        .delete()
+        .eq('id', trackId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      const updatedTracks = allTracks.filter(t => t.id !== trackId);
+      setAllTracks(updatedTracks);
+      setUserTracks(userTracks.filter(t => t.id !== trackId));
+      
+      // If currently playing track is removed, stop and go to first track
+      if (allTracks[currentTrack]?.id === trackId) {
+        setIsPlaying(false);
+        setCurrentTrack(0);
+      }
+      
+      toast({
+        title: "Track Removed",
+        description: "Track has been deleted from your playlist",
+        variant: "default",
+      });
+
+    } catch (error) {
+      console.error('Error removing track:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to remove track",
+        variant: "destructive",
+      });
     }
-    
-    toast({
-      title: "Track Removed",
-      description: "Track has been removed from your playlist",
-      variant: "default",
-    });
   };
 
   useEffect(() => {
@@ -267,11 +364,11 @@ const Music = () => {
       <audio ref={audioRef} />
       
       <div className="mt-8 mb-12 text-center">
-        <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-sl-blue/20 to-sl-purple/20 border border-sl-blue/30 text-sl-blue text-sm mb-4">
+        <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 text-blue-400 text-sm mb-4">
           <MusicIcon className="w-4 h-4 inline mr-2" />
           Solo Leveling Music Player
         </div>
-        <h1 className="sl-heading mb-4 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+        <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Soundtrack Collection
         </h1>
         <p className="text-slate-400 max-w-2xl mx-auto text-lg">
@@ -280,10 +377,10 @@ const Music = () => {
       </div>
 
       {/* File Upload Section */}
-      <Card className="sl-card mb-8">
+      <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-blue-400/30 shadow-2xl mb-8">
         <CardHeader>
           <CardTitle className="text-white flex items-center">
-            <Upload className="w-5 h-5 mr-2 text-sl-blue" />
+            <Upload className="w-5 h-5 mr-2 text-blue-400" />
             Upload Music
           </CardTitle>
           <CardDescription className="text-slate-400">
@@ -300,10 +397,11 @@ const Music = () => {
           />
           <Button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full bg-sl-blue hover:bg-sl-blue-dark text-white"
+            disabled={isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Upload className="w-4 h-4 mr-2" />
-            Choose Audio File
+            {isLoading ? 'Uploading...' : 'Choose Audio File'}
           </Button>
         </CardContent>
       </Card>
@@ -311,7 +409,7 @@ const Music = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Now Playing */}
         <div className="space-y-6">
-          <Card className="sl-card">
+          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-purple-400/30 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-white">Now Playing</CardTitle>
             </CardHeader>
@@ -330,7 +428,7 @@ const Music = () => {
               <div className="text-center space-y-2">
                 <h3 className="text-xl font-bold text-white">{track.title}</h3>
                 <p className="text-slate-400">{track.artist}</p>
-                <Badge variant="outline" className="text-sl-blue border-sl-blue">
+                <Badge variant="outline" className="text-blue-400 border-blue-400">
                   {track.album}
                 </Badge>
               </div>
@@ -354,7 +452,7 @@ const Music = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsShuffle(!isShuffle)}
-                  className={isShuffle ? 'text-sl-blue' : 'text-slate-400'}
+                  className={isShuffle ? 'text-blue-400' : 'text-slate-400'}
                 >
                   <Shuffle className="w-4 h-4" />
                 </Button>
@@ -363,14 +461,14 @@ const Music = () => {
                   variant="ghost"
                   size="sm"
                   onClick={prevTrack}
-                  className="text-white hover:text-sl-blue"
+                  className="text-white hover:text-blue-400"
                 >
                   <SkipBack className="w-5 h-5" />
                 </Button>
 
                 <Button
                   onClick={togglePlayPause}
-                  className="w-12 h-12 rounded-full bg-sl-blue hover:bg-sl-blue-dark text-white"
+                  className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isPlaying ? (
                     <Pause className="w-6 h-6" />
@@ -383,7 +481,7 @@ const Music = () => {
                   variant="ghost"
                   size="sm"
                   onClick={nextTrack}
-                  className="text-white hover:text-sl-blue"
+                  className="text-white hover:text-blue-400"
                 >
                   <SkipForward className="w-5 h-5" />
                 </Button>
@@ -392,7 +490,7 @@ const Music = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsRepeat(!isRepeat)}
-                  className={isRepeat ? 'text-sl-blue' : 'text-slate-400'}
+                  className={isRepeat ? 'text-blue-400' : 'text-slate-400'}
                 >
                   <Repeat className="w-4 h-4" />
                 </Button>
@@ -426,10 +524,10 @@ const Music = () => {
 
         {/* Playlist */}
         <div className="space-y-6">
-          <Card className="sl-card">
+          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-green-400/30 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
-                <MusicIcon className="w-5 h-5 mr-2 text-sl-purple" />
+                <MusicIcon className="w-5 h-5 mr-2 text-green-400" />
                 Playlist ({allTracks.length} tracks)
               </CardTitle>
               <CardDescription className="text-slate-400">
@@ -443,17 +541,17 @@ const Music = () => {
                     key={trackItem.id}
                     className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                       index === currentTrack
-                        ? 'bg-sl-blue/20 border border-sl-blue/50'
-                        : 'hover:bg-sl-grey-dark/30 border border-transparent'
+                        ? 'bg-blue-500/20 border border-blue-400/50'
+                        : 'hover:bg-slate-700/30 border border-transparent'
                     }`}
                     onClick={() => selectTrack(index)}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 rounded-md bg-gradient-to-br from-sl-blue/20 to-sl-purple/20 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-md bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
                         {index === currentTrack && isPlaying ? (
-                          <Pause className="w-5 h-5 text-sl-blue" />
+                          <Pause className="w-5 h-5 text-blue-400" />
                         ) : (
-                          <Play className="w-5 h-5 text-sl-blue" />
+                          <Play className="w-5 h-5 text-blue-400" />
                         )}
                       </div>
                       

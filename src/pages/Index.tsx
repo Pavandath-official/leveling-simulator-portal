@@ -95,75 +95,69 @@ const Index = () => {
   };
 
   return (
-    <div 
-      className="min-h-screen relative"
-      style={{
-        backgroundImage: `
-          linear-gradient(rgba(21, 24, 35, 0.85), rgba(13, 15, 22, 0.85)),
-          url('https://www.bluestacks.com/blog/game-guides/solo-leveling-arise/sla-game-preview-en.html'),
-          url('https://wallpapersden.com/sung-jin-woo-digital-solo-leveling-wallpaper/')
-        `,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
-      {/* Better background with actual images */}
-      <div className="absolute inset-0">
+    <div className="min-h-screen relative overflow-x-hidden">
+      {/* Background with your provided images */}
+      <div className="fixed inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop" 
-          alt="Solo Leveling Background" 
-          className="w-full h-full object-cover opacity-30"
+          src="https://wallpapersden.com/sung-jin-woo-digital-solo-leveling-wallpaper/2048x1152/" 
+          alt="Solo Leveling Background 1" 
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-sl-dark/90 via-sl-darker/80 to-sl-dark/90"></div>
+        <img 
+          src="https://www.bluestacks.com/blog/game-guides/solo-leveling-arise/sla-game-preview-en.html" 
+          alt="Solo Leveling Background 2" 
+          className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-800/90 to-slate-900/95"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40"></div>
       </div>
 
       <div className="relative z-10 sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
         
         <div className="mt-8 mb-12 text-center">
-          <div className="enhanced-text-bg inline-block mb-4 shadow-2xl">
-            <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-sl-blue/40 to-sl-purple/40 border-2 border-sl-blue/60 text-sl-blue text-sm mb-6 shadow-lg">
-              <User className="w-5 h-5 inline mr-2" />
-              Player Status Interface
-            </div>
-            <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 text-shadow-xl font-orbitron">
-              [Player Status]
-            </h1>
-            <p className="text-slate-200 max-w-3xl mx-auto text-xl text-shadow-lg">
-              Monitor your progression as a Hunter. Allocate stat points and track your journey to become the ultimate Shadow Monarch.
-            </p>
+          <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 border-2 border-blue-400/50 text-blue-300 text-sm mb-6 shadow-xl backdrop-blur-sm">
+            <User className="w-5 h-5 inline mr-2" />
+            Player Status Interface
           </div>
+          <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 font-orbitron">
+            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-2xl">
+              [Player Status]
+            </span>
+          </h1>
+          <p className="text-slate-200 max-w-3xl mx-auto text-xl leading-relaxed backdrop-blur-sm bg-black/20 rounded-lg p-4">
+            Monitor your progression as a Hunter. Allocate stat points and track your journey to become the ultimate Shadow Monarch.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Player Info */}
           <div className="lg:col-span-1 space-y-6">
             {/* Basic Info Card */}
-            <Card className="sl-card glass-effect">
+            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-blue-500/30 shadow-2xl">
               <CardHeader className="text-center">
                 <div className="relative mx-auto w-24 h-24 mb-4">
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-sl-blue to-sl-purple flex items-center justify-center text-2xl font-bold text-white shadow-2xl">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-2xl border-4 border-blue-400/50">
                     {playerData.username.charAt(0)}
                   </div>
                   <div className="absolute -bottom-2 -right-2">
-                    <Badge className={`${getRankColor(playerData.rank)} text-white font-bold text-lg px-3 py-1 shadow-lg`}>
+                    <Badge className={`${getRankColor(playerData.rank)} text-white font-bold text-lg px-3 py-1 shadow-lg border-2 border-white/30`}>
                       {playerData.rank}
                     </Badge>
                   </div>
                 </div>
-                <CardTitle className="text-2xl text-white text-shadow-lg">{playerData.username}</CardTitle>
-                <CardDescription className="text-slate-300 text-shadow">
-                  <Crown className="w-4 h-4 inline mr-1 text-yellow-500" />
+                <CardTitle className="text-2xl text-white drop-shadow-lg">{playerData.username}</CardTitle>
+                <CardDescription className="text-slate-300">
+                  <Crown className="w-4 h-4 inline mr-1 text-yellow-400" />
                   {playerData.title}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="enhanced-text-bg p-3 rounded-lg">
+                  <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg border border-blue-500/20">
                     <div className="text-slate-400 text-sm">Level</div>
                     <div className="text-white font-bold text-xl">{playerData.level}</div>
                   </div>
-                  <div className="enhanced-text-bg p-3 rounded-lg">
+                  <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg border border-blue-500/20">
                     <div className="text-slate-400 text-sm">Guild</div>
                     <div className="text-white font-bold text-xl">{playerData.guild}</div>
                   </div>
@@ -172,30 +166,30 @@ const Index = () => {
                 <div className="space-y-3">
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-slate-300 text-sm text-shadow">Experience</span>
-                      <span className="text-slate-300 text-sm text-shadow">{playerData.exp}/{playerData.expToNext}</span>
+                      <span className="text-slate-300 text-sm">Experience</span>
+                      <span className="text-slate-300 text-sm">{playerData.exp}/{playerData.expToNext}</span>
                     </div>
                     <Progress value={expPercentage} className="h-3" />
                   </div>
 
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-red-400 text-sm text-shadow flex items-center">
+                      <span className="text-red-400 text-sm flex items-center">
                         <Heart className="w-4 h-4 mr-1" />
                         Health
                       </span>
-                      <span className="text-red-400 text-sm text-shadow">{playerData.hp}/{playerData.maxHp}</span>
+                      <span className="text-red-400 text-sm">{playerData.hp}/{playerData.maxHp}</span>
                     </div>
                     <Progress value={hpPercentage} className="h-3 bg-red-900" />
                   </div>
 
                   <div>
                     <div className="flex justify-between mb-1">
-                      <span className="text-blue-400 text-sm text-shadow flex items-center">
+                      <span className="text-blue-400 text-sm flex items-center">
                         <Zap className="w-4 h-4 mr-1" />
                         Mana
                       </span>
-                      <span className="text-blue-400 text-sm text-shadow">{playerData.mp}/{playerData.maxMp}</span>
+                      <span className="text-blue-400 text-sm">{playerData.mp}/{playerData.maxMp}</span>
                     </div>
                     <Progress value={mpPercentage} className="h-3 bg-blue-900" />
                   </div>
@@ -204,29 +198,29 @@ const Index = () => {
             </Card>
 
             {/* Quick Stats */}
-            <Card className="sl-card glass-effect">
+            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-purple-500/30 shadow-2xl">
               <CardHeader>
-                <CardTitle className="text-white flex items-center text-shadow-lg">
-                  <TrendingUp className="w-5 h-5 mr-2 text-green-500" />
+                <CardTitle className="text-white flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
                   Quick Stats
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
-                    <div className="text-yellow-500 text-sm">Daily Quests</div>
+                  <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-yellow-500/20">
+                    <div className="text-yellow-400 text-sm">Daily Quests</div>
                     <div className="text-white font-bold">{playerData.dailyQuests.completed}/{playerData.dailyQuests.total}</div>
                   </div>
-                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
-                    <div className="text-purple-500 text-sm">Shadows</div>
+                  <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-purple-500/20">
+                    <div className="text-purple-400 text-sm">Shadows</div>
                     <div className="text-white font-bold">{playerData.shadowsArisen}</div>
                   </div>
-                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
-                    <div className="text-orange-500 text-sm">Achievements</div>
+                  <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-orange-500/20">
+                    <div className="text-orange-400 text-sm">Achievements</div>
                     <div className="text-white font-bold">{playerData.achievements}</div>
                   </div>
-                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
-                    <div className="text-green-500 text-sm">Rank</div>
+                  <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-green-500/20">
+                    <div className="text-green-400 text-sm">Rank</div>
                     <div className="text-white font-bold">{playerData.rank}</div>
                   </div>
                 </div>
@@ -236,15 +230,15 @@ const Index = () => {
 
           {/* Stats Section */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="sl-card glass-effect">
+            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-blue-500/30 shadow-2xl">
               <CardHeader>
-                <CardTitle className="text-white flex items-center justify-between text-shadow-lg">
+                <CardTitle className="text-white flex items-center justify-between">
                   <div className="flex items-center">
-                    <Swords className="w-5 h-5 mr-2 text-sl-blue" />
+                    <Swords className="w-5 h-5 mr-2 text-blue-400" />
                     Character Stats
                   </div>
                   {playerData.availableStatPoints > 0 && (
-                    <Badge variant="outline" className="text-sl-blue border-sl-blue">
+                    <Badge variant="outline" className="text-blue-400 border-blue-400">
                       <Star className="w-4 h-4 mr-1" />
                       {playerData.availableStatPoints} points available
                     </Badge>
@@ -307,68 +301,68 @@ const Index = () => {
                   canAllocate={playerData.availableStatPoints > 0}
                 />
 
-                <div className="mt-6 p-4 bg-gradient-to-r from-sl-blue/10 to-sl-purple/10 rounded-lg border border-sl-blue/30">
+                <div className="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg border border-blue-400/30 backdrop-blur-sm">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-white font-medium text-shadow">Total Power Level</h4>
-                      <p className="text-slate-400 text-sm text-shadow">Combined stats assessment</p>
+                      <h4 className="text-white font-medium">Total Power Level</h4>
+                      <p className="text-slate-400 text-sm">Combined stats assessment</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-sl-blue text-shadow-lg">
+                      <div className="text-2xl font-bold text-blue-400">
                         {Object.values(playerData.stats).reduce((sum, stat) => sum + stat, 0)}
                       </div>
-                      <div className="text-sm text-slate-400 text-shadow">Power Points</div>
+                      <div className="text-sm text-slate-400">Power Points</div>
                     </div>
                   </div>
                 </div>
 
                 {playerData.availableStatPoints === 0 && (
-                  <div className="text-center p-4 bg-sl-grey-dark/20 rounded-lg border border-sl-grey-dark/50">
-                    <p className="text-slate-400 text-shadow">No stat points available. Level up to gain more!</p>
+                  <div className="text-center p-4 bg-slate-800/40 rounded-lg border border-slate-600/50">
+                    <p className="text-slate-400">No stat points available. Level up to gain more!</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
             {/* System Messages */}
-            <Card className="sl-card glass-effect">
+            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-orange-500/30 shadow-2xl">
               <CardHeader>
-                <CardTitle className="text-white flex items-center text-shadow-lg">
-                  <Flame className="w-5 h-5 mr-2 text-orange-500" />
+                <CardTitle className="text-white flex items-center">
+                  <Flame className="w-5 h-5 mr-2 text-orange-400" />
                   System Messages
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <motion.div 
-                    className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg"
+                    className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg backdrop-blur-sm"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
                   >
-                    <p className="text-blue-400 text-sm text-shadow">
+                    <p className="text-blue-400 text-sm">
                       📊 Daily quest progress: {playerData.dailyQuests.completed}/{playerData.dailyQuests.total} completed
                     </p>
                   </motion.div>
                   
                   <motion.div 
-                    className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg"
+                    className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg backdrop-blur-sm"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <p className="text-purple-400 text-sm text-shadow">
+                    <p className="text-purple-400 text-sm">
                       👥 Shadow army growing: {playerData.shadowsArisen} shadows arisen
                     </p>
                   </motion.div>
                   
                   <motion.div 
-                    className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg"
+                    className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg backdrop-blur-sm"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <p className="text-green-400 text-sm text-shadow">
+                    <p className="text-green-400 text-sm">
                       ⚡ Ready for next dungeon challenge!
                     </p>
                   </motion.div>
