@@ -1,305 +1,358 @@
-import React from 'react';
-import { usePlayer } from '@/context/PlayerContext';
+
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Zap, User, Heart, Shield, Brain, Swords, Star, TrendingUp, Crown, Flame } from 'lucide-react';
+import { motion } from 'framer-motion';
 import StatBar from '@/components/StatBar';
-import { Shield, Zap, Brain, Heart, Clock, User, Star, Coins, Target, MapPin } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const { name, level, exp, expToNextLevel, stats, rank, gold } = usePlayer();
+  const { toast } = useToast();
+  
+  // Mock player data - using fake user from localStorage
+  const [playerData, setPlayerData] = useState({
+    username: "Shadow Monarch",
+    level: 15,
+    exp: 2500,
+    expToNext: 3000,
+    rank: "S",
+    title: "Shadow Monarch",
+    hp: 850,
+    maxHp: 1000,
+    mp: 420,
+    maxMp: 500,
+    stats: {
+      strength: 45,
+      agility: 38,
+      intelligence: 42,
+      vitality: 35,
+      endurance: 40,
+      sense: 28
+    },
+    availableStatPoints: 5,
+    dailyQuests: {
+      completed: 3,
+      total: 5
+    },
+    guild: "Solo",
+    achievements: 12,
+    shadowsArisen: 8
+  });
+
+  useEffect(() => {
+    // Try to get user data from localStorage
+    const userData = localStorage.getItem('fakeUser');
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        setPlayerData(prev => ({
+          ...prev,
+          username: parsed.username || prev.username,
+          level: parsed.level || prev.level
+        }));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
+
+  const allocateStatPoint = (stat: string) => {
+    if (playerData.availableStatPoints > 0) {
+      setPlayerData(prev => ({
+        ...prev,
+        stats: {
+          ...prev.stats,
+          [stat]: prev.stats[stat as keyof typeof prev.stats] + 1
+        },
+        availableStatPoints: prev.availableStatPoints - 1
+      }));
+
+      toast({
+        title: "Stat Increased!",
+        description: `${stat.charAt(0).toUpperCase() + stat.slice(1)} increased by 1`,
+        variant: "default",
+      });
+    }
+  };
+
+  const expPercentage = (playerData.exp / playerData.expToNext) * 100;
+  const hpPercentage = (playerData.hp / playerData.maxHp) * 100;
+  const mpPercentage = (playerData.mp / playerData.maxMp) * 100;
+
+  const getRankColor = (rank: string) => {
+    const colors = {
+      'E': 'bg-gray-500',
+      'D': 'bg-green-500',
+      'C': 'bg-blue-500',
+      'B': 'bg-purple-500',
+      'A': 'bg-orange-500',
+      'S': 'bg-red-500'
+    };
+    return colors[rank as keyof typeof colors] || 'bg-gray-500';
+  };
 
   return (
-    <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
-      <div className="mt-8 mb-12 text-center">
-        <div className="inline-block px-3 py-1 rounded-full bg-sl-dark border border-sl-blue/30 text-sl-blue text-sm mb-3">
-          Hunter Info
-        </div>
-        <h1 className="sl-heading mb-2">[Hunter: {name}]</h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
-          View your current stats, rank and progress. Level up by completing quests
-          and defeating monsters.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 space-y-6">
-          <div className="sl-card animate-fade-in relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 z-0">
-              <img 
-                src="/images/solo-leveling-system.jpg" 
-                alt="System Background" 
-                className="w-full h-full object-cover"
-              />
+    <div className="status-page-bg min-h-screen">
+      <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
+        
+        <div className="mt-8 mb-12 text-center">
+          <div className="enhanced-text-bg inline-block mb-4">
+            <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-sl-blue/30 to-sl-purple/30 border border-sl-blue/50 text-sl-blue text-sm mb-4">
+              <User className="w-4 h-4 inline mr-2" />
+              Player Status Interface
             </div>
-            <div className="relative z-10">
-              <div className="flex items-center mb-6">
-                <div className="flex items-center justify-center w-14 h-14 rounded-md bg-sl-dark border border-sl-blue text-sl-blue font-bold text-xl mr-5 animate-pulse-glow">
-                  {rank}
-                </div>
-                <div>
-                  <p className="text-slate-400 text-sm">Hunter Name</p>
-                  <h2 className="text-white text-xl font-bold">{name}</h2>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                  <User className="text-sl-blue w-5 h-5" />
-                  <div>
-                    <p className="text-xs text-slate-400">Level</p>
-                    <p className="text-white font-semibold">{level}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                  <Star className="text-yellow-400 w-5 h-5" />
-                  <div>
-                    <p className="text-xs text-slate-400">Rank</p>
-                    <p className="text-white font-semibold">{rank}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                  <Zap className="text-sl-purple w-5 h-5" />
-                  <div>
-                    <p className="text-xs text-slate-400">EXP</p>
-                    <p className="text-white font-semibold">{exp} / {expToNextLevel}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 bg-sl-grey-dark/30 p-3 rounded-md border border-sl-grey-dark/50">
-                  <Coins className="text-yellow-400 w-5 h-5" />
-                  <div>
-                    <p className="text-xs text-slate-400">Gold</p>
-                    <p className="text-white font-semibold">{gold}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <StatBar 
-                  name="Experience" 
-                  value={exp} 
-                  max={expToNextLevel} 
-                  color="bg-sl-purple" 
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="sl-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <h3 className="text-lg font-bold text-white mb-3 flex items-center">
-              <Clock className="text-sl-blue mr-2 w-5 h-5" />
-              Hunter Progression
-            </h3>
-            <p className="text-slate-400 text-sm mb-4">
-              Your journey as a hunter has just begun. Complete quests to increase your rank and unlock new abilities.
+            <h1 className="sl-heading mb-4 text-shadow-xl">
+              [Player Status]
+            </h1>
+            <p className="text-slate-200 max-w-2xl mx-auto text-lg text-shadow-lg">
+              Monitor your progression as a Hunter. Allocate stat points and track your journey to become the ultimate Shadow Monarch.
             </p>
-            
-            <div className="relative pt-2">
-              <div className="flex items-center mb-4">
-                <div className="w-8 h-8 rounded-full bg-sl-blue text-sl-dark flex items-center justify-center font-bold text-sm mr-3">
-                  E
-                </div>
-                <div className="flex-1">
-                  <div className="h-2 w-full bg-sl-grey-dark rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-sl-blue rounded-full"
-                      style={{ width: rank === 'E' ? `${(level / 5) * 100}%` : '100%' }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center mb-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3 ${
-                  rank !== 'E' ? 'bg-sl-blue text-sl-dark' : 'bg-sl-grey-dark/50 text-slate-400'
-                }`}>
-                  D
-                </div>
-                <div className="flex-1">
-                  <div className="h-2 w-full bg-sl-grey-dark rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${rank !== 'E' ? 'bg-sl-blue' : 'bg-sl-grey-dark/30'}`}
-                      style={{ width: rank === 'D' ? `${((level - 5) / 5) * 100}%` : (rank === 'E' ? '0%' : '100%') }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center mb-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3 ${
-                  rank !== 'E' && rank !== 'D' ? 'bg-sl-blue text-sl-dark' : 'bg-sl-grey-dark/50 text-slate-400'
-                }`}>
-                  C
-                </div>
-                <div className="flex-1">
-                  <div className="h-2 w-full bg-sl-grey-dark rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${rank !== 'E' && rank !== 'D' ? 'bg-sl-blue' : 'bg-sl-grey-dark/30'}`}
-                      style={{ width: rank === 'C' ? `${((level - 10) / 5) * 100}%` : (rank === 'E' || rank === 'D' ? '0%' : '100%') }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center mb-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3 ${
-                  rank !== 'E' && rank !== 'D' && rank !== 'C' ? 'bg-sl-blue text-sl-dark' : 'bg-sl-grey-dark/50 text-slate-400'
-                }`}>
-                  B
-                </div>
-                <div className="flex-1">
-                  <div className="h-2 w-full bg-sl-grey-dark rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${rank !== 'E' && rank !== 'D' && rank !== 'C' ? 'bg-sl-blue' : 'bg-sl-grey-dark/30'}`}
-                      style={{ width: rank === 'B' ? `${((level - 15) / 5) * 100}%` : (rank === 'E' || rank === 'D' || rank === 'C' ? '0%' : '100%') }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mr-3 ${
-                  rank === 'A' || rank === 'S' ? 'bg-sl-blue text-sl-dark' : 'bg-sl-grey-dark/50 text-slate-400'
-                }`}>
-                  A
-                </div>
-                <div className="flex-1">
-                  <div className="h-2 w-full bg-sl-grey-dark rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${rank === 'A' || rank === 'S' ? 'bg-sl-blue' : 'bg-sl-grey-dark/30'}`}
-                      style={{ width: rank === 'A' ? `${((level - 20) / 5) * 100}%` : (rank === 'S' ? '100%' : '0%') }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-6">
-          <div className="sl-card animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.2s' }}>
-            <div className="absolute inset-0 opacity-5 z-0">
-              <img 
-                src="/images/solo-leveling-stats.jpg" 
-                alt="Stats Background" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="relative z-10">
-              <h3 className="text-lg font-bold text-white mb-5 flex items-center">
-                <Shield className="text-sl-blue mr-2 w-5 h-5" />
-                Hunter Statistics
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  {stats.slice(0, 3).map((stat) => (
-                    <div key={stat.name} className="mb-6">
-                      <div className="flex items-center mb-2">
-                        {stat.name === 'Strength' && <Shield className="text-red-500 w-5 h-5 mr-2" />}
-                        {stat.name === 'Agility' && <Zap className="text-green-500 w-5 h-5 mr-2" />}
-                        {stat.name === 'Intelligence' && <Brain className="text-blue-500 w-5 h-5 mr-2" />}
-                        <h4 className="text-white font-medium">{stat.name}</h4>
-                      </div>
-                      <StatBar 
-                        name="" 
-                        value={stat.value} 
-                        max={stat.max} 
-                        color={stat.color} 
-                      />
-                      <p className="text-xs text-slate-400 mt-1">
-                        {stat.name === 'Strength' && 'Affects physical damage and carrying capacity'}
-                        {stat.name === 'Agility' && 'Affects movement speed and attack speed'}
-                        {stat.name === 'Intelligence' && 'Affects magical abilities and skill cooldowns'}
-                      </p>
-                    </div>
-                  ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Player Info */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Basic Info Card */}
+            <Card className="sl-card glass-effect">
+              <CardHeader className="text-center">
+                <div className="relative mx-auto w-24 h-24 mb-4">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-sl-blue to-sl-purple flex items-center justify-center text-2xl font-bold text-white shadow-2xl">
+                    {playerData.username.charAt(0)}
+                  </div>
+                  <div className="absolute -bottom-2 -right-2">
+                    <Badge className={`${getRankColor(playerData.rank)} text-white font-bold text-lg px-3 py-1 shadow-lg`}>
+                      {playerData.rank}
+                    </Badge>
+                  </div>
                 </div>
-                
-                <div>
-                  {stats.slice(3).map((stat) => (
-                    <div key={stat.name} className="mb-6">
-                      <div className="flex items-center mb-2">
-                        {stat.name === 'Vitality' && <Heart className="text-yellow-500 w-5 h-5 mr-2" />}
-                        {stat.name === 'Endurance' && <Clock className="text-purple-500 w-5 h-5 mr-2" />}
-                        <h4 className="text-white font-medium">{stat.name}</h4>
-                      </div>
-                      <StatBar 
-                        name="" 
-                        value={stat.value} 
-                        max={stat.max} 
-                        color={stat.color} 
-                      />
-                      <p className="text-xs text-slate-400 mt-1">
-                        {stat.name === 'Vitality' && 'Affects health points and healing rate'}
-                        {stat.name === 'Endurance' && 'Affects stamina and resistance to debuffs'}
-                      </p>
-                    </div>
-                  ))}
+                <CardTitle className="text-2xl text-white text-shadow-lg">{playerData.username}</CardTitle>
+                <CardDescription className="text-slate-300 text-shadow">
+                  <Crown className="w-4 h-4 inline mr-1 text-yellow-500" />
+                  {playerData.title}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div className="enhanced-text-bg p-3 rounded-lg">
+                    <div className="text-slate-400 text-sm">Level</div>
+                    <div className="text-white font-bold text-xl">{playerData.level}</div>
+                  </div>
+                  <div className="enhanced-text-bg p-3 rounded-lg">
+                    <div className="text-slate-400 text-sm">Guild</div>
+                    <div className="text-white font-bold text-xl">{playerData.guild}</div>
+                  </div>
                 </div>
-              </div>
-            </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-slate-300 text-sm text-shadow">Experience</span>
+                      <span className="text-slate-300 text-sm text-shadow">{playerData.exp}/{playerData.expToNext}</span>
+                    </div>
+                    <Progress value={expPercentage} className="h-3" />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-red-400 text-sm text-shadow flex items-center">
+                        <Heart className="w-4 h-4 mr-1" />
+                        Health
+                      </span>
+                      <span className="text-red-400 text-sm text-shadow">{playerData.hp}/{playerData.maxHp}</span>
+                    </div>
+                    <Progress value={hpPercentage} className="h-3 bg-red-900" />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-blue-400 text-sm text-shadow flex items-center">
+                        <Zap className="w-4 h-4 mr-1" />
+                        Mana
+                      </span>
+                      <span className="text-blue-400 text-sm text-shadow">{playerData.mp}/{playerData.maxMp}</span>
+                    </div>
+                    <Progress value={mpPercentage} className="h-3 bg-blue-900" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats */}
+            <Card className="sl-card glass-effect">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center text-shadow-lg">
+                  <TrendingUp className="w-5 h-5 mr-2 text-green-500" />
+                  Quick Stats
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
+                    <div className="text-yellow-500 text-sm">Daily Quests</div>
+                    <div className="text-white font-bold">{playerData.dailyQuests.completed}/{playerData.dailyQuests.total}</div>
+                  </div>
+                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
+                    <div className="text-purple-500 text-sm">Shadows</div>
+                    <div className="text-white font-bold">{playerData.shadowsArisen}</div>
+                  </div>
+                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
+                    <div className="text-orange-500 text-sm">Achievements</div>
+                    <div className="text-white font-bold">{playerData.achievements}</div>
+                  </div>
+                  <div className="enhanced-text-bg p-3 rounded-lg text-center">
+                    <div className="text-green-500 text-sm">Rank</div>
+                    <div className="text-white font-bold">{playerData.rank}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="sl-card animate-fade-in relative overflow-hidden" style={{ animationDelay: '0.3s' }}>
-            <div className="absolute inset-0 opacity-5 z-0">
-              <img 
-                src="/images/solo-leveling-hunter.jpg" 
-                alt="Hunter Background" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="relative z-10">
-              <h3 className="text-lg font-bold text-white mb-5 flex items-center">
-                <User className="text-sl-blue mr-2 w-5 h-5" />
-                Hunter Overview
-              </h3>
-              
-              <div className="prose prose-sm prose-invert max-w-none">
-                <p>
-                  As a newly awakened hunter, you have been granted access to the System Interface. 
-                  This interface will help you track your progress, manage your skills, and accept quests.
-                </p>
-                
-                <p>
-                  Currently, you are ranked as an <span className="text-sl-blue font-semibold">E-Rank</span> hunter. 
-                  Complete quests and gain experience to increase your level and rank.
-                </p>
-                
-                <p>
-                  Your stats are balanced, but focusing on specific attributes may unlock specialized 
-                  skills and abilities. Visit the Skills page to view your current abilities.
-                </p>
-              </div>
-              
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <a 
-                  href="/skills" 
-                  className="sl-button group transition-all"
-                >
-                  <Zap className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
-                  <span>View Skills</span>
-                </a>
-                
-                <a 
-                  href="/quests" 
-                  className="sl-button group transition-all"
-                >
-                  <Target className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
-                  <span>Available Quests</span>
-                </a>
+          {/* Stats Section */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="sl-card glass-effect">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center justify-between text-shadow-lg">
+                  <div className="flex items-center">
+                    <Swords className="w-5 h-5 mr-2 text-sl-blue" />
+                    Character Stats
+                  </div>
+                  {playerData.availableStatPoints > 0 && (
+                    <Badge variant="outline" className="text-sl-blue border-sl-blue">
+                      <Star className="w-4 h-4 mr-1" />
+                      {playerData.availableStatPoints} points available
+                    </Badge>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <StatBar 
+                  label="Strength" 
+                  value={playerData.stats.strength} 
+                  maxValue={100} 
+                  color="red"
+                  icon={<Swords className="w-4 h-4" />}
+                  onAllocate={() => allocateStatPoint('strength')}
+                  canAllocate={playerData.availableStatPoints > 0}
+                />
+                <StatBar 
+                  label="Agility" 
+                  value={playerData.stats.agility} 
+                  maxValue={100} 
+                  color="green"
+                  icon={<Zap className="w-4 h-4" />}
+                  onAllocate={() => allocateStatPoint('agility')}
+                  canAllocate={playerData.availableStatPoints > 0}
+                />
+                <StatBar 
+                  label="Intelligence" 
+                  value={playerData.stats.intelligence} 
+                  maxValue={100} 
+                  color="blue"
+                  icon={<Brain className="w-4 h-4" />}
+                  onAllocate={() => allocateStatPoint('intelligence')}
+                  canAllocate={playerData.availableStatPoints > 0}
+                />
+                <StatBar 
+                  label="Vitality" 
+                  value={playerData.stats.vitality} 
+                  maxValue={100} 
+                  color="purple"
+                  icon={<Heart className="w-4 h-4" />}
+                  onAllocate={() => allocateStatPoint('vitality')}
+                  canAllocate={playerData.availableStatPoints > 0}
+                />
+                <StatBar 
+                  label="Endurance" 
+                  value={playerData.stats.endurance} 
+                  maxValue={100} 
+                  color="yellow"
+                  icon={<Shield className="w-4 h-4" />}
+                  onAllocate={() => allocateStatPoint('endurance')}
+                  canAllocate={playerData.availableStatPoints > 0}
+                />
+                <StatBar 
+                  label="Sense" 
+                  value={playerData.stats.sense} 
+                  maxValue={100} 
+                  color="orange"
+                  icon={<Star className="w-4 h-4" />}
+                  onAllocate={() => allocateStatPoint('sense')}
+                  canAllocate={playerData.availableStatPoints > 0}
+                />
 
-                <a 
-                  href="/dungeon-gates" 
-                  className="sl-button group transition-all"
-                >
-                  <MapPin className="w-5 h-5 mr-2 group-hover:text-sl-dark" />
-                  <span>Dungeon Gates</span>
-                </a>
-              </div>
-            </div>
+                <div className="mt-6 p-4 bg-gradient-to-r from-sl-blue/10 to-sl-purple/10 rounded-lg border border-sl-blue/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-white font-medium text-shadow">Total Power Level</h4>
+                      <p className="text-slate-400 text-sm text-shadow">Combined stats assessment</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-sl-blue text-shadow-lg">
+                        {Object.values(playerData.stats).reduce((sum, stat) => sum + stat, 0)}
+                      </div>
+                      <div className="text-sm text-slate-400 text-shadow">Power Points</div>
+                    </div>
+                  </div>
+                </div>
+
+                {playerData.availableStatPoints === 0 && (
+                  <div className="text-center p-4 bg-sl-grey-dark/20 rounded-lg border border-sl-grey-dark/50">
+                    <p className="text-slate-400 text-shadow">No stat points available. Level up to gain more!</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* System Messages */}
+            <Card className="sl-card glass-effect">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center text-shadow-lg">
+                  <Flame className="w-5 h-5 mr-2 text-orange-500" />
+                  System Messages
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <motion.div 
+                    className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <p className="text-blue-400 text-sm text-shadow">
+                      📊 Daily quest progress: {playerData.dailyQuests.completed}/{playerData.dailyQuests.total} completed
+                    </p>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <p className="text-purple-400 text-sm text-shadow">
+                      👥 Shadow army growing: {playerData.shadowsArisen} shadows arisen
+                    </p>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <p className="text-green-400 text-sm text-shadow">
+                      ⚡ Ready for next dungeon challenge!
+                    </p>
+                  </motion.div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

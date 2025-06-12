@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -68,6 +69,15 @@
     --sidebar-border: 0 0% 14%;
     --sidebar-ring: 0 72% 51%;
   }
+
+  /* Global body styles with background images */
+  body {
+    min-height: 100vh;
+    background: 
+      linear-gradient(rgba(21, 24, 35, 0.95), rgba(13, 15, 22, 0.95)),
+      url('https://www.crunchyroll.com/news/features/2025/3/29/anime-like-solo-leveling') center/cover no-repeat fixed;
+    background-attachment: fixed;
+  }
 }
 
 @layer components {
@@ -76,11 +86,18 @@
   }
   
   .sl-heading {
-    @apply text-4xl md:text-5xl font-bold text-slate-900 dark:text-white font-orbitron;
+    @apply text-4xl md:text-5xl font-bold text-white font-orbitron drop-shadow-2xl text-shadow-lg;
+    text-shadow: 
+      0 0 10px rgba(123, 180, 255, 0.5),
+      0 0 20px rgba(123, 180, 255, 0.3),
+      0 0 30px rgba(123, 180, 255, 0.2);
   }
   
   .sl-card {
-    @apply bg-white/90 dark:bg-sl-dark/80 backdrop-blur-sm border border-light-border dark:border-sl-grey-dark/50 p-6 rounded-lg shadow-lg dark:shadow-none;
+    @apply bg-sl-dark/90 backdrop-blur-md border border-sl-grey-dark/50 p-6 rounded-lg shadow-2xl;
+    box-shadow: 
+      0 10px 25px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(123, 180, 255, 0.1);
   }
   
   .sl-page-transition {
@@ -91,44 +108,64 @@
     box-shadow: 0 0 10px rgba(155, 135, 245, 0.3);
   }
   
+  /* Status page specific background */
+  .status-page-bg {
+    background: 
+      linear-gradient(rgba(21, 24, 35, 0.9), rgba(13, 15, 22, 0.9)),
+      url('https://www.bluestacks.com/blog/game-guides/solo-leveling-arise/sla-game-preview-en.html') center/cover no-repeat fixed,
+      url('https://wallpapersden.com/sung-jin-woo-digital-solo-leveling-wallpaper/') center/cover no-repeat fixed;
+    background-attachment: fixed;
+  }
+  
   /* Shadow Army specific styles */
   .shadow-card {
-    @apply relative overflow-hidden border border-light-border dark:border-sl-grey-dark rounded-lg transition-all duration-300;
+    @apply relative overflow-hidden border border-sl-grey-dark rounded-lg transition-all duration-300;
   }
   
   .shadow-card:hover {
-    @apply border-sl-blue/50 dark:border-sl-purple/50;
+    @apply border-sl-purple/50;
   }
   
   .shadow-card-arisen {
-    @apply border-sl-blue/30 bg-sl-blue/5 dark:border-sl-purple/30 dark:bg-sl-purple/5;
+    @apply border-sl-purple/30 bg-sl-purple/5;
   }
   
   .shadow-card-arisen::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-sl-blue/10 dark:from-sl-purple/10 to-transparent pointer-events-none;
+    @apply absolute inset-0 bg-gradient-to-br from-sl-purple/10 to-transparent pointer-events-none;
   }
   
-  /* Text visibility improvements */
+  /* Text visibility improvements with better shadows and backgrounds */
   .sl-text-primary {
-    @apply text-slate-800 dark:text-white;
+    @apply text-white drop-shadow-lg;
+    text-shadow: 
+      0 1px 3px rgba(0, 0, 0, 0.8),
+      0 0 10px rgba(0, 0, 0, 0.5);
   }
   
   .sl-text-secondary {
-    @apply text-slate-600 dark:text-slate-200;
+    @apply text-slate-200 drop-shadow-md;
+    text-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.7),
+      0 0 8px rgba(0, 0, 0, 0.4);
   }
   
   .sl-text-muted {
-    @apply text-slate-500 dark:text-slate-300;
+    @apply text-slate-300 drop-shadow-sm;
+    text-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.6);
   }
   
   /* Button improvements */
   .sl-button-primary {
-    @apply bg-sl-blue hover:bg-sl-blue-dark text-white border-sl-blue;
+    @apply bg-sl-blue hover:bg-sl-blue-dark text-white border-sl-blue shadow-lg;
+    box-shadow: 
+      0 4px 15px rgba(123, 180, 255, 0.3),
+      0 0 20px rgba(123, 180, 255, 0.2);
   }
   
   .sl-button-secondary {
-    @apply bg-slate-200 dark:bg-sl-grey-dark hover:bg-slate-300 dark:hover:bg-sl-grey text-slate-800 dark:text-white;
+    @apply bg-sl-grey-dark/80 hover:bg-sl-grey text-white backdrop-blur-sm shadow-lg;
   }
   
   /* Animations */
@@ -196,6 +233,28 @@
       transform: translateX(100%) rotate(30deg);
     }
   }
+
+  /* Enhanced text shadow utilities for better visibility */
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.7),
+      0 0 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .text-shadow-xl {
+    text-shadow: 
+      0 6px 12px rgba(0, 0, 0, 0.8),
+      0 0 25px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(123, 180, 255, 0.2);
+  }
 }
 
 @layer utilities {
@@ -205,35 +264,50 @@
   }
   
   .sl-hex-bg {
-    @apply dark:bg-sl-hex-pattern bg-light-pattern;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30 L15 7.5 L45 7.5 L60 30 L45 52.5 L15 52.5 Z' fill='none' stroke='rgba(123, 180, 255, 0.05)' stroke-width='1'/%3E%3C/svg%3E");
   }
   
   /* Light/Dark mode utilities */
   .light-shadow {
-    @apply shadow-md dark:shadow-none;
+    @apply shadow-md;
   }
   
   .border-theme {
-    @apply border-light-border dark:border-sl-grey-dark;
+    @apply border-sl-grey-dark/50;
   }
   
   .text-theme {
-    @apply text-slate-800 dark:text-white;
+    @apply text-white;
   }
   
   .text-theme-secondary {
-    @apply text-slate-600 dark:text-slate-200;
+    @apply text-slate-200;
   }
   
   .text-theme-muted {
-    @apply text-slate-500 dark:text-slate-300;
+    @apply text-slate-300;
   }
   
   .bg-theme {
-    @apply bg-light-bg dark:bg-sl-darker;
+    @apply bg-sl-darker;
   }
   
   .card-theme {
-    @apply bg-white/90 dark:bg-sl-dark/80;
+    @apply bg-sl-dark/90 backdrop-blur-md;
+  }
+
+  /* Enhanced visibility utilities */
+  .enhanced-text-bg {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(21, 24, 35, 0.9));
+    backdrop-filter: blur(8px);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(123, 180, 255, 0.2);
+  }
+
+  .glass-effect {
+    background: rgba(21, 24, 35, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(123, 180, 255, 0.2);
   }
 }

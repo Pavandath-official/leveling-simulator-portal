@@ -50,7 +50,8 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
   stats,
   shadows,
 }) => {
-  const arisenShadows = shadows.filter(shadow => shadow.arisen);
+  // Allow ALL shadows for dungeon gates, not just arisen ones
+  const availableShadows = shadows; // Use all shadows instead of filtering by arisen
   const teamPower = calculateTeamPower(selectedTeam);
   const requiredPower = gate.requirements.recommendedStats.totalPower;
   const powerRatio = teamPower / requiredPower;
@@ -118,29 +119,31 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
         </CardContent>
       </Card>
 
-      {/* Available Shadows */}
+      {/* Available Shadows - Now includes ALL shadows */}
       <Card className="sl-card">
         <CardHeader>
           <CardTitle className="flex items-center text-white">
             <Users className="w-5 h-5 mr-2 text-sl-purple" />
-            Shadow Army ({selectedTeam.length}/{gate.requirements.teamSize})
+            Available Shadows ({selectedTeam.length}/{gate.requirements.teamSize})
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {arisenShadows.length === 0 ? (
+          {availableShadows.length === 0 ? (
             <div className="text-center py-6">
               <Users className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400">No arisen shadows available</p>
-              <p className="text-slate-500 text-sm">Visit Shadow Army to arise shadows for battle</p>
+              <p className="text-slate-400">No shadows available</p>
+              <p className="text-slate-500 text-sm">Visit Shadow Army to extract shadows</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {arisenShadows.map((shadow) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+              {availableShadows.map((shadow) => (
                 <div
                   key={shadow.id}
                   className={`border rounded-lg p-3 transition-colors ${
                     selectedTeam.includes(shadow.id)
                       ? 'border-sl-blue bg-sl-blue/10'
+                      : shadow.arisen 
+                      ? 'border-sl-purple/50 bg-sl-purple/5'
                       : 'border-sl-grey-dark bg-sl-grey-dark/20'
                   }`}
                 >
@@ -158,9 +161,16 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="text-white font-medium text-sm">{shadow.name}</h4>
-                        <Badge variant="outline" className="text-xs">
-                          Lv.{shadow.level}
-                        </Badge>
+                        <div className="flex gap-1">
+                          <Badge variant="outline" className="text-xs">
+                            Lv.{shadow.level}
+                          </Badge>
+                          {shadow.arisen && (
+                            <Badge className="text-xs bg-sl-purple text-white">
+                              Arisen
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-slate-400 text-xs capitalize">{shadow.type}</span>
@@ -169,6 +179,11 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
                           <span className="text-white">{shadow.power}</span>
                         </div>
                       </div>
+                      {!shadow.arisen && (
+                        <div className="mt-1">
+                          <span className="text-xs text-yellow-500">⚠️ Not Arisen (Reduced Power)</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -231,6 +246,12 @@ const TeamSelector: React.FC<TeamSelectorProps> = ({
               </p>
             </div>
           )}
+
+          <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+            <p className="text-blue-400 text-sm text-center">
+              💡 Tip: Non-arisen shadows have reduced combat effectiveness. Visit Shadow Army to arise them for full power!
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

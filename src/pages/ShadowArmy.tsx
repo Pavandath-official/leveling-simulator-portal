@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Ghost, Shield, Sword, Wand2, User, ArrowRight, Sparkles, Plus, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,27 +7,59 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import MultiAriseAnimation from '@/components/MultiAriseAnimation';
 import ShadowExtractionAnimation from '@/components/ShadowExtractionAnimation';
 
-// Famous Solo Leveling shadows
-const FAMOUS_SHADOWS = [
-  { name: 'Igris', type: 'knight', power: 150, level: 15 },
-  { name: 'Beru', type: 'beast', power: 180, level: 18 },
-  { name: 'Iron', type: 'soldier', power: 120, level: 12 },
-  { name: 'Tank', type: 'soldier', power: 110, level: 11 },
-  { name: 'Tusk', type: 'beast', power: 140, level: 14 },
-  { name: 'Kaisel', type: 'beast', power: 200, level: 20 },
-  { name: 'Greed', type: 'mage', power: 160, level: 16 },
-  { name: 'Jima', type: 'soldier', power: 100, level: 10 }
+// All Solo Leveling shadows with their canonical names and types
+const ALL_SOLO_LEVELING_SHADOWS = [
+  // Main Elite Shadows
+  { name: 'Igris', type: 'knight', power: 180, level: 20 },
+  { name: 'Beru', type: 'beast', power: 200, level: 22 },
+  { name: 'Iron', type: 'soldier', power: 140, level: 16 },
+  { name: 'Tank', type: 'soldier', power: 130, level: 15 },
+  { name: 'Tusk', type: 'beast', power: 160, level: 18 },
+  { name: 'Kaisel', type: 'beast', power: 220, level: 25 },
+  { name: 'Greed', type: 'mage', power: 170, level: 19 },
+  { name: 'Jima', type: 'soldier', power: 110, level: 12 },
+  
+  // Elite Knight Shadows
+  { name: 'Baruka', type: 'knight', power: 165, level: 17 },
+  { name: 'Kargalgan', type: 'knight', power: 175, level: 19 },
+  
+  // Beast Shadows
+  { name: 'Fangs', type: 'beast', power: 145, level: 15 },
+  { name: 'Vulcan', type: 'beast', power: 155, level: 16 },
+  { name: 'King', type: 'beast', power: 190, level: 21 },
+  
+  // Mage Shadows
+  { name: 'Yuki-Onna', type: 'mage', power: 150, level: 16 },
+  { name: 'Go Gunhee', type: 'mage', power: 185, level: 20 },
+  
+  // Soldier Shadows
+  { name: 'Metus', type: 'soldier', power: 125, level: 14 },
+  { name: 'Shadow Soldiers Alpha', type: 'soldier', power: 100, level: 10 },
+  { name: 'Shadow Soldiers Beta', type: 'soldier', power: 105, level: 11 },
+  { name: 'Shadow Soldiers Gamma', type: 'soldier', power: 95, level: 9 },
+  { name: 'Shadow Soldiers Delta', type: 'soldier', power: 115, level: 12 },
+  
+  // Special Shadows
+  { name: 'Bellion', type: 'knight', power: 250, level: 30 },
+  { name: 'Antares Fragment', type: 'beast', power: 240, level: 28 },
+  { name: 'Thomas Andre', type: 'knight', power: 200, level: 23 },
+  { name: 'Liu Zhigang', type: 'mage', power: 180, level: 19 },
+  { name: 'Christopher Reed', type: 'soldier', power: 170, level: 18 }
 ];
 
 const ShadowArmy = () => {
   const { toast } = useToast();
   const [shadows, setShadows] = useState([
-    { id: '1', name: 'Igris', type: 'knight', level: 15, power: 150, arisen: true },
-    { id: '2', name: 'Beru', type: 'beast', level: 18, power: 180, arisen: true },
-    { id: '3', name: 'Iron', type: 'soldier', level: 12, power: 120, arisen: true },
-    { id: '4', name: 'Tank', type: 'soldier', level: 11, power: 110, arisen: false },
-    { id: '5', name: 'Tusk', type: 'beast', level: 14, power: 140, arisen: false },
-    { id: '6', name: 'Greed', type: 'mage', level: 16, power: 160, arisen: false }
+    // Initialize with some pre-arisen shadows
+    { id: '1', name: 'Igris', type: 'knight', level: 20, power: 180, arisen: true },
+    { id: '2', name: 'Beru', type: 'beast', level: 22, power: 200, arisen: true },
+    { id: '3', name: 'Iron', type: 'soldier', level: 16, power: 140, arisen: true },
+    // Add all other shadows as extracted but not arisen
+    ...ALL_SOLO_LEVELING_SHADOWS.slice(3).map((shadow, index) => ({
+      id: `shadow-${index + 4}`,
+      ...shadow,
+      arisen: false
+    }))
   ]);
   
   const [selectedShadow, setSelectedShadow] = useState<string | null>(null);
@@ -43,34 +74,30 @@ const ShadowArmy = () => {
   const unarisenShadows = shadows.filter(shadow => !shadow.arisen);
   const loading = false;
 
-  // Generate available shadows for extraction
+  // Generate available shadows for extraction from remaining pool
   useEffect(() => {
     const generateExtractions = () => {
-      const extractions = [];
-      for (let i = 0; i < 3; i++) {
-        const randomShadow = FAMOUS_SHADOWS[Math.floor(Math.random() * FAMOUS_SHADOWS.length)];
-        const powerVariation = Math.floor(Math.random() * 30) - 15;
-        extractions.push({
-          id: `extract-${i}`,
-          name: randomShadow.name,
-          type: randomShadow.type,
-          level: randomShadow.level + Math.floor(Math.random() * 3) - 1,
-          power: randomShadow.power + powerVariation,
-          arisen: false
-        });
-      }
+      const unusedShadows = ALL_SOLO_LEVELING_SHADOWS.filter(
+        template => !shadows.some(s => s.name === template.name)
+      );
+      
+      const extractions = unusedShadows.slice(0, 3).map((shadow, i) => ({
+        id: `extract-${i}`,
+        ...shadow,
+        arisen: false
+      }));
+      
       setAvailableExtractions(extractions);
     };
 
     generateExtractions();
-  }, []);
+  }, [shadows]);
 
   const extractShadow = (shadowData: any) => {
     setExtractingShadowType(shadowData.type);
     setShowExtractionAnimation(true);
     setShowExtractionDialog(false);
     
-    // Add to shadows after animation
     setTimeout(() => {
       const newShadow = {
         ...shadowData,
@@ -78,8 +105,6 @@ const ShadowArmy = () => {
       };
       
       setShadows(prev => [...prev, newShadow]);
-      
-      // Remove from available extractions
       setAvailableExtractions(prev => prev.filter(s => s.id !== shadowData.id));
       
       toast({
@@ -114,7 +139,6 @@ const ShadowArmy = () => {
   };
 
   const completeMultiArise = async () => {
-    // Update all selected shadows to arisen status
     setShadows(prev => prev.map(shadow => 
       selectedForArise.includes(shadow.id) 
         ? { ...shadow, arisen: true, power: shadow.power + 10 }
@@ -176,9 +200,9 @@ const ShadowArmy = () => {
         <div className="inline-block px-3 py-1 rounded-full bg-sl-dark border border-sl-purple/30 text-sl-purple text-sm mb-3">
           Shadow Management
         </div>
-        <h1 className="sl-heading mb-2">[Shadow Army]</h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
-          Manage your shadow army. Extract shadows from defeated enemies and command them with the power of necromancy.
+        <h1 className="sl-heading mb-2 text-white drop-shadow-lg">[Shadow Army]</h1>
+        <p className="text-slate-200 max-w-2xl mx-auto drop-shadow-md">
+          Command the complete Solo Leveling shadow army. All canonical shadows are available for extraction and battle.
         </p>
         
         <div className="mt-4 flex justify-center gap-4">
@@ -258,7 +282,7 @@ const ShadowArmy = () => {
               Shadow Army Overview
             </h3>
             <p className="text-slate-400 text-sm mb-5">
-              Your shadow army consists of defeated enemies that you have extracted.
+              Complete Solo Leveling shadow collection. All canonical shadows from the series are available.
               Select multiple shadows and use the "Arise" command to add them to your legion.
             </p>
 
@@ -292,10 +316,10 @@ const ShadowArmy = () => {
             <div className="sl-card animate-fade-in">
               <h3 className="text-lg font-bold text-white mb-5 flex items-center">
                 <Ghost className="text-sl-grey mr-2 w-5 h-5" />
-                Extracted Shadows
+                Extracted Shadows ({unarisenShadows.length})
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 max-h-96 overflow-y-auto">
                 {unarisenShadows.map((shadow) => (
                   <motion.div 
                     key={shadow.id}
@@ -348,7 +372,7 @@ const ShadowArmy = () => {
           <div className="sl-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <h3 className="text-lg font-bold text-white mb-5 flex items-center">
               <Ghost className="text-sl-purple mr-2 w-5 h-5" />
-              Shadow Army
+              Active Shadow Army ({arisenShadows.length})
             </h3>
 
             {arisenShadows.length === 0 ? (
@@ -356,11 +380,11 @@ const ShadowArmy = () => {
                 <Ghost className="w-12 h-12 text-sl-grey-dark mx-auto mb-2" />
                 <p className="text-slate-400">Your shadow army is empty.</p>
                 <p className="text-sm text-slate-500 mt-1">
-                  Extract shadows, then use the "Arise" command.
+                  Use the "Arise" command on extracted shadows.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                 {arisenShadows.map((shadow) => (
                   <motion.div 
                     key={shadow.id}
