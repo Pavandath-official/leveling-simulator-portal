@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Music, Download, Heart } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Music as MusicIcon, Download, Heart } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -172,7 +172,7 @@ const Music = () => {
       
       <div className="mt-8 mb-12 text-center">
         <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-sl-blue/20 to-sl-purple/20 border border-sl-blue/30 text-sl-blue text-sm mb-4">
-          <Music className="w-4 h-4 inline mr-2" />
+          <MusicIcon className="w-4 h-4 inline mr-2" />
           Solo Leveling Music Player
         </div>
         <h1 className="sl-heading mb-4 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
@@ -304,7 +304,7 @@ const Music = () => {
           <Card className="sl-card">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
-                <Music className="w-5 h-5 mr-2 text-sl-purple" />
+                <MusicIcon className="w-5 h-5 mr-2 text-sl-purple" />
                 Playlist ({SOLO_LEVELING_TRACKS.length} tracks)
               </CardTitle>
               <CardDescription className="text-slate-400">

@@ -231,7 +231,7 @@ const Index = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <StatBar 
-                  label="Strength" 
+                  name="Strength" 
                   value={playerData.stats.strength} 
                   maxValue={100} 
                   color="red"
@@ -240,7 +240,7 @@ const Index = () => {
                   canAllocate={playerData.availableStatPoints > 0}
                 />
                 <StatBar 
-                  label="Agility" 
+                  name="Agility" 
                   value={playerData.stats.agility} 
                   maxValue={100} 
                   color="green"
@@ -249,7 +249,7 @@ const Index = () => {
                   canAllocate={playerData.availableStatPoints > 0}
                 />
                 <StatBar 
-                  label="Intelligence" 
+                  name="Intelligence" 
                   value={playerData.stats.intelligence} 
                   maxValue={100} 
                   color="blue"
@@ -258,7 +258,7 @@ const Index = () => {
                   canAllocate={playerData.availableStatPoints > 0}
                 />
                 <StatBar 
-                  label="Vitality" 
+                  name="Vitality" 
                   value={playerData.stats.vitality} 
                   maxValue={100} 
                   color="purple"
@@ -267,7 +267,7 @@ const Index = () => {
                   canAllocate={playerData.availableStatPoints > 0}
                 />
                 <StatBar 
-                  label="Endurance" 
+                  name="Endurance" 
                   value={playerData.stats.endurance} 
                   maxValue={100} 
                   color="yellow"
@@ -276,7 +276,7 @@ const Index = () => {
                   canAllocate={playerData.availableStatPoints > 0}
                 />
                 <StatBar 
-                  label="Sense" 
+                  name="Sense" 
                   value={playerData.stats.sense} 
                   maxValue={100} 
                   color="orange"

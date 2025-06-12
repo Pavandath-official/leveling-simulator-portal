@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface PlayerProfile {
@@ -42,32 +41,41 @@ export const useSupabasePlayer = () => {
 
   const loadPlayerData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Use fake data instead of Supabase
+      const fakeUser = localStorage.getItem('fakeUser');
+      if (!fakeUser) return;
 
-      // Load profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+      const userData = JSON.parse(fakeUser);
 
-      // Load stats
-      const { data: statsData } = await supabase
-        .from('player_stats')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      // Load fake profile
+      const fakeProfile: PlayerProfile = {
+        id: userData.id || '1',
+        username: userData.username || 'Shadow Monarch',
+        level: userData.level || 15,
+        exp: 2500,
+        gold: 5000,
+        rank: 'S'
+      };
 
-      // Load shadows
-      const { data: shadowsData } = await supabase
-        .from('shadows')
-        .select('*')
-        .eq('user_id', user.id);
+      // Load fake stats
+      const fakeStats: PlayerStats = {
+        strength: 45,
+        agility: 38,
+        intelligence: 42,
+        vitality: 35,
+        endurance: 40
+      };
 
-      setProfile(profileData);
-      setStats(statsData);
-      setShadows(shadowsData || []);
+      // Load fake shadows
+      const fakeShadows: Shadow[] = [
+        { id: '1', name: 'Igris', type: 'Knight', level: 50, power: 1200, arisen: true },
+        { id: '2', name: 'Iron', type: 'Soldier', level: 30, power: 800, arisen: true },
+        { id: '3', name: 'Tank', type: 'Tank', level: 25, power: 600, arisen: false }
+      ];
+
+      setProfile(fakeProfile);
+      setStats(fakeStats);
+      setShadows(fakeShadows);
     } catch (error) {
       console.error('Error loading player data:', error);
     } finally {
@@ -77,16 +85,6 @@ export const useSupabasePlayer = () => {
 
   const updateProfile = async (updates: Partial<PlayerProfile>) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id);
-
-      if (error) throw error;
-      
       setProfile(prev => prev ? { ...prev, ...updates } : null);
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -95,19 +93,13 @@ export const useSupabasePlayer = () => {
 
   const createShadow = async (shadow: Omit<Shadow, 'id'>) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('shadows')
-        .insert([{ ...shadow, user_id: user.id }])
-        .select()
-        .single();
-
-      if (error) throw error;
+      const newShadow: Shadow = {
+        ...shadow,
+        id: Date.now().toString()
+      };
       
-      setShadows(prev => [...prev, data]);
-      return data;
+      setShadows(prev => [...prev, newShadow]);
+      return newShadow;
     } catch (error) {
       console.error('Error creating shadow:', error);
     }
@@ -115,13 +107,6 @@ export const useSupabasePlayer = () => {
 
   const updateShadow = async (id: string, updates: Partial<Shadow>) => {
     try {
-      const { error } = await supabase
-        .from('shadows')
-        .update(updates)
-        .eq('id', id);
-
-      if (error) throw error;
-      
       setShadows(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
     } catch (error) {
       console.error('Error updating shadow:', error);
@@ -138,14 +123,8 @@ export const useSupabasePlayer = () => {
     artifacts: string[];
   }) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('dungeon_battles')
-        .insert([{ ...battleData, user_id: user.id }]);
-
-      if (error) throw error;
+      console.log('Battle recorded:', battleData);
+      // In a real app, this would save to database
     } catch (error) {
       console.error('Error recording battle:', error);
     }
