@@ -17,6 +17,7 @@ interface Track {
   url: string;
   cover: string;
   isUserUpload: boolean;
+  file?: File; // Keep reference to original file for playback
 }
 
 // Solo Leveling OST and inspired tracks
@@ -67,6 +68,7 @@ const Music = () => {
   const [userTracks, setUserTracks] = useState<Track[]>([]);
   const [allTracks, setAllTracks] = useState<Track[]>(SOLO_LEVELING_TRACKS);
   const [isLoading, setIsLoading] = useState(false);
+  const [audioFiles, setAudioFiles] = useState<Map<string, File>>(new Map());
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -81,11 +83,16 @@ const Music = () => {
   const loadUserTracks = () => {
     try {
       const savedTracks = localStorage.getItem('userMusicTracks');
+      const savedFiles = localStorage.getItem('userMusicFiles');
+      
       if (savedTracks) {
         const tracks: Track[] = JSON.parse(savedTracks);
         setUserTracks(tracks);
         setAllTracks([...SOLO_LEVELING_TRACKS, ...tracks]);
       }
+      
+      // Note: Files can't be stored in localStorage, so we'll need to re-upload
+      console.log('Loaded user tracks from localStorage');
     } catch (error) {
       console.error('Error loading user tracks:', error);
     }
@@ -94,7 +101,13 @@ const Music = () => {
   // Save tracks to localStorage
   const saveUserTracks = (tracks: Track[]) => {
     try {
-      localStorage.setItem('userMusicTracks', JSON.stringify(tracks));
+      // Don't save the file objects, just the track metadata
+      const tracksToSave = tracks.map(track => {
+        const { file, ...trackWithoutFile } = track;
+        return trackWithoutFile;
+      });
+      localStorage.setItem('userMusicTracks', JSON.stringify(tracksToSave));
+      console.log('Saved user tracks to localStorage');
     } catch (error) {
       console.error('Error saving user tracks:', error);
     }
@@ -117,31 +130,52 @@ const Music = () => {
     setIsLoading(true);
 
     try {
-      // Create a URL for the file
+      // Create a URL for the file that will persist for this session
       const fileUrl = URL.createObjectURL(file);
       
-      const newTrack: Track = {
-        id: Date.now().toString(),
-        title: file.name.replace(/\.[^/.]+$/, ""),
-        artist: "Unknown Artist",
-        album: "User Upload",
-        duration: "0:00",
-        url: fileUrl,
-        cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-        isUserUpload: true
-      };
+      // Get actual duration from the audio file
+      const audio = new Audio(fileUrl);
+      
+      await new Promise((resolve, reject) => {
+        audio.addEventListener('loadedmetadata', () => {
+          const minutes = Math.floor(audio.duration / 60);
+          const seconds = Math.floor(audio.duration % 60);
+          const durationStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+          
+          const newTrack: Track = {
+            id: Date.now().toString(),
+            title: file.name.replace(/\.[^/.]+$/, ""),
+            artist: "Unknown Artist",
+            album: "User Upload",
+            duration: durationStr,
+            url: fileUrl,
+            cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+            isUserUpload: true,
+            file: file
+          };
 
-      const updatedUserTracks = [...userTracks, newTrack];
-      const updatedAllTracks = [...allTracks, newTrack];
-      
-      setUserTracks(updatedUserTracks);
-      setAllTracks(updatedAllTracks);
-      saveUserTracks(updatedUserTracks);
-      
-      toast({
-        title: "Track Added!",
-        description: `${newTrack.title} has been uploaded successfully`,
-        variant: "default",
+          const updatedUserTracks = [...userTracks, newTrack];
+          const updatedAllTracks = [...allTracks, newTrack];
+          
+          // Store file reference in memory
+          setAudioFiles(prev => new Map(prev).set(newTrack.id, file));
+          
+          setUserTracks(updatedUserTracks);
+          setAllTracks(updatedAllTracks);
+          saveUserTracks(updatedUserTracks);
+          
+          toast({
+            title: "Track Added!",
+            description: `${newTrack.title} has been uploaded successfully`,
+            variant: "default",
+          });
+          
+          resolve(newTrack);
+        });
+        
+        audio.addEventListener('error', () => {
+          reject(new Error('Failed to load audio file'));
+        });
       });
 
     } catch (error) {
@@ -163,6 +197,20 @@ const Music = () => {
   // Remove user uploaded track
   const removeTrack = (trackId: string) => {
     try {
+      const trackToRemove = allTracks.find(t => t.id === trackId);
+      
+      // Clean up blob URL if it exists
+      if (trackToRemove?.url) {
+        URL.revokeObjectURL(trackToRemove.url);
+      }
+      
+      // Remove from audio files map
+      setAudioFiles(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(trackId);
+        return newMap;
+      });
+      
       const updatedUserTracks = userTracks.filter(t => t.id !== trackId);
       const updatedAllTracks = allTracks.filter(t => t.id !== trackId);
       
@@ -207,22 +255,14 @@ const Music = () => {
       }
     };
 
-    const handleLoadedData = () => {
-      if (track?.url && audio.src !== track.url) {
-        audio.src = track.url;
-      }
-    };
-
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('loadeddata', handleLoadedData);
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('loadeddata', handleLoadedData);
     };
   }, [currentTrack, isRepeat, track]);
 
@@ -234,15 +274,29 @@ const Music = () => {
 
   // Update audio source when track changes
   useEffect(() => {
-    if (audioRef.current && track?.url) {
-      audioRef.current.src = track.url;
-      audioRef.current.load();
+    const audio = audioRef.current;
+    if (!audio || !track) return;
+
+    console.log('Loading track:', track.title, 'URL:', track.url);
+    
+    if (track.url) {
+      audio.src = track.url;
+      audio.load();
+    } else if (track.isUserUpload && audioFiles.has(track.id)) {
+      // Create new blob URL for user uploaded files
+      const file = audioFiles.get(track.id);
+      if (file) {
+        const url = URL.createObjectURL(file);
+        audio.src = url;
+        audio.load();
+        console.log('Created new blob URL for track:', track.title);
+      }
     }
-  }, [currentTrack, track]);
+  }, [currentTrack, track, audioFiles]);
 
   const togglePlayPause = () => {
     const audio = audioRef.current;
-    if (!audio || !track?.url) {
+    if (!audio || !track) {
       toast({
         title: "No Audio",
         description: "Please upload an audio file to play",
@@ -250,6 +304,27 @@ const Music = () => {
       });
       return;
     }
+
+    // For user uploaded tracks without URL, create one from the file
+    if (track.isUserUpload && !track.url && audioFiles.has(track.id)) {
+      const file = audioFiles.get(track.id);
+      if (file) {
+        const url = URL.createObjectURL(file);
+        audio.src = url;
+        audio.load();
+      }
+    }
+
+    if (!audio.src || audio.src === window.location.href) {
+      toast({
+        title: "No Audio Source",
+        description: "This track doesn't have a valid audio source",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('Toggling playback for:', track.title, 'Audio src:', audio.src);
 
     if (isPlaying) {
       audio.pause();
@@ -291,6 +366,7 @@ const Music = () => {
   };
 
   const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -308,6 +384,17 @@ const Music = () => {
     setCurrentTrack(index);
     setIsPlaying(true);
   };
+
+  // Clean up blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      allTracks.forEach(track => {
+        if (track.url && track.url.startsWith('blob:')) {
+          URL.revokeObjectURL(track.url);
+        }
+      });
+    };
+  }, []);
 
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
@@ -381,6 +468,11 @@ const Music = () => {
                 <Badge variant="outline" className="text-blue-400 border-blue-400">
                   {track.album}
                 </Badge>
+                {track.isUserUpload && (
+                  <div className="text-xs text-green-400">
+                    {track.url || audioFiles.has(track.id) ? 'Ready to play' : 'No audio source'}
+                  </div>
+                )}
               </div>
 
               {/* Progress Bar */}
@@ -512,6 +604,11 @@ const Music = () => {
                         <p className="text-sm text-slate-400 truncate">
                           {trackItem.artist}
                         </p>
+                        {trackItem.isUserUpload && (
+                          <p className="text-xs text-green-400">
+                            {trackItem.url || audioFiles.has(trackItem.id) ? 'Playable' : 'No source'}
+                          </p>
+                        )}
                       </div>
 
                       <div className="flex items-center space-x-2">
