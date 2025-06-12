@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -233,7 +232,7 @@ const Index = () => {
                 <StatBar 
                   name="Strength" 
                   value={playerData.stats.strength} 
-                  maxValue={100} 
+                  max={100} 
                   color="red"
                   icon={<Swords className="w-4 h-4" />}
                   onAllocate={() => allocateStatPoint('strength')}
@@ -242,7 +241,7 @@ const Index = () => {
                 <StatBar 
                   name="Agility" 
                   value={playerData.stats.agility} 
-                  maxValue={100} 
+                  max={100} 
                   color="green"
                   icon={<Zap className="w-4 h-4" />}
                   onAllocate={() => allocateStatPoint('agility')}
@@ -251,7 +250,7 @@ const Index = () => {
                 <StatBar 
                   name="Intelligence" 
                   value={playerData.stats.intelligence} 
-                  maxValue={100} 
+                  max={100} 
                   color="blue"
                   icon={<Brain className="w-4 h-4" />}
                   onAllocate={() => allocateStatPoint('intelligence')}
@@ -260,7 +259,7 @@ const Index = () => {
                 <StatBar 
                   name="Vitality" 
                   value={playerData.stats.vitality} 
-                  maxValue={100} 
+                  max={100} 
                   color="purple"
                   icon={<Heart className="w-4 h-4" />}
                   onAllocate={() => allocateStatPoint('vitality')}
@@ -269,7 +268,7 @@ const Index = () => {
                 <StatBar 
                   name="Endurance" 
                   value={playerData.stats.endurance} 
-                  maxValue={100} 
+                  max={100} 
                   color="yellow"
                   icon={<Shield className="w-4 h-4" />}
                   onAllocate={() => allocateStatPoint('endurance')}
@@ -278,7 +277,7 @@ const Index = () => {
                 <StatBar 
                   name="Sense" 
                   value={playerData.stats.sense} 
-                  maxValue={100} 
+                  max={100} 
                   color="orange"
                   icon={<Star className="w-4 h-4" />}
                   onAllocate={() => allocateStatPoint('sense')}
