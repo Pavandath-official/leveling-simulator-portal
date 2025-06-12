@@ -6,12 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+
+// Track interface
+interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  duration: string;
+  url: string;
+  cover: string;
+  isUserUpload: boolean;
+}
 
 // Solo Leveling OST and inspired tracks
-const SOLO_LEVELING_TRACKS = [
+const SOLO_LEVELING_TRACKS: Track[] = [
   {
-    id: 1,
+    id: "1",
     title: "E-Rank Hunter",
     artist: "Hiroyuki Sawano",
     album: "Solo Leveling OST",
@@ -21,7 +32,7 @@ const SOLO_LEVELING_TRACKS = [
     isUserUpload: false
   },
   {
-    id: 2,
+    id: "2",
     title: "System Awakening",
     artist: "Hiroyuki Sawano",
     album: "Solo Leveling OST",
@@ -31,7 +42,7 @@ const SOLO_LEVELING_TRACKS = [
     isUserUpload: false
   },
   {
-    id: 3,
+    id: "3",
     title: "Shadow Army",
     artist: "Hiroyuki Sawano",
     album: "Solo Leveling OST",
@@ -52,9 +63,9 @@ const Music = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [userTracks, setUserTracks] = useState<any[]>([]);
-  const [allTracks, setAllTracks] = useState(SOLO_LEVELING_TRACKS);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [userTracks, setUserTracks] = useState<Track[]>([]);
+  const [allTracks, setAllTracks] = useState<Track[]>(SOLO_LEVELING_TRACKS);
   const [isLoading, setIsLoading] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -62,44 +73,30 @@ const Music = () => {
 
   const track = allTracks[currentTrack];
 
-  // Load saved tracks from database on component mount
+  // Load saved tracks from localStorage on component mount
   useEffect(() => {
     loadUserTracks();
   }, []);
 
-  const loadUserTracks = async () => {
+  const loadUserTracks = () => {
     try {
-      const userData = localStorage.getItem('fakeUser');
-      if (!userData) return;
-
-      const user = JSON.parse(userData);
-      const { data, error } = await supabase
-        .from('user_music')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Error loading tracks:', error);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        const dbTracks = data.map(track => ({
-          id: track.id,
-          title: track.title,
-          artist: track.artist || "Unknown Artist",
-          album: track.album || "User Upload",
-          duration: track.duration || "0:00",
-          url: track.file_url,
-          cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-          isUserUpload: true
-        }));
-
-        setUserTracks(dbTracks);
-        setAllTracks([...SOLO_LEVELING_TRACKS, ...dbTracks]);
+      const savedTracks = localStorage.getItem('userMusicTracks');
+      if (savedTracks) {
+        const tracks: Track[] = JSON.parse(savedTracks);
+        setUserTracks(tracks);
+        setAllTracks([...SOLO_LEVELING_TRACKS, ...tracks]);
       }
     } catch (error) {
       console.error('Error loading user tracks:', error);
+    }
+  };
+
+  // Save tracks to localStorage
+  const saveUserTracks = (tracks: Track[]) => {
+    try {
+      localStorage.setItem('userMusicTracks', JSON.stringify(tracks));
+    } catch (error) {
+      console.error('Error saving user tracks:', error);
     }
   };
 
@@ -120,60 +117,26 @@ const Music = () => {
     setIsLoading(true);
 
     try {
-      const userData = localStorage.getItem('fakeUser');
-      if (!userData) {
-        throw new Error('User not found');
-      }
-
-      const user = JSON.parse(userData);
-
-      // Upload file to Supabase Storage
-      const fileName = `${Date.now()}-${file.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('music-files')
-        .upload(`${user.id}/${fileName}`, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('music-files')
-        .getPublicUrl(`${user.id}/${fileName}`);
-
-      // Save track info to database
-      const { data: trackData, error: dbError } = await supabase
-        .from('user_music')
-        .insert({
-          user_id: user.id,
-          title: file.name.replace(/\.[^/.]+$/, ""),
-          artist: "Unknown Artist",
-          album: "User Upload",
-          file_url: publicUrl,
-          duration: "0:00"
-        })
-        .select()
-        .single();
-
-      if (dbError) {
-        throw dbError;
-      }
-
-      const newTrack = {
-        id: trackData.id,
-        title: trackData.title,
-        artist: trackData.artist,
-        album: trackData.album,
-        duration: trackData.duration,
-        url: trackData.file_url,
+      // Create a URL for the file
+      const fileUrl = URL.createObjectURL(file);
+      
+      const newTrack: Track = {
+        id: Date.now().toString(),
+        title: file.name.replace(/\.[^/.]+$/, ""),
+        artist: "Unknown Artist",
+        album: "User Upload",
+        duration: "0:00",
+        url: fileUrl,
         cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
         isUserUpload: true
       };
 
-      const updatedTracks = [...allTracks, newTrack];
-      setAllTracks(updatedTracks);
-      setUserTracks([...userTracks, newTrack]);
+      const updatedUserTracks = [...userTracks, newTrack];
+      const updatedAllTracks = [...allTracks, newTrack];
+      
+      setUserTracks(updatedUserTracks);
+      setAllTracks(updatedAllTracks);
+      saveUserTracks(updatedUserTracks);
       
       toast({
         title: "Track Added!",
@@ -198,27 +161,14 @@ const Music = () => {
   };
 
   // Remove user uploaded track
-  const removeTrack = async (trackId: number) => {
+  const removeTrack = (trackId: string) => {
     try {
-      const userData = localStorage.getItem('fakeUser');
-      if (!userData) return;
-
-      const user = JSON.parse(userData);
+      const updatedUserTracks = userTracks.filter(t => t.id !== trackId);
+      const updatedAllTracks = allTracks.filter(t => t.id !== trackId);
       
-      // Delete from database
-      const { error } = await supabase
-        .from('user_music')
-        .delete()
-        .eq('id', trackId)
-        .eq('user_id', user.id);
-
-      if (error) {
-        throw error;
-      }
-
-      const updatedTracks = allTracks.filter(t => t.id !== trackId);
-      setAllTracks(updatedTracks);
-      setUserTracks(userTracks.filter(t => t.id !== trackId));
+      setUserTracks(updatedUserTracks);
+      setAllTracks(updatedAllTracks);
+      saveUserTracks(updatedUserTracks);
       
       // If currently playing track is removed, stop and go to first track
       if (allTracks[currentTrack]?.id === trackId) {
@@ -346,7 +296,7 @@ const Music = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const toggleFavorite = (trackId: number) => {
+  const toggleFavorite = (trackId: string) => {
     setFavorites(prev => 
       prev.includes(trackId) 
         ? prev.filter(id => id !== trackId)
