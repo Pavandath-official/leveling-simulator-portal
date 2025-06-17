@@ -96,29 +96,40 @@ const Index = () => {
 
   return (
     <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
-      <div className="mt-8 mb-12 text-center">
-        <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 border-2 border-blue-400/50 text-blue-300 text-sm mb-6 shadow-xl backdrop-blur-sm">
-          <User className="w-5 h-5 inline mr-2" />
-          Player Status Interface
+      {/* Hero Section with Background Image */}
+      <div className="relative min-h-[400px] mb-12 rounded-2xl overflow-hidden">
+        {/* ADD YOUR HERO BACKGROUND IMAGE HERE */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-blue-900/50 to-purple-900/50">
+          {/* You can replace this div with: */}
+          {/* <img src="/public/images/your-hero-image.jpg" alt="Hero" className="w-full h-full object-cover" /> */}
         </div>
-        <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 font-orbitron">
-          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-2xl">
-            [Player Status]
-          </span>
-        </h1>
-        <p className="text-slate-200 max-w-3xl mx-auto text-xl leading-relaxed backdrop-blur-sm bg-black/20 rounded-lg p-4">
-          Monitor your progression as a Hunter. Allocate stat points and track your journey to become the ultimate Shadow Monarch.
-        </p>
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-8">
+          <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 border-2 border-blue-400/50 text-blue-300 text-sm mb-6 shadow-xl backdrop-blur-sm">
+            <User className="w-5 h-5 inline mr-2" />
+            Player Status Interface
+          </div>
+          <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 font-orbitron">
+            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-2xl">
+              [Player Status]
+            </span>
+          </h1>
+          <p className="text-slate-200 max-w-3xl mx-auto text-xl leading-relaxed backdrop-blur-sm bg-black/20 rounded-lg p-4">
+            Monitor your progression as a Hunter. Allocate stat points and track your journey to become the ultimate Shadow Monarch.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Player Info */}
+        {/* Player Avatar & Info */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Basic Info Card */}
+          {/* Avatar Card with Image */}
           <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-blue-500/30 shadow-2xl">
             <CardHeader className="text-center">
-              <div className="relative mx-auto w-24 h-24 mb-4">
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-2xl border-4 border-blue-400/50">
+              <div className="relative mx-auto w-32 h-32 mb-4">
+                {/* ADD YOUR PLAYER AVATAR IMAGE HERE */}
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white shadow-2xl border-4 border-blue-400/50 overflow-hidden">
+                  {/* You can replace this div with: */}
+                  {/* <img src="/public/images/your-avatar.jpg" alt="Avatar" className="w-full h-full object-cover" /> */}
                   {playerData.username.charAt(0)}
                 </div>
                 <div className="absolute -bottom-2 -right-2">
@@ -126,6 +137,8 @@ const Index = () => {
                     {playerData.rank}
                   </Badge>
                 </div>
+                {/* Rank Glow Effect */}
+                <div className="absolute inset-0 rounded-full animate-pulse bg-gradient-to-r from-blue-400/20 to-purple-400/20"></div>
               </div>
               <CardTitle className="text-2xl text-white drop-shadow-lg">{playerData.username}</CardTitle>
               <CardDescription className="text-slate-300">
@@ -135,45 +148,46 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg border border-blue-500/20">
+                <div className="bg-slate-800/60 backdrop-blur-sm p-4 rounded-lg border border-blue-500/20">
                   <div className="text-slate-400 text-sm">Level</div>
-                  <div className="text-white font-bold text-xl">{playerData.level}</div>
+                  <div className="text-white font-bold text-2xl">{playerData.level}</div>
                 </div>
-                <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg border border-blue-500/20">
+                <div className="bg-slate-800/60 backdrop-blur-sm p-4 rounded-lg border border-blue-500/20">
                   <div className="text-slate-400 text-sm">Guild</div>
                   <div className="text-white font-bold text-xl">{playerData.guild}</div>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              {/* Status Bars */}
+              <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-slate-300 text-sm">Experience</span>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-slate-300 text-sm font-medium">Experience</span>
                     <span className="text-slate-300 text-sm">{playerData.exp}/{playerData.expToNext}</span>
                   </div>
-                  <Progress value={expPercentage} className="h-3" />
+                  <Progress value={expPercentage} className="h-4 bg-slate-700" />
                 </div>
 
                 <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-red-400 text-sm flex items-center">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-red-400 text-sm flex items-center font-medium">
                       <Heart className="w-4 h-4 mr-1" />
                       Health
                     </span>
                     <span className="text-red-400 text-sm">{playerData.hp}/{playerData.maxHp}</span>
                   </div>
-                  <Progress value={hpPercentage} className="h-3 bg-red-900" />
+                  <Progress value={hpPercentage} className="h-4 bg-red-900" />
                 </div>
 
                 <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-blue-400 text-sm flex items-center">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-blue-400 text-sm flex items-center font-medium">
                       <Zap className="w-4 h-4 mr-1" />
                       Mana
                     </span>
                     <span className="text-blue-400 text-sm">{playerData.mp}/{playerData.maxMp}</span>
                   </div>
-                  <Progress value={mpPercentage} className="h-3 bg-blue-900" />
+                  <Progress value={mpPercentage} className="h-4 bg-blue-900" />
                 </div>
               </div>
             </CardContent>
@@ -297,60 +311,88 @@ const Index = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {playerData.availableStatPoints === 0 && (
-                <div className="text-center p-4 bg-slate-800/40 rounded-lg border border-slate-600/50">
-                  <p className="text-slate-400">No stat points available. Level up to gain more!</p>
+          {/* Recent Activity & Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* System Messages */}
+            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-orange-500/30 shadow-2xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Flame className="w-5 h-5 mr-2 text-orange-400" />
+                  System Messages
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <motion.div 
+                    className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg backdrop-blur-sm"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <p className="text-blue-400 text-sm">
+                      📊 Daily quest progress: {playerData.dailyQuests.completed}/{playerData.dailyQuests.total} completed
+                    </p>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg backdrop-blur-sm"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <p className="text-purple-400 text-sm">
+                      👥 Shadow army growing: {playerData.shadowsArisen} shadows arisen
+                    </p>
+                  </motion.div>
+                  
+                  <motion.div 
+                    className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg backdrop-blur-sm"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <p className="text-green-400 text-sm">
+                      ⚡ Ready for next dungeon challenge!
+                    </p>
+                  </motion.div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* System Messages */}
-          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-orange-500/30 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <Flame className="w-5 h-5 mr-2 text-orange-400" />
-                System Messages
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <motion.div 
-                  className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg backdrop-blur-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
-                  <p className="text-blue-400 text-sm">
-                    📊 Daily quest progress: {playerData.dailyQuests.completed}/{playerData.dailyQuests.total} completed
-                  </p>
-                </motion.div>
-                
-                <motion.div 
-                  className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg backdrop-blur-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <p className="text-purple-400 text-sm">
-                    👥 Shadow army growing: {playerData.shadowsArisen} shadows arisen
-                  </p>
-                </motion.div>
-                
-                <motion.div 
-                  className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg backdrop-blur-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <p className="text-green-400 text-sm">
-                    ⚡ Ready for next dungeon challenge!
-                  </p>
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
+            {/* Image Gallery Section */}
+            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-green-500/30 shadow-2xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center">
+                  <Star className="w-5 h-5 mr-2 text-green-400" />
+                  Gallery
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* ADD YOUR GALLERY IMAGES HERE */}
+                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
+                    {/* Replace with: <img src="/public/images/gallery-1.jpg" alt="Gallery 1" className="w-full h-full object-cover rounded-lg" /> */}
+                    <span className="text-slate-500 text-xs">Image 1</span>
+                  </div>
+                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
+                    {/* Replace with: <img src="/public/images/gallery-2.jpg" alt="Gallery 2" className="w-full h-full object-cover rounded-lg" /> */}
+                    <span className="text-slate-500 text-xs">Image 2</span>
+                  </div>
+                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
+                    {/* Replace with: <img src="/public/images/gallery-3.jpg" alt="Gallery 3" className="w-full h-full object-cover rounded-lg" /> */}
+                    <span className="text-slate-500 text-xs">Image 3</span>
+                  </div>
+                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
+                    {/* Replace with: <img src="/public/images/gallery-4.jpg" alt="Gallery 4" className="w-full h-full object-cover rounded-lg" /> */}
+                    <span className="text-slate-500 text-xs">Image 4</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
