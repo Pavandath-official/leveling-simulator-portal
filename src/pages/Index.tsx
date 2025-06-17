@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Zap, User, Heart, Shield, Brain, Swords, Star, TrendingUp, Crown, Flame } from 'lucide-react';
+import { Zap, User, Heart, Shield, Brain, Swords, Star, TrendingUp, Crown, Flame, Eye, Target, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import StatBar from '@/components/StatBar';
 import { useToast } from '@/hooks/use-toast';
@@ -95,155 +95,150 @@ const Index = () => {
   };
 
   return (
-    <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
-      {/* Hero Section with Background Image */}
-      <div className="relative min-h-[400px] mb-12 rounded-2xl overflow-hidden">
-        {/* ADD YOUR HERO BACKGROUND IMAGE HERE */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-blue-900/50 to-purple-900/50">
-          {/* You can replace this div with: */}
-          {/* <img src="/public/images/your-hero-image.jpg" alt="Hero" className="w-full h-full object-cover" /> */}
-        </div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-8">
-          <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 border-2 border-blue-400/50 text-blue-300 text-sm mb-6 shadow-xl backdrop-blur-sm">
-            <User className="w-5 h-5 inline mr-2" />
-            Player Status Interface
+    <div className="min-h-screen bg-black text-white p-4">
+      {/* System Header with Background Image Area */}
+      <div className="relative mb-8 rounded-xl overflow-hidden border-2 border-blue-500/30">
+        {/* SYSTEM HEADER BACKGROUND IMAGE - Replace the div below with your image */}
+        <div className="h-32 bg-gradient-to-r from-slate-900 via-blue-900/70 to-purple-900/70 relative">
+          {/* <img src="/images/system-header-bg.jpg" alt="System Header" className="w-full h-full object-cover" /> */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+          <div className="absolute top-4 left-4 text-blue-400 font-mono text-lg">
+            [ SOLO LEVELING SYSTEM ]
           </div>
-          <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 font-orbitron">
-            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent drop-shadow-2xl">
-              [Player Status]
-            </span>
-          </h1>
-          <p className="text-slate-200 max-w-3xl mx-auto text-xl leading-relaxed backdrop-blur-sm bg-black/20 rounded-lg p-4">
-            Monitor your progression as a Hunter. Allocate stat points and track your journey to become the ultimate Shadow Monarch.
-          </p>
+          <div className="absolute bottom-4 right-4 text-white font-bold">
+            STATUS INTERFACE v2.1
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Player Avatar & Info */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Avatar Card with Image */}
-          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-blue-500/30 shadow-2xl">
-            <CardHeader className="text-center">
-              <div className="relative mx-auto w-32 h-32 mb-4">
-                {/* ADD YOUR PLAYER AVATAR IMAGE HERE */}
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white shadow-2xl border-4 border-blue-400/50 overflow-hidden">
-                  {/* You can replace this div with: */}
-                  {/* <img src="/public/images/your-avatar.jpg" alt="Avatar" className="w-full h-full object-cover" /> */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Panel - Player Info */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Player Avatar Section */}
+          <Card className="bg-slate-900/90 border-2 border-blue-500/40">
+            <CardHeader className="text-center pb-2">
+              <div className="relative">
+                {/* PLAYER AVATAR IMAGE - Replace the div below with your avatar image */}
+                <div className="w-24 h-24 mx-auto rounded-full border-4 border-blue-400 bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center text-2xl font-bold mb-4">
+                  {/* <img src="/images/player-avatar.jpg" alt="Player Avatar" className="w-full h-full object-cover rounded-full" /> */}
                   {playerData.username.charAt(0)}
                 </div>
-                <div className="absolute -bottom-2 -right-2">
-                  <Badge className={`${getRankColor(playerData.rank)} text-white font-bold text-lg px-3 py-1 shadow-lg border-2 border-white/30`}>
-                    {playerData.rank}
-                  </Badge>
-                </div>
-                {/* Rank Glow Effect */}
-                <div className="absolute inset-0 rounded-full animate-pulse bg-gradient-to-r from-blue-400/20 to-purple-400/20"></div>
+                <Badge className={`${getRankColor(playerData.rank)} absolute -top-2 -right-2 text-white font-bold`}>
+                  {playerData.rank}
+                </Badge>
               </div>
-              <CardTitle className="text-2xl text-white drop-shadow-lg">{playerData.username}</CardTitle>
-              <CardDescription className="text-slate-300">
-                <Crown className="w-4 h-4 inline mr-1 text-yellow-400" />
+              <CardTitle className="text-blue-400 font-mono">{playerData.username}</CardTitle>
+              <CardDescription className="text-slate-300 flex items-center justify-center">
+                <Crown className="w-4 h-4 mr-1 text-yellow-400" />
                 {playerData.title}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="bg-slate-800/60 backdrop-blur-sm p-4 rounded-lg border border-blue-500/20">
-                  <div className="text-slate-400 text-sm">Level</div>
-                  <div className="text-white font-bold text-2xl">{playerData.level}</div>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-2 bg-slate-800/50 rounded">
+                  <span className="text-slate-400">Level</span>
+                  <span className="text-white font-bold text-xl">{playerData.level}</span>
                 </div>
-                <div className="bg-slate-800/60 backdrop-blur-sm p-4 rounded-lg border border-blue-500/20">
-                  <div className="text-slate-400 text-sm">Guild</div>
-                  <div className="text-white font-bold text-xl">{playerData.guild}</div>
-                </div>
-              </div>
-
-              {/* Status Bars */}
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-slate-300 text-sm font-medium">Experience</span>
-                    <span className="text-slate-300 text-sm">{playerData.exp}/{playerData.expToNext}</span>
-                  </div>
-                  <Progress value={expPercentage} className="h-4 bg-slate-700" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-red-400 text-sm flex items-center font-medium">
-                      <Heart className="w-4 h-4 mr-1" />
-                      Health
-                    </span>
-                    <span className="text-red-400 text-sm">{playerData.hp}/{playerData.maxHp}</span>
-                  </div>
-                  <Progress value={hpPercentage} className="h-4 bg-red-900" />
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-blue-400 text-sm flex items-center font-medium">
-                      <Zap className="w-4 h-4 mr-1" />
-                      Mana
-                    </span>
-                    <span className="text-blue-400 text-sm">{playerData.mp}/{playerData.maxMp}</span>
-                  </div>
-                  <Progress value={mpPercentage} className="h-4 bg-blue-900" />
+                <div className="flex justify-between items-center p-2 bg-slate-800/50 rounded">
+                  <span className="text-slate-400">Guild</span>
+                  <span className="text-white font-bold">{playerData.guild}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
-          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-purple-500/30 shadow-2xl">
+          {/* Status Bars */}
+          <Card className="bg-slate-900/90 border-2 border-green-500/40">
             <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
-                Quick Stats
+              <CardTitle className="text-green-400 font-mono flex items-center">
+                <Activity className="w-5 h-5 mr-2" />
+                VITAL STATUS
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-1 text-sm">
+                  <span className="text-blue-300">EXP</span>
+                  <span className="text-blue-300">{playerData.exp}/{playerData.expToNext}</span>
+                </div>
+                <Progress value={expPercentage} className="h-3 bg-slate-700" />
+              </div>
+              
+              <div>
+                <div className="flex justify-between mb-1 text-sm">
+                  <span className="text-red-300 flex items-center">
+                    <Heart className="w-4 h-4 mr-1" />
+                    HP
+                  </span>
+                  <span className="text-red-300">{playerData.hp}/{playerData.maxHp}</span>
+                </div>
+                <Progress value={hpPercentage} className="h-3 bg-red-900" />
+              </div>
+              
+              <div>
+                <div className="flex justify-between mb-1 text-sm">
+                  <span className="text-blue-300 flex items-center">
+                    <Zap className="w-4 h-4 mr-1" />
+                    MP
+                  </span>
+                  <span className="text-blue-300">{playerData.mp}/{playerData.maxMp}</span>
+                </div>
+                <Progress value={mpPercentage} className="h-3 bg-blue-900" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Achievement Gallery */}
+          <Card className="bg-slate-900/90 border-2 border-yellow-500/40">
+            <CardHeader>
+              <CardTitle className="text-yellow-400 font-mono flex items-center">
+                <Star className="w-5 h-5 mr-2" />
+                ACHIEVEMENTS
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-yellow-500/20">
-                  <div className="text-yellow-400 text-sm">Daily Quests</div>
-                  <div className="text-white font-bold">{playerData.dailyQuests.completed}/{playerData.dailyQuests.total}</div>
+              <div className="grid grid-cols-2 gap-2">
+                {/* ACHIEVEMENT IMAGES - Replace these divs with your achievement images */}
+                <div className="aspect-square bg-slate-800/60 rounded border border-yellow-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/achievement-1.jpg" alt="Achievement 1" className="w-full h-full object-cover rounded" /> */}
+                  Achievement 1
                 </div>
-                <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-purple-500/20">
-                  <div className="text-purple-400 text-sm">Shadows</div>
-                  <div className="text-white font-bold">{playerData.shadowsArisen}</div>
+                <div className="aspect-square bg-slate-800/60 rounded border border-yellow-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/achievement-2.jpg" alt="Achievement 2" className="w-full h-full object-cover rounded" /> */}
+                  Achievement 2
                 </div>
-                <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-orange-500/20">
-                  <div className="text-orange-400 text-sm">Achievements</div>
-                  <div className="text-white font-bold">{playerData.achievements}</div>
+                <div className="aspect-square bg-slate-800/60 rounded border border-yellow-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/achievement-3.jpg" alt="Achievement 3" className="w-full h-full object-cover rounded" /> */}
+                  Achievement 3
                 </div>
-                <div className="bg-slate-800/60 backdrop-blur-sm p-3 rounded-lg text-center border border-green-500/20">
-                  <div className="text-green-400 text-sm">Rank</div>
-                  <div className="text-white font-bold">{playerData.rank}</div>
+                <div className="aspect-square bg-slate-800/60 rounded border border-yellow-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/achievement-4.jpg" alt="Achievement 4" className="w-full h-full object-cover rounded" /> */}
+                  Achievement 4
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Stats Section */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-blue-500/30 shadow-2xl">
+        {/* Center Panel - Stats */}
+        <div className="lg:col-span-5 space-y-6">
+          <Card className="bg-slate-900/90 border-2 border-red-500/40">
             <CardHeader>
-              <CardTitle className="text-white flex items-center justify-between">
+              <CardTitle className="text-red-400 font-mono flex items-center justify-between">
                 <div className="flex items-center">
-                  <Swords className="w-5 h-5 mr-2 text-blue-400" />
-                  Character Stats
+                  <Swords className="w-5 h-5 mr-2" />
+                  COMBAT STATS
                 </div>
                 {playerData.availableStatPoints > 0 && (
-                  <Badge variant="outline" className="text-blue-400 border-blue-400">
-                    <Star className="w-4 h-4 mr-1" />
-                    {playerData.availableStatPoints} points available
+                  <Badge variant="outline" className="text-blue-400 border-blue-400 font-mono">
+                    {playerData.availableStatPoints} PTS
                   </Badge>
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <StatBar 
-                name="Strength" 
+                name="STR" 
                 value={playerData.stats.strength} 
                 max={100} 
                 color="red"
@@ -252,7 +247,7 @@ const Index = () => {
                 canAllocate={playerData.availableStatPoints > 0}
               />
               <StatBar 
-                name="Agility" 
+                name="AGI" 
                 value={playerData.stats.agility} 
                 max={100} 
                 color="green"
@@ -261,7 +256,7 @@ const Index = () => {
                 canAllocate={playerData.availableStatPoints > 0}
               />
               <StatBar 
-                name="Intelligence" 
+                name="INT" 
                 value={playerData.stats.intelligence} 
                 max={100} 
                 color="blue"
@@ -270,7 +265,7 @@ const Index = () => {
                 canAllocate={playerData.availableStatPoints > 0}
               />
               <StatBar 
-                name="Vitality" 
+                name="VIT" 
                 value={playerData.stats.vitality} 
                 max={100} 
                 color="purple"
@@ -279,7 +274,7 @@ const Index = () => {
                 canAllocate={playerData.availableStatPoints > 0}
               />
               <StatBar 
-                name="Endurance" 
+                name="END" 
                 value={playerData.stats.endurance} 
                 max={100} 
                 color="yellow"
@@ -288,111 +283,109 @@ const Index = () => {
                 canAllocate={playerData.availableStatPoints > 0}
               />
               <StatBar 
-                name="Sense" 
+                name="SEN" 
                 value={playerData.stats.sense} 
                 max={100} 
                 color="orange"
-                icon={<Star className="w-4 h-4" />}
+                icon={<Eye className="w-4 h-4" />}
                 onAllocate={() => allocateStatPoint('sense')}
                 canAllocate={playerData.availableStatPoints > 0}
               />
+            </CardContent>
+          </Card>
 
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg border border-blue-400/30 backdrop-blur-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-white font-medium">Total Power Level</h4>
-                    <p className="text-slate-400 text-sm">Combined stats assessment</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-400">
-                      {Object.values(playerData.stats).reduce((sum, stat) => sum + stat, 0)}
-                    </div>
-                    <div className="text-sm text-slate-400">Power Points</div>
-                  </div>
+          {/* Power Assessment */}
+          <Card className="bg-slate-900/90 border-2 border-purple-500/40">
+            <CardHeader>
+              <CardTitle className="text-purple-400 font-mono flex items-center">
+                <Target className="w-5 h-5 mr-2" />
+                POWER ASSESSMENT
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center p-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded border border-purple-400/30">
+                <div className="text-3xl font-bold text-purple-400 mb-2">
+                  {Object.values(playerData.stats).reduce((sum, stat) => sum + stat, 0)}
+                </div>
+                <div className="text-slate-300 font-mono">TOTAL POWER POINTS</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Panel - Activities & Skills */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Daily Progress */}
+          <Card className="bg-slate-900/90 border-2 border-orange-500/40">
+            <CardHeader>
+              <CardTitle className="text-orange-400 font-mono flex items-center">
+                <TrendingUp className="w-5 h-5 mr-2" />
+                DAILY PROGRESS
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="p-3 bg-slate-800/50 rounded border border-green-500/30">
+                  <div className="text-green-400 text-sm font-mono">QUESTS</div>
+                  <div className="text-white font-bold">{playerData.dailyQuests.completed}/{playerData.dailyQuests.total}</div>
+                </div>
+                <div className="p-3 bg-slate-800/50 rounded border border-purple-500/30">
+                  <div className="text-purple-400 text-sm font-mono">SHADOWS</div>
+                  <div className="text-white font-bold">{playerData.shadowsArisen}</div>
+                </div>
+                <div className="p-3 bg-slate-800/50 rounded border border-blue-500/30">
+                  <div className="text-blue-400 text-sm font-mono">RANK</div>
+                  <div className="text-white font-bold">{playerData.rank}-CLASS</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Activity & Gallery */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* System Messages */}
-            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-orange-500/30 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Flame className="w-5 h-5 mr-2 text-orange-400" />
-                  System Messages
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <motion.div 
-                    className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg backdrop-blur-sm"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    <p className="text-blue-400 text-sm">
-                      📊 Daily quest progress: {playerData.dailyQuests.completed}/{playerData.dailyQuests.total} completed
-                    </p>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg backdrop-blur-sm"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <p className="text-purple-400 text-sm">
-                      👥 Shadow army growing: {playerData.shadowsArisen} shadows arisen
-                    </p>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg backdrop-blur-sm"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <p className="text-green-400 text-sm">
-                      ⚡ Ready for next dungeon challenge!
-                    </p>
-                  </motion.div>
+          {/* Skills Preview */}
+          <Card className="bg-slate-900/90 border-2 border-cyan-500/40">
+            <CardHeader>
+              <CardTitle className="text-cyan-400 font-mono flex items-center">
+                <Flame className="w-5 h-5 mr-2" />
+                SKILL PREVIEW
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-2">
+                {/* SKILL IMAGES - Replace these divs with your skill images */}
+                <div className="aspect-square bg-slate-800/60 rounded border border-cyan-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/skill-1.jpg" alt="Skill 1" className="w-full h-full object-cover rounded" /> */}
+                  Shadow Extract
                 </div>
-              </CardContent>
-            </Card>
+                <div className="aspect-square bg-slate-800/60 rounded border border-cyan-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/skill-2.jpg" alt="Skill 2" className="w-full h-full object-cover rounded" /> */}
+                  Arise
+                </div>
+                <div className="aspect-square bg-slate-800/60 rounded border border-cyan-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/skill-3.jpg" alt="Skill 3" className="w-full h-full object-cover rounded" /> */}
+                  Domain
+                </div>
+                <div className="aspect-square bg-slate-800/60 rounded border border-cyan-500/30 flex items-center justify-center text-xs text-slate-400">
+                  {/* <img src="/images/skill-4.jpg" alt="Skill 4" className="w-full h-full object-cover rounded" /> */}
+                  Ruler's Authority
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Image Gallery Section */}
-            <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-green-500/30 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Star className="w-5 h-5 mr-2 text-green-400" />
-                  Gallery
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* ADD YOUR GALLERY IMAGES HERE */}
-                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
-                    {/* Replace with: <img src="/public/images/gallery-1.jpg" alt="Gallery 1" className="w-full h-full object-cover rounded-lg" /> */}
-                    <span className="text-slate-500 text-xs">Image 1</span>
-                  </div>
-                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
-                    {/* Replace with: <img src="/public/images/gallery-2.jpg" alt="Gallery 2" className="w-full h-full object-cover rounded-lg" /> */}
-                    <span className="text-slate-500 text-xs">Image 2</span>
-                  </div>
-                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
-                    {/* Replace with: <img src="/public/images/gallery-3.jpg" alt="Gallery 3" className="w-full h-full object-cover rounded-lg" /> */}
-                    <span className="text-slate-500 text-xs">Image 3</span>
-                  </div>
-                  <div className="aspect-square bg-slate-800/60 rounded-lg border border-green-500/20 flex items-center justify-center">
-                    {/* Replace with: <img src="/public/images/gallery-4.jpg" alt="Gallery 4" className="w-full h-full object-cover rounded-lg" /> */}
-                    <span className="text-slate-500 text-xs">Image 4</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* System Messages */}
+          <Card className="bg-slate-900/90 border-2 border-green-500/40">
+            <CardHeader>
+              <CardTitle className="text-green-400 font-mono text-sm">SYSTEM LOG</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-xs font-mono">
+                <div className="text-blue-400">› Level up available</div>
+                <div className="text-green-400">› Daily quests updated</div>
+                <div className="text-purple-400">› Shadow extracted</div>
+                <div className="text-yellow-400">› New skill unlocked</div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
