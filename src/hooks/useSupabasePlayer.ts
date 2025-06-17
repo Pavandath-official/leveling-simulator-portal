@@ -41,9 +41,12 @@ export const useSupabasePlayer = () => {
 
   const loadPlayerData = async () => {
     try {
-      // Use fake data instead of Supabase
+      // Use fake data from localStorage
       const fakeUser = localStorage.getItem('fakeUser');
-      if (!fakeUser) return;
+      if (!fakeUser) {
+        setLoading(false);
+        return;
+      }
 
       const userData = JSON.parse(fakeUser);
 
@@ -124,7 +127,14 @@ export const useSupabasePlayer = () => {
   }) => {
     try {
       console.log('Battle recorded:', battleData);
-      // In a real app, this would save to database
+      // Store in localStorage for persistence
+      const battles = JSON.parse(localStorage.getItem('battleHistory') || '[]');
+      battles.push({
+        ...battleData,
+        id: Date.now().toString(),
+        completed_at: new Date().toISOString()
+      });
+      localStorage.setItem('battleHistory', JSON.stringify(battles));
     } catch (error) {
       console.error('Error recording battle:', error);
     }

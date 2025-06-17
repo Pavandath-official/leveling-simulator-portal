@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, Music as MusicIcon, Upload, Heart, X } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,39 +16,19 @@ interface Track {
   url: string;
   cover: string;
   isUserUpload: boolean;
-  file?: File; // Keep reference to original file for playback
+  file?: File;
 }
 
-// Solo Leveling OST and inspired tracks
+// Solo Leveling Opening Theme
 const SOLO_LEVELING_TRACKS: Track[] = [
   {
     id: "1",
-    title: "E-Rank Hunter",
-    artist: "Hiroyuki Sawano",
-    album: "Solo Leveling OST",
+    title: "LEveL",
+    artist: "SawanoHiroyuki[nZk]:mizuki",
+    album: "Solo Leveling Opening",
     duration: "3:45",
-    url: "", // Will be populated by user uploads
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Placeholder audio
     cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-    isUserUpload: false
-  },
-  {
-    id: "2",
-    title: "System Awakening",
-    artist: "Hiroyuki Sawano",
-    album: "Solo Leveling OST",
-    duration: "4:12",
-    url: "", // Will be populated by user uploads
-    cover: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop",
-    isUserUpload: false
-  },
-  {
-    id: "3",
-    title: "Shadow Army",
-    artist: "Hiroyuki Sawano",
-    album: "Solo Leveling OST",
-    duration: "5:23",
-    url: "", // Will be populated by user uploads
-    cover: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop",
     isUserUpload: false
   }
 ];
@@ -83,7 +62,6 @@ const Music = () => {
   const loadUserTracks = () => {
     try {
       const savedTracks = localStorage.getItem('userMusicTracks');
-      const savedFiles = localStorage.getItem('userMusicFiles');
       
       if (savedTracks) {
         const tracks: Track[] = JSON.parse(savedTracks);
@@ -91,7 +69,6 @@ const Music = () => {
         setAllTracks([...SOLO_LEVELING_TRACKS, ...tracks]);
       }
       
-      // Note: Files can't be stored in localStorage, so we'll need to re-upload
       console.log('Loaded user tracks from localStorage');
     } catch (error) {
       console.error('Error loading user tracks:', error);
@@ -101,7 +78,6 @@ const Music = () => {
   // Save tracks to localStorage
   const saveUserTracks = (tracks: Track[]) => {
     try {
-      // Don't save the file objects, just the track metadata
       const tracksToSave = tracks.map(track => {
         const { file, ...trackWithoutFile } = track;
         return trackWithoutFile;
@@ -130,10 +106,7 @@ const Music = () => {
     setIsLoading(true);
 
     try {
-      // Create a URL for the file that will persist for this session
       const fileUrl = URL.createObjectURL(file);
-      
-      // Get actual duration from the audio file
       const audio = new Audio(fileUrl);
       
       await new Promise((resolve, reject) => {
@@ -157,9 +130,7 @@ const Music = () => {
           const updatedUserTracks = [...userTracks, newTrack];
           const updatedAllTracks = [...allTracks, newTrack];
           
-          // Store file reference in memory
           setAudioFiles(prev => new Map(prev).set(newTrack.id, file));
-          
           setUserTracks(updatedUserTracks);
           setAllTracks(updatedAllTracks);
           saveUserTracks(updatedUserTracks);
@@ -187,7 +158,6 @@ const Music = () => {
       });
     } finally {
       setIsLoading(false);
-      // Clear the input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -199,12 +169,10 @@ const Music = () => {
     try {
       const trackToRemove = allTracks.find(t => t.id === trackId);
       
-      // Clean up blob URL if it exists
       if (trackToRemove?.url) {
         URL.revokeObjectURL(trackToRemove.url);
       }
       
-      // Remove from audio files map
       setAudioFiles(prev => {
         const newMap = new Map(prev);
         newMap.delete(trackId);
@@ -218,7 +186,6 @@ const Music = () => {
       setAllTracks(updatedAllTracks);
       saveUserTracks(updatedUserTracks);
       
-      // If currently playing track is removed, stop and go to first track
       if (allTracks[currentTrack]?.id === trackId) {
         setIsPlaying(false);
         setCurrentTrack(0);
@@ -272,7 +239,6 @@ const Music = () => {
     }
   }, [volume, isMuted]);
 
-  // Update audio source when track changes
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !track) return;
@@ -283,7 +249,6 @@ const Music = () => {
       audio.src = track.url;
       audio.load();
     } else if (track.isUserUpload && audioFiles.has(track.id)) {
-      // Create new blob URL for user uploaded files
       const file = audioFiles.get(track.id);
       if (file) {
         const url = URL.createObjectURL(file);
@@ -305,7 +270,6 @@ const Music = () => {
       return;
     }
 
-    // For user uploaded tracks without URL, create one from the file
     if (track.isUserUpload && !track.url && audioFiles.has(track.id)) {
       const file = audioFiles.get(track.id);
       if (file) {
@@ -385,7 +349,6 @@ const Music = () => {
     setIsPlaying(true);
   };
 
-  // Clean up blob URLs on unmount
   useEffect(() => {
     return () => {
       allTracks.forEach(track => {
@@ -409,7 +372,7 @@ const Music = () => {
           Soundtrack Collection
         </h1>
         <p className="text-slate-400 max-w-2xl mx-auto text-lg">
-          Upload and play your own music files. Experience the power and emotion of your favorite tracks.
+          Listen to the Solo Leveling opening theme and upload your own music files.
         </p>
       </div>
 
@@ -468,11 +431,6 @@ const Music = () => {
                 <Badge variant="outline" className="text-blue-400 border-blue-400">
                   {track.album}
                 </Badge>
-                {track.isUserUpload && (
-                  <div className="text-xs text-green-400">
-                    {track.url || audioFiles.has(track.id) ? 'Ready to play' : 'No audio source'}
-                  </div>
-                )}
               </div>
 
               {/* Progress Bar */}
@@ -604,11 +562,6 @@ const Music = () => {
                         <p className="text-sm text-slate-400 truncate">
                           {trackItem.artist}
                         </p>
-                        {trackItem.isUserUpload && (
-                          <p className="text-xs text-green-400">
-                            {trackItem.url || audioFiles.has(trackItem.id) ? 'Playable' : 'No source'}
-                          </p>
-                        )}
                       </div>
 
                       <div className="flex items-center space-x-2">
