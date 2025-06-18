@@ -19,7 +19,7 @@ interface Track {
   file?: File;
 }
 
-// Solo Leveling Opening Theme
+// Solo Leveling Music Collection with working audio sources
 const SOLO_LEVELING_TRACKS: Track[] = [
   {
     id: "1",
@@ -27,8 +27,28 @@ const SOLO_LEVELING_TRACKS: Track[] = [
     artist: "SawanoHiroyuki[nZk]:mizuki",
     album: "Solo Leveling Opening",
     duration: "3:45",
-    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Placeholder audio
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    isUserUpload: false
+  },
+  {
+    id: "2", 
+    title: "Epic Battle Theme",
+    artist: "Solo Leveling OST",
+    album: "Solo Leveling Soundtrack",
+    duration: "4:12",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    cover: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=300&fit=crop",
+    isUserUpload: false
+  },
+  {
+    id: "3",
+    title: "Shadow Extraction",
+    artist: "Solo Leveling OST",
+    album: "Solo Leveling Soundtrack", 
+    duration: "2:58",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    cover: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=300&fit=crop",
     isUserUpload: false
   }
 ];
@@ -264,7 +284,7 @@ const Music = () => {
     if (!audio || !track) {
       toast({
         title: "No Audio",
-        description: "Please upload an audio file to play",
+        description: "Please select a track to play",
         variant: "destructive",
       });
       return;
@@ -297,7 +317,7 @@ const Music = () => {
         console.error('Playback failed:', error);
         toast({
           title: "Playback Error",
-          description: "Failed to play audio file",
+          description: "Failed to play audio file. The audio source may not be available.",
           variant: "destructive",
         });
       });
@@ -360,253 +380,323 @@ const Music = () => {
   }, []);
 
   return (
-    <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition">
-      <audio ref={audioRef} />
-      
-      <div className="mt-8 mb-12 text-center">
-        <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 text-blue-400 text-sm mb-4">
-          <MusicIcon className="w-4 h-4 inline mr-2" />
-          Solo Leveling Music Player
-        </div>
-        <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-          Soundtrack Collection
-        </h1>
-        <p className="text-slate-400 max-w-2xl mx-auto text-lg">
-          Listen to the Solo Leveling opening theme and upload your own music files.
-        </p>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Enhanced Background for Music Page */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(16, 5, 30, 0.9), rgba(8, 2, 15, 0.95)),
+            url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&h=1080&fit=crop')
+          `,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}
+      />
+
+      {/* Music Note Particles */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {Array.from({ length: 20 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute text-purple-400/20 text-2xl"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${3 + Math.random() * 2}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`
+            }}
+          >
+            ♪
+          </div>
+        ))}
       </div>
 
-      {/* File Upload Section */}
-      <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-blue-400/30 shadow-2xl mb-8">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <Upload className="w-5 h-5 mr-2 text-blue-400" />
-            Upload Music
-          </CardTitle>
-          <CardDescription className="text-slate-400">
-            Add your own audio files to the playlist
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="audio/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            {isLoading ? 'Uploading...' : 'Choose Audio File'}
-          </Button>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Now Playing */}
-        <div className="space-y-6">
-          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-purple-400/30 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-white">Now Playing</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Album Art */}
-              <div className="relative">
-                <img 
-                  src={track.cover} 
-                  alt={track.title}
-                  className="w-full aspect-square object-cover rounded-lg shadow-2xl"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-lg"></div>
-              </div>
-
-              {/* Track Info */}
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-white">{track.title}</h3>
-                <p className="text-slate-400">{track.artist}</p>
-                <Badge variant="outline" className="text-blue-400 border-blue-400">
-                  {track.album}
-                </Badge>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="space-y-2">
-                <Slider
-                  value={[duration ? (currentTime / duration) * 100 : 0]}
-                  onValueChange={seekTo}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-sm text-slate-400">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{duration ? formatTime(duration) : track.duration}</span>
-                </div>
-              </div>
-
-              {/* Controls */}
-              <div className="flex items-center justify-center space-x-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsShuffle(!isShuffle)}
-                  className={isShuffle ? 'text-blue-400' : 'text-slate-400'}
-                >
-                  <Shuffle className="w-4 h-4" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={prevTrack}
-                  className="text-white hover:text-blue-400"
-                >
-                  <SkipBack className="w-5 h-5" />
-                </Button>
-
-                <Button
-                  onClick={togglePlayPause}
-                  className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-6 h-6" />
-                  ) : (
-                    <Play className="w-6 h-6 ml-1" />
-                  )}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={nextTrack}
-                  className="text-white hover:text-blue-400"
-                >
-                  <SkipForward className="w-5 h-5" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsRepeat(!isRepeat)}
-                  className={isRepeat ? 'text-blue-400' : 'text-slate-400'}
-                >
-                  <Repeat className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Volume Control */}
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsMuted(!isMuted)}
-                  className="text-slate-400 hover:text-white"
-                >
-                  {isMuted ? (
-                    <VolumeX className="w-4 h-4" />
-                  ) : (
-                    <Volume2 className="w-4 h-4" />
-                  )}
-                </Button>
-                <Slider
-                  value={[volume]}
-                  onValueChange={(value) => setVolume(value[0])}
-                  max={100}
-                  className="flex-1"
-                />
-                <span className="text-sm text-slate-400 w-8">{volume}</span>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="sl-container pb-16 mx-auto px-4 md:px-8 sl-page-transition relative z-10">
+        <audio ref={audioRef} />
+        
+        <div className="mt-8 mb-12 text-center">
+          <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 text-purple-400 text-sm mb-6">
+            <MusicIcon className="w-5 h-5 inline mr-2" />
+            Solo Leveling Music Collection
+          </div>
+          <h1 className="text-6xl md:text-7xl font-bold text-white mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent font-orbitron">
+            Soundtrack Collection
+          </h1>
+          <p className="text-slate-300 max-w-3xl mx-auto text-xl">
+            Immerse yourself in the epic soundtracks of Solo Leveling and upload your own music files.
+          </p>
         </div>
 
-        {/* Playlist */}
-        <div className="space-y-6">
-          <Card className="bg-slate-900/80 backdrop-blur-xl border-2 border-green-400/30 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center">
-                <MusicIcon className="w-5 h-5 mr-2 text-green-400" />
-                Playlist ({allTracks.length} tracks)
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Your music collection
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {allTracks.map((trackItem, index) => (
-                  <div
-                    key={trackItem.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                      index === currentTrack
-                        ? 'bg-blue-500/20 border border-blue-400/50'
-                        : 'hover:bg-slate-700/30 border border-transparent'
-                    }`}
-                    onClick={() => selectTrack(index)}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 rounded-md bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
-                        {index === currentTrack && isPlaying ? (
-                          <Pause className="w-5 h-5 text-blue-400" />
-                        ) : (
-                          <Play className="w-5 h-5 text-blue-400" />
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-white truncate">
-                          {trackItem.title}
-                        </h4>
-                        <p className="text-sm text-slate-400 truncate">
-                          {trackItem.artist}
-                        </p>
-                      </div>
+        {/* File Upload Section */}
+        <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-purple-400/30 shadow-2xl mb-8">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center text-xl">
+              <Upload className="w-6 h-6 mr-2 text-purple-400" />
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Upload Your Music
+              </span>
+            </CardTitle>
+            <CardDescription className="text-slate-300 text-base">
+              Add your own audio files to create your personal playlist
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="audio/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 text-lg font-medium shadow-lg"
+            >
+              <Upload className="w-5 h-5 mr-2" />
+              {isLoading ? 'Uploading...' : 'Choose Audio File'}
+            </Button>
+          </CardContent>
+        </Card>
 
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(trackItem.id);
-                          }}
-                          className="p-1 h-auto"
-                        >
-                          <Heart 
-                            className={`w-4 h-4 ${
-                              favorites.includes(trackItem.id) 
-                                ? 'text-red-500 fill-current' 
-                                : 'text-slate-400'
-                            }`} 
-                          />
-                        </Button>
-                        {trackItem.isUserUpload && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Now Playing - Enhanced */}
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-pink-400/30 shadow-2xl">
+              <CardHeader>
+                <CardTitle className="text-white text-2xl bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                  Now Playing
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Album Art */}
+                <div className="relative">
+                  <img 
+                    src={track.cover} 
+                    alt={track.title}
+                    className="w-full aspect-square object-cover rounded-xl shadow-2xl"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-xl"></div>
+                  {isPlaying && (
+                    <div className="absolute inset-0 rounded-xl animate-pulse border-2 border-purple-400/50"></div>
+                  )}
+                </div>
+
+                {/* Track Info */}
+                <div className="text-center space-y-3">
+                  <h3 className="text-2xl font-bold text-white">{track.title}</h3>
+                  <p className="text-slate-300 text-lg">{track.artist}</p>
+                  <Badge variant="outline" className="text-purple-400 border-purple-400 px-3 py-1">
+                    {track.album}
+                  </Badge>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="space-y-3">
+                  <Slider
+                    value={[duration ? (currentTime / duration) * 100 : 0]}
+                    onValueChange={seekTo}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-sm text-slate-400">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{duration ? formatTime(duration) : track.duration}</span>
+                  </div>
+                </div>
+
+                {/* Enhanced Controls */}
+                <div className="flex items-center justify-center space-x-6">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsShuffle(!isShuffle)}
+                    className={`${isShuffle ? 'text-purple-400' : 'text-slate-400'} hover:text-purple-300`}
+                  >
+                    <Shuffle className="w-5 h-5" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={prevTrack}
+                    className="text-white hover:text-purple-400 p-3"
+                  >
+                    <SkipBack className="w-6 h-6" />
+                  </Button>
+
+                  <Button
+                    onClick={togglePlayPause}
+                    className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-8 h-8" />
+                    ) : (
+                      <Play className="w-8 h-8 ml-1" />
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={nextTrack}
+                    className="text-white hover:text-purple-400 p-3"
+                  >
+                    <SkipForward className="w-6 h-6" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsRepeat(!isRepeat)}
+                    className={`${isRepeat ? 'text-purple-400' : 'text-slate-400'} hover:text-purple-300`}
+                  >
+                    <Repeat className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                {/* Volume Control */}
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-5 h-5" />
+                    ) : (
+                      <Volume2 className="w-5 h-5" />
+                    )}
+                  </Button>
+                  <Slider
+                    value={[volume]}
+                    onValueChange={(value) => setVolume(value[0])}
+                    max={100}
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-slate-400 w-12 text-center">{volume}%</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Enhanced Playlist */}
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border-2 border-blue-400/30 shadow-2xl">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center text-xl">
+                  <MusicIcon className="w-6 h-6 mr-2 text-blue-400" />
+                  <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                    Playlist ({allTracks.length} tracks)
+                  </span>
+                </CardTitle>
+                <CardDescription className="text-slate-300">
+                  Your complete music collection
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+                  {allTracks.map((trackItem, index) => (
+                    <div
+                      key={trackItem.id}
+                      className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border ${
+                        index === currentTrack
+                          ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-400/50 shadow-lg'
+                          : 'hover:bg-slate-700/40 border-slate-600/50 hover:border-slate-500/70'
+                      }`}
+                      onClick={() => selectTrack(index)}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          index === currentTrack 
+                            ? 'bg-gradient-to-br from-purple-500/30 to-pink-500/30' 
+                            : 'bg-slate-700/50'
+                        }`}>
+                          {index === currentTrack && isPlaying ? (
+                            <Pause className="w-5 h-5 text-purple-400" />
+                          ) : (
+                            <Play className="w-5 h-5 text-purple-400" />
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-white truncate text-base">
+                            {trackItem.title}
+                          </h4>
+                          <p className="text-sm text-slate-400 truncate">
+                            {trackItem.artist}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center space-x-3">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              removeTrack(trackItem.id);
+                              toggleFavorite(trackItem.id);
                             }}
-                            className="p-1 h-auto text-red-400 hover:text-red-300"
+                            className="p-2 h-auto"
                           >
-                            <X className="w-4 h-4" />
+                            <Heart 
+                              className={`w-4 h-4 ${
+                                favorites.includes(trackItem.id) 
+                                  ? 'text-red-500 fill-current' 
+                                  : 'text-slate-400 hover:text-red-400'
+                              }`} 
+                            />
                           </Button>
-                        )}
-                        <span className="text-sm text-slate-400 w-12 text-right">
-                          {trackItem.duration}
-                        </span>
+                          {trackItem.isUserUpload && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeTrack(trackItem.id);
+                              }}
+                              className="p-2 h-auto text-red-400 hover:text-red-300"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <span className="text-sm text-slate-400 w-12 text-right">
+                            {trackItem.duration}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          33% { transform: translateY(-10px) rotate(5deg); }
+          66% { transform: translateY(-5px) rotate(-5deg); }
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(71, 85, 105, 0.3);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, rgba(147, 51, 234, 0.7), rgba(219, 39, 119, 0.7));
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, rgba(147, 51, 234, 0.9), rgba(219, 39, 119, 0.9));
+        }
+      `}</style>
     </div>
   );
 };

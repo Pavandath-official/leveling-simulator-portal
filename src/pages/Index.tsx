@@ -117,13 +117,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen relative">
-      {/* Background Image - Replace with your image path */}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Enhanced Background with Particle Effects */}
       <div 
         className="fixed inset-0 z-0"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(21, 24, 35, 0.85), rgba(13, 15, 22, 0.9)),
+            linear-gradient(rgba(11, 17, 32, 0.92), rgba(5, 10, 20, 0.96)),
             url('/images/background-main.jpg')
           `,
           backgroundSize: 'cover',
@@ -132,29 +132,45 @@ const Index = () => {
         }}
       />
       
-      <div className="container mx-auto p-6 max-w-7xl relative z-10">
+      {/* Animated Particles */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {Array.from({ length: 50 }, (_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.3, 0.8, 0.3],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+      
+      <div className="container mx-auto p-4 max-w-8xl relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-8"
         >
-          {/* Header with Glow Effect */}
-          <div className="text-center mb-8">
-            <motion.h1 
-              className="text-5xl font-bold text-white mb-2 font-orbitron"
-              style={{
-                textShadow: `
-                  0 0 20px rgba(123, 180, 255, 0.8),
-                  0 0 40px rgba(123, 180, 255, 0.6),
-                  0 0 60px rgba(123, 180, 255, 0.4),
-                  2px 2px 4px rgba(0, 0, 0, 0.9)
-                `
-              }}
+          {/* Enhanced Header with Multiple Glow Effects */}
+          <div className="text-center mb-12">
+            <motion.div 
+              className="relative inline-block"
               animate={{
-                textShadow: [
-                  "0 0 20px rgba(123, 180, 255, 0.8), 0 0 40px rgba(123, 180, 255, 0.6), 0 0 60px rgba(123, 180, 255, 0.4)",
-                  "0 0 30px rgba(123, 180, 255, 1), 0 0 50px rgba(123, 180, 255, 0.8), 0 0 70px rgba(123, 180, 255, 0.6)",
-                  "0 0 20px rgba(123, 180, 255, 0.8), 0 0 40px rgba(123, 180, 255, 0.6), 0 0 60px rgba(123, 180, 255, 0.4)"
+                filter: [
+                  "drop-shadow(0 0 20px rgba(123, 180, 255, 0.6))",
+                  "drop-shadow(0 0 40px rgba(123, 180, 255, 0.9))",
+                  "drop-shadow(0 0 20px rgba(123, 180, 255, 0.6))"
                 ]
               }}
               transition={{
@@ -163,142 +179,242 @@ const Index = () => {
                 repeatType: "reverse"
               }}
             >
-              Player Status
-            </motion.h1>
-            <p className="text-slate-300 text-lg">Monitor your progression and unlock your potential</p>
+              <h1 className="text-6xl md:text-7xl font-bold text-white mb-4 font-orbitron relative">
+                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  PLAYER STATUS
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent opacity-50 blur-sm">
+                  PLAYER STATUS
+                </div>
+              </h1>
+            </motion.div>
+            <motion.p 
+              className="text-slate-300 text-xl font-medium"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              Monitor your progression and unlock your true potential
+            </motion.p>
           </div>
 
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Player Info */}
-            <div className="space-y-6">
-              {/* Player Card with Glow */}
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-sl-blue to-sl-purple opacity-20 rounded-lg blur-xl"></div>
-                <Card className="bg-slate-900/95 border-slate-700 backdrop-blur-md relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-sl-blue/10 to-sl-purple/10"></div>
-                  <CardHeader className="text-center relative z-10">
-                    <div className="relative w-20 h-20 mx-auto mb-4">
-                      {/* Player Avatar Image - Replace with your image path */}
-                      <div 
-                        className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-white relative overflow-hidden"
-                        style={{
-                          backgroundImage: `url('/images/player-avatar.jpg')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center'
-                        }}
-                      >
-                        {/* Fallback text if image doesn't load */}
-                        <span className="bg-gradient-to-br from-blue-500 to-purple-600 w-full h-full flex items-center justify-center rounded-full">
-                          {playerData.username.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="absolute inset-0 rounded-full shadow-[0_0_30px_rgba(123,180,255,0.6)] animate-pulse"></div>
+          {/* Organized 2x2 Grid Layout */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            
+            {/* Top Left - Player Info & Vitals */}
+            <motion.div 
+              className="space-y-6"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              {/* Player Card */}
+              <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-2 border-blue-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"></div>
+                
+                <CardHeader className="text-center relative z-10 pb-4">
+                  <div className="relative w-24 h-24 mx-auto mb-6">
+                    <div 
+                      className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white relative overflow-hidden shadow-2xl"
+                      style={{
+                        backgroundImage: `url('/images/player-avatar.jpg')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    >
+                      <span className="bg-gradient-to-br from-blue-500 to-purple-600 w-full h-full flex items-center justify-center rounded-full">
+                        {playerData.username.charAt(0)}
+                      </span>
                     </div>
-                    <CardTitle className="text-white text-xl">{playerData.username}</CardTitle>
-                    <CardDescription className="flex items-center justify-center gap-2">
-                      <Crown className="w-4 h-4 text-yellow-500" />
-                      {playerData.title}
-                      <Badge className={`${getRankColor(playerData.rank)} text-white ml-2 shadow-lg`}>
-                        Rank {playerData.rank}
-                      </Badge>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-600">
-                        <div className="text-3xl font-bold text-white mb-1">{playerData.level}</div>
-                        <div className="text-sm text-slate-400">Level</div>
-                      </div>
-                      <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-600">
-                        <div className="text-3xl font-bold text-white mb-1">{playerData.guild}</div>
-                        <div className="text-sm text-slate-400">Guild</div>
-                      </div>
+                    <motion.div 
+                      className="absolute inset-0 rounded-full"
+                      animate={{
+                        boxShadow: [
+                          "0 0 20px rgba(123, 180, 255, 0.6)",
+                          "0 0 40px rgba(123, 180, 255, 0.9)",
+                          "0 0 20px rgba(123, 180, 255, 0.6)"
+                        ]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    />
+                  </div>
+                  
+                  <CardTitle className="text-white text-2xl font-bold mb-2">{playerData.username}</CardTitle>
+                  <CardDescription className="flex items-center justify-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-1">
+                      <Crown className="w-5 h-5 text-yellow-500" />
+                      <span className="text-yellow-400 font-medium">{playerData.title}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                    <Badge className={`${getRankColor(playerData.rank)} text-white shadow-lg text-sm px-3 py-1`}>
+                      Rank {playerData.rank}
+                    </Badge>
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="relative z-10">
+                  <div className="grid grid-cols-3 gap-4 text-center mb-6">
+                    <motion.div 
+                      className="p-4 bg-gradient-to-br from-blue-500/20 to-blue-600/10 rounded-xl border border-blue-400/30 shadow-lg"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="text-3xl font-bold text-blue-400 mb-1">{playerData.level}</div>
+                      <div className="text-sm text-slate-300 font-medium">Level</div>
+                    </motion.div>
+                    <motion.div 
+                      className="p-4 bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-xl border border-purple-400/30 shadow-lg"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="text-3xl font-bold text-purple-400 mb-1">{playerData.totalPower}</div>
+                      <div className="text-sm text-slate-300 font-medium">Power</div>
+                    </motion.div>
+                    <motion.div 
+                      className="p-4 bg-gradient-to-br from-green-500/20 to-green-600/10 rounded-xl border border-green-400/30 shadow-lg"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="text-3xl font-bold text-green-400 mb-1">{playerData.guild}</div>
+                      <div className="text-sm text-slate-300 font-medium">Guild</div>
+                    </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
 
-              {/* Health/MP Bars with Enhanced Glow */}
-              <Card className="bg-slate-900/95 border-slate-700 backdrop-blur-md relative overflow-hidden">
+              {/* Health/MP Bars */}
+              <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-2 border-green-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-blue-500/5"></div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-sl-blue" />
-                    Vital Status
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-blue-500 to-red-500"></div>
+                
+                <CardHeader className="relative z-10 pb-4">
+                  <CardTitle className="text-white flex items-center gap-2 text-xl">
+                    <Activity className="w-6 h-6 text-green-400" />
+                    <span className="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                      Vital Status
+                    </span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 relative z-10">
+                
+                <CardContent className="space-y-6 relative z-10">
+                  {/* Experience Bar */}
                   <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-slate-300">Experience</span>
-                      <span className="text-sm text-slate-300">{playerData.exp}/{playerData.expToNext}</span>
+                    <div className="flex justify-between mb-3">
+                      <span className="text-blue-300 font-medium flex items-center gap-2">
+                        <Star className="w-4 h-4" />
+                        Experience
+                      </span>
+                      <span className="text-blue-300 font-bold">{playerData.exp}/{playerData.expToNext}</span>
                     </div>
                     <div className="relative">
-                      <Progress value={expPercentage} className="h-3" />
-                      <div className="absolute inset-0 rounded-full shadow-[0_0_15px_rgba(123,180,255,0.4)]"></div>
+                      <Progress value={expPercentage} className="h-4 bg-slate-700" />
+                      <motion.div 
+                        className="absolute inset-0 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            "0 0 10px rgba(59, 130, 246, 0.5)",
+                            "0 0 20px rgba(59, 130, 246, 0.8)",
+                            "0 0 10px rgba(59, 130, 246, 0.5)"
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
                     </div>
                   </div>
                   
+                  {/* Health Bar */}
                   <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-red-400 flex items-center gap-1">
+                    <div className="flex justify-between mb-3">
+                      <span className="text-red-300 font-medium flex items-center gap-2">
                         <Heart className="w-4 h-4" />
-                        HP
+                        Health Points
                       </span>
-                      <span className="text-sm text-red-400">{playerData.hp}/{playerData.maxHp}</span>
+                      <span className="text-red-300 font-bold">{playerData.hp}/{playerData.maxHp}</span>
                     </div>
                     <div className="relative">
-                      <Progress value={hpPercentage} className="h-3" />
-                      <div className="absolute inset-0 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.4)]"></div>
+                      <Progress value={hpPercentage} className="h-4 bg-slate-700" />
+                      <motion.div 
+                        className="absolute inset-0 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            "0 0 10px rgba(239, 68, 68, 0.5)",
+                            "0 0 20px rgba(239, 68, 68, 0.8)",
+                            "0 0 10px rgba(239, 68, 68, 0.5)"
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
                     </div>
                   </div>
                   
+                  {/* Mana Bar */}
                   <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-blue-400 flex items-center gap-1">
+                    <div className="flex justify-between mb-3">
+                      <span className="text-blue-300 font-medium flex items-center gap-2">
                         <Zap className="w-4 h-4" />
-                        MP
+                        Mana Points
                       </span>
-                      <span className="text-sm text-blue-400">{playerData.mp}/{playerData.maxMp}</span>
+                      <span className="text-blue-300 font-bold">{playerData.mp}/{playerData.maxMp}</span>
                     </div>
                     <div className="relative">
-                      <Progress value={mpPercentage} className="h-3" />
-                      <div className="absolute inset-0 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.4)]"></div>
+                      <Progress value={mpPercentage} className="h-4 bg-slate-700" />
+                      <motion.div 
+                        className="absolute inset-0 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            "0 0 10px rgba(59, 130, 246, 0.5)",
+                            "0 0 20px rgba(59, 130, 246, 0.8)",
+                            "0 0 10px rgba(59, 130, 246, 0.5)"
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
 
-            {/* Middle Column - Stats */}
-            <div className="space-y-6">
-              <Card className="bg-slate-900/95 border-slate-700 backdrop-blur-md relative overflow-hidden">
+            {/* Top Right - Combat Stats */}
+            <motion.div 
+              className="space-y-6"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-2 border-purple-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-red-500/5"></div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-white flex items-center justify-between">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-red-500 to-orange-500"></div>
+                
+                <CardHeader className="relative z-10 pb-4">
+                  <CardTitle className="text-white flex items-center justify-between text-xl">
                     <div className="flex items-center gap-2">
-                      <Swords className="w-5 h-5 text-sl-purple" />
-                      Combat Stats
+                      <Swords className="w-6 h-6 text-purple-400" />
+                      <span className="bg-gradient-to-r from-purple-400 to-red-400 bg-clip-text text-transparent">
+                        Combat Statistics
+                      </span>
                     </div>
                     {playerData.availableStatPoints > 0 && (
-                      <Badge variant="outline" className="text-blue-400 border-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-                        {playerData.availableStatPoints} Points
-                      </Badge>
+                      <motion.div
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <Badge variant="outline" className="text-blue-400 border-blue-400 shadow-lg px-3 py-1">
+                          {playerData.availableStatPoints} Points Available
+                        </Badge>
+                      </motion.div>
                     )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 relative z-10">
+                
+                <CardContent className="space-y-5 relative z-10">
                   <StatBar 
                     name="Strength" 
                     value={playerData.stats.strength} 
                     max={100} 
                     color="red"
-                    icon={<Swords className="w-4 h-4" />}
+                    icon={<Swords className="w-5 h-5" />}
                     onAllocate={() => allocateStatPoint('strength')}
                     canAllocate={playerData.availableStatPoints > 0}
                   />
@@ -307,7 +423,7 @@ const Index = () => {
                     value={playerData.stats.agility} 
                     max={100} 
                     color="green"
-                    icon={<Zap className="w-4 h-4" />}
+                    icon={<Zap className="w-5 h-5" />}
                     onAllocate={() => allocateStatPoint('agility')}
                     canAllocate={playerData.availableStatPoints > 0}
                   />
@@ -316,7 +432,7 @@ const Index = () => {
                     value={playerData.stats.intelligence} 
                     max={100} 
                     color="blue"
-                    icon={<Brain className="w-4 h-4" />}
+                    icon={<Brain className="w-5 h-5" />}
                     onAllocate={() => allocateStatPoint('intelligence')}
                     canAllocate={playerData.availableStatPoints > 0}
                   />
@@ -325,7 +441,7 @@ const Index = () => {
                     value={playerData.stats.vitality} 
                     max={100} 
                     color="purple"
-                    icon={<Heart className="w-4 h-4" />}
+                    icon={<Heart className="w-5 h-5" />}
                     onAllocate={() => allocateStatPoint('vitality')}
                     canAllocate={playerData.availableStatPoints > 0}
                   />
@@ -334,7 +450,7 @@ const Index = () => {
                     value={playerData.stats.endurance} 
                     max={100} 
                     color="yellow"
-                    icon={<Shield className="w-4 h-4" />}
+                    icon={<Shield className="w-5 h-5" />}
                     onAllocate={() => allocateStatPoint('endurance')}
                     canAllocate={playerData.availableStatPoints > 0}
                   />
@@ -343,89 +459,158 @@ const Index = () => {
                     value={playerData.stats.sense} 
                     max={100} 
                     color="orange"
-                    icon={<Eye className="w-4 h-4" />}
+                    icon={<Eye className="w-5 h-5" />}
                     onAllocate={() => allocateStatPoint('sense')}
                     canAllocate={playerData.availableStatPoints > 0}
                   />
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
 
-            {/* Right Column - Progress & Achievements */}
-            <div className="space-y-6">
-              {/* Daily Progress */}
-              <Card className="bg-slate-900/95 border-slate-700 backdrop-blur-md relative overflow-hidden">
+            {/* Bottom Left - Daily Progress */}
+            <motion.div 
+              className="space-y-6"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-2 border-green-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-blue-500/5"></div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-sl-green" />
-                    Daily Progress
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-blue-500 to-teal-500"></div>
+                
+                <CardHeader className="relative z-10 pb-4">
+                  <CardTitle className="text-white flex items-center gap-2 text-xl">
+                    <TrendingUp className="w-6 h-6 text-green-400" />
+                    <span className="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
+                      Daily Progress
+                    </span>
                   </CardTitle>
                 </CardHeader>
+                
                 <CardContent className="relative z-10">
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-600">
-                      <span className="text-slate-300">Daily Quests</span>
-                      <span className="text-white font-bold">
+                    <motion.div 
+                      className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-500/20 to-blue-600/10 rounded-xl border border-blue-400/30 shadow-lg"
+                      whileHover={{ scale: 1.02, x: 5 }}
+                    >
+                      <span className="text-slate-200 font-medium flex items-center gap-2">
+                        <Target className="w-5 h-5 text-blue-400" />
+                        Daily Quests
+                      </span>
+                      <span className="text-white font-bold text-lg">
                         {playerData.dailyQuests.completed}/{playerData.dailyQuests.total}
                       </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-600">
-                      <span className="text-slate-300">Shadows Arisen</span>
-                      <span className="text-white font-bold">{playerData.shadowsArisen}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-600">
-                      <span className="text-slate-300">Total Power</span>
-                      <span className="text-white font-bold">{playerData.totalPower}</span>
-                    </div>
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-500/20 to-purple-600/10 rounded-xl border border-purple-400/30 shadow-lg"
+                      whileHover={{ scale: 1.02, x: 5 }}
+                    >
+                      <span className="text-slate-200 font-medium flex items-center gap-2">
+                        <Crown className="w-5 h-5 text-purple-400" />
+                        Shadows Arisen
+                      </span>
+                      <span className="text-white font-bold text-lg">{playerData.shadowsArisen}</span>
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="flex justify-between items-center p-4 bg-gradient-to-r from-orange-500/20 to-orange-600/10 rounded-xl border border-orange-400/30 shadow-lg"
+                      whileHover={{ scale: 1.02, x: 5 }}
+                    >
+                      <span className="text-slate-200 font-medium flex items-center gap-2">
+                        <Flame className="w-5 h-5 text-orange-400" />
+                        Total Power
+                      </span>
+                      <span className="text-white font-bold text-lg">{playerData.totalPower}</span>
+                    </motion.div>
                   </div>
                 </CardContent>
               </Card>
+            </motion.div>
 
-              {/* Achievements */}
-              <Card className="bg-slate-900/95 border-slate-700 backdrop-blur-md relative overflow-hidden">
+            {/* Bottom Right - Achievements */}
+            <motion.div 
+              className="space-y-6"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <Card className="bg-gradient-to-br from-slate-900/95 to-slate-800/95 border-2 border-yellow-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-orange-500/5"></div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-yellow-500" />
-                    Achievements
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500"></div>
+                
+                <CardHeader className="relative z-10 pb-4">
+                  <CardTitle className="text-white flex items-center gap-2 text-xl">
+                    <Trophy className="w-6 h-6 text-yellow-500" />
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                      Achievements
+                    </span>
                   </CardTitle>
                 </CardHeader>
+                
                 <CardContent className="relative z-10">
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {playerData.achievements.map((achievement) => {
+                  <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
+                    {playerData.achievements.map((achievement, index) => {
                       const IconComponent = achievement.icon;
                       return (
                         <motion.div
                           key={achievement.id}
-                          className={`p-3 rounded-lg border ${getRarityColor(achievement.rarity)} ${
-                            achievement.completed ? 'opacity-100' : 'opacity-50'
-                          } relative overflow-hidden`}
-                          whileHover={{ scale: 1.02 }}
-                          transition={{ duration: 0.2 }}
+                          className={`p-4 rounded-xl border ${getRarityColor(achievement.rarity)} ${
+                            achievement.completed ? 'opacity-100' : 'opacity-60'
+                          } relative overflow-hidden shadow-lg`}
+                          whileHover={{ scale: 1.02, y: -2 }}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 * index }}
                         >
                           {achievement.completed && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
+                            <motion.div 
+                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                              animate={{ x: ['-100%', '100%'] }}
+                              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                            />
                           )}
+                          
                           <div className="flex items-start gap-3 relative z-10">
-                            <div className={`p-2 rounded-full ${achievement.completed ? 'bg-yellow-500/20' : 'bg-slate-700'}`}>
-                              <IconComponent className={`w-4 h-4 ${achievement.completed ? 'text-yellow-400' : 'text-slate-400'}`} />
-                            </div>
+                            <motion.div 
+                              className={`p-3 rounded-xl ${achievement.completed ? 'bg-yellow-500/20' : 'bg-slate-700/50'}`}
+                              animate={achievement.completed ? { 
+                                boxShadow: [
+                                  "0 0 10px rgba(234, 179, 8, 0.5)",
+                                  "0 0 20px rgba(234, 179, 8, 0.8)",
+                                  "0 0 10px rgba(234, 179, 8, 0.5)"
+                                ]
+                              } : {}}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              <IconComponent className={`w-5 h-5 ${achievement.completed ? 'text-yellow-400' : 'text-slate-400'}`} />
+                            </motion.div>
+                            
                             <div className="flex-1 min-w-0">
-                              <h4 className={`font-semibold text-sm ${achievement.completed ? 'text-white' : 'text-slate-400'}`}>
+                              <h4 className={`font-bold text-sm ${achievement.completed ? 'text-white' : 'text-slate-400'}`}>
                                 {achievement.name}
                               </h4>
-                              <p className={`text-xs ${achievement.completed ? 'text-slate-300' : 'text-slate-500'}`}>
+                              <p className={`text-xs mt-1 ${achievement.completed ? 'text-slate-300' : 'text-slate-500'}`}>
                                 {achievement.description}
                               </p>
-                              <Badge variant="outline" className={`text-xs mt-1 ${achievement.rarity === 'legendary' ? 'border-yellow-400 text-yellow-400' : achievement.rarity === 'epic' ? 'border-purple-400 text-purple-400' : achievement.rarity === 'rare' ? 'border-blue-400 text-blue-400' : 'border-gray-400 text-gray-400'}`}>
-                                {achievement.rarity}
+                              <Badge variant="outline" className={`text-xs mt-2 ${
+                                achievement.rarity === 'legendary' ? 'border-yellow-400 text-yellow-400' : 
+                                achievement.rarity === 'epic' ? 'border-purple-400 text-purple-400' : 
+                                achievement.rarity === 'rare' ? 'border-blue-400 text-blue-400' : 
+                                'border-gray-400 text-gray-400'
+                              }`}>
+                                {achievement.rarity.toUpperCase()}
                               </Badge>
                             </div>
+                            
                             {achievement.completed && (
-                              <div className="text-green-400">
-                                <Award className="w-4 h-4" />
-                              </div>
+                              <motion.div 
+                                className="text-green-400"
+                                animate={{ scale: [1, 1.2, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                              >
+                                <Award className="w-5 h-5" />
+                              </motion.div>
                             )}
                           </div>
                         </motion.div>
@@ -434,41 +619,27 @@ const Index = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Recent Activity */}
-              <Card className="bg-slate-900/95 border-slate-700 backdrop-blur-md relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5"></div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Star className="w-5 h-5 text-sl-purple" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center gap-2 text-green-400 p-2 bg-green-500/10 rounded border border-green-500/20">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      Completed daily quest
-                    </div>
-                    <div className="flex items-center gap-2 text-blue-400 p-2 bg-blue-500/10 rounded border border-blue-500/20">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                      Leveled up to {playerData.level}
-                    </div>
-                    <div className="flex items-center gap-2 text-purple-400 p-2 bg-purple-500/10 rounded border border-purple-500/20">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                      Shadow extracted
-                    </div>
-                    <div className="flex items-center gap-2 text-yellow-400 p-2 bg-yellow-500/10 rounded border border-yellow-500/20">
-                      <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                      Achievement unlocked
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(71, 85, 105, 0.3);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(123, 180, 255, 0.6);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(123, 180, 255, 0.8);
+        }
+      `}</style>
     </div>
   );
 };
