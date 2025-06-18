@@ -675,28 +675,30 @@ const Music = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-10px) rotate(5deg); }
-          66% { transform: translateY(-5px) rotate(-5deg); }
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(71, 85, 105, 0.3);
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, rgba(147, 51, 234, 0.7), rgba(219, 39, 119, 0.7));
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to bottom, rgba(147, 51, 234, 0.9), rgba(219, 39, 119, 0.9));
-        }
-      `}</style>
+      <style>
+        {`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(5deg); }
+            66% { transform: translateY(-5px) rotate(-5deg); }
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(71, 85, 105, 0.3);
+            border-radius: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, rgba(147, 51, 234, 0.7), rgba(219, 39, 119, 0.7));
+            border-radius: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, rgba(147, 51, 234, 0.9), rgba(219, 39, 119, 0.9));
+          }
+        `}
+      </style>
     </div>
   );
 };

@@ -624,22 +624,24 @@ const Index = () => {
         </motion.div>
       </div>
 
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(71, 85, 105, 0.3);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(123, 180, 255, 0.6);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(123, 180, 255, 0.8);
-        }
-      `}</style>
+      <style>
+        {`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(71, 85, 105, 0.3);
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(123, 180, 255, 0.6);
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(123, 180, 255, 0.8);
+          }
+        `}
+      </style>
     </div>
   );
 };
